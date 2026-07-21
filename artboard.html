@@ -129,7 +129,14 @@
       </div>
       <div></div>  
     </div>
-  <br>
+    <br>
+<label style="background-color: aqua;   color:rgb(0, 0, 0);font-weight: bold;padding: 10px;margin: 10px;">Choose Background Color:</label>
+<input type="color" id="bgColorPicker" onchange="changeBgColor()">
+<br>
+
+
+
+<br>
   
   <!-- Art Board Div -->
   <div class="containerA">
@@ -153,7 +160,7 @@
       <div></div>
       <div>
           <div class=""> 
-              <h2 class="text-3">Download Your Design</h2>
+              <h2 class="text-11">Download Your Design</h2>
               <button id="downloadBtn">Download PDF</button>
               <button onclick="downloadScreenshot()">Download Post</button>
             </div>
@@ -1437,3 +1444,25 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
+
+<script>
+  function copyTextA() {
+  const text = document.getElementById("textToCopyA");
+  text.select();
+  text.setSelectionRange(0, 99999); // For mobile devices
+  
+  navigator.clipboard.writeText(text.value).then(() => {
+    alert("Copied to clipboard!");
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+  }
+  
+  function changeBgColor() {
+  let color = document.getElementById("bgColorPicker").value;
+  document.body.style.backgroundColor = color;
+  }
+  
+  </script>
+  

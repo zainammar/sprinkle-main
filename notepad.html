@@ -1,0 +1,251 @@
+<div id="content1" class="content-box">Loading first file...</div>
+    <title>Notepad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: rgb(3, 0, 0);
+            color: rgb(8, 252, 232);
+        }
+      
+        button {
+            padding: 8px 16px;
+            background-color: rgb(8, 252, 232);
+          color: rgb(0, 0, 0);
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        button:hover{
+            background-color: #ff6200;
+            color: #ffffff;
+        }
+
+        .heading-1{
+            color:#ffffff;
+          
+        }
+
+        .grid-container-4 {
+    display: grid;
+    grid-template-columns:auto auto  auto auto;
+    text-align: left;
+    color: rgb(8, 252, 232);
+  
+  }
+  .grid-container-4 > div {
+    padding: 10px;
+    color: rgb(8, 252, 232);
+  }
+  .grid-container-2 {
+    display: grid;
+    grid-template-columns:auto auto;
+    text-align: left;
+  
+  }
+  .grid-container-2 > div {
+    padding: 10px;
+  }
+
+  
+        
+    </style>
+    <style>
+        #copyBtn {
+          padding: 8px 16px;
+          background-color:#6E0E0A;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        #copyBtn:active {
+          background-color:#6E0E0A;
+        }
+        #copyBtn:hover {
+          background-color: #95818D;
+          color: #6E0E0A;
+        }
+        h2 {
+          display: inline-block;
+          margin-right: 10px;
+          color: rgb(8, 252, 232);
+          font-size: medium;
+          text-align: left;
+    
+        }
+
+        textarea{
+          padding: 8px 16px;
+          background-color:#000000;
+          color: rgb(8, 252, 232);
+          border: 1px solid rgb(8, 252, 232);
+
+          border-radius: 4px;
+          width: 80%;
+            height: 200px;
+            margin: 10px 0;
+        }
+      </style>
+</head>
+<body>
+
+<label style="background-color: aqua;   color:rgb(0, 0, 0);font-weight: bold;padding: 10px;margin: 10px;">Choose Background Color:</label>
+<input type="color" id="bgColorPicker" onchange="changeBgColor()">
+<br>
+
+    <h2 class="text-8">Notepad</h2>
+    <br>
+    <textarea id="notepad" placeholder="Write your notes here..."></textarea>
+    <br>
+    <button onclick="saveAsCSV()">Save as CSV</button>
+    <button onclick="saveAsJSON()">Save as JSON</button>
+    <button onclick="saveAsTXT()">Save as TXT</button>
+    <br>
+  
+    <textarea></textarea>
+    <script>
+        function saveFile(content, fileName, fileType) {
+            let blob = new Blob([content], { type: fileType });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = fileName;
+            a.click();
+        }
+
+        function saveAsCSV() {
+            let text = document.getElementById("notepad").value;
+            let csvContent = `"Notes"
+"${text.replace(/"/g, '""')}"`;
+            saveFile(csvContent, "notes.csv", "text/csv");
+        }
+
+        function saveAsJSON() {
+            let text = document.getElementById("notepad").value;
+            let jsonContent = JSON.stringify({ notes: text }, null, 2);
+            saveFile(jsonContent, "notes.json", "application/json");
+        }
+    </script>
+
+ 
+<br><br>
+  <script>
+    function copyText() {
+      const text = document.getElementById("textToCopy").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+  </script>
+  <br>
+  <input type="text" id="textToCopyA" value="This is the text to copy">
+  <button id="copyBtn1" onclick="copyTextA()">Copy</button>
+
+  <script>
+    function copyTextA() {
+      const text = document.getElementById("textToCopyA");
+      text.select();
+      text.setSelectionRange(0, 99999); // For mobile devices
+
+      navigator.clipboard.writeText(text.value).then(() => {
+        alert("Copied to clipboard!");
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    }
+  </script>
+  <br>
+  <div id="content2" class="content-box">Loading second file...</div>
+  <!-- Header Fotter -->
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // You can change the file names here
+    const filesToLoad = {
+      content1: 'page1.html',
+      content2: 'page2.html'
+    };
+  
+    // Loop through and load each file into its matching div
+    for (const [divId, filename] of Object.entries(filesToLoad)) {
+      fetch(filename)
+        .then(response => {
+          if (!response.ok) throw new Error(`File not found: ${filename}`);
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById(divId).innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+        });
+    }
+  });
+  </script>
+
+</body>
+</html>
+<script>
+  function saveFile(content, fileName, fileType) {
+      let blob = new Blob([content], { type: fileType });
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+  }
+
+  function saveAsCSV() {
+      let text = document.getElementById("notepad").value;
+      let csvContent = `"Notes"
+"${text.replace(/"/g, '""')}"`;
+      saveFile(csvContent, "notes.csv", "text/csv");
+  }
+
+  function saveAsJSON() {
+      let text = document.getElementById("notepad").value;
+      let jsonContent = JSON.stringify({ notes: text }, null, 2);
+      saveFile(jsonContent, "notes.json", "application/json");
+  }
+
+  function saveAsTXT() {
+let text = document.getElementById("notepad").value;
+saveFile(text, "notes.txt", "text/plain");
+}
+
+</script>
+
+
+<script>
+function copyText() {
+const text = document.getElementById("textToCopy").innerText;
+navigator.clipboard.writeText(text).then(() => {
+  alert("Copied to clipboard!");
+}).catch(err => {
+  console.error('Failed to copy: ', err);
+});
+}
+</script>
+<br>
+
+<script>
+function copyTextA() {
+const text = document.getElementById("textToCopyA");
+text.select();
+text.setSelectionRange(0, 99999); // For mobile devices
+
+navigator.clipboard.writeText(text.value).then(() => {
+  alert("Copied to clipboard!");
+}).catch(err => {
+  console.error('Failed to copy: ', err);
+});
+}
+
+function changeBgColor() {
+let color = document.getElementById("bgColorPicker").value;
+document.body.style.backgroundColor = color;
+}
+
+</script>
+
