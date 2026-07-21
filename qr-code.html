@@ -1,0 +1,113 @@
+
+    <title>QR Code Generator</title>
+    <style>
+        #qrcode {
+            margin: 20px;
+        }
+    </style>
+   
+        <link rel="stylesheet" href="css/style-post.css">
+</head>
+<body>
+
+    <div id="content1" class="content-box">Loading first file...</div>
+
+    <div class="grid-containerA-2">
+ 
+
+        
+        <div class="row-6 content-grid">
+          <div class="grid-item-1">
+
+
+
+
+            </div>
+            <div class="grid-item-1">
+
+                <h2 class="text-8">Generate a QR Code</h2>
+                <input type="text" id="text" placeholder="Enter text or URL" />
+                <br> <br> <br>
+                <button onclick="generateQRCode()">Generate</button>
+                <button onclick="downloadQRCode()">Download</button>
+              
+                <div id="qrcode"></div>
+              
+                <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+                <script>
+                  let qrCode;
+              
+                  function generateQRCode() {
+                    const qrDiv = document.getElementById("qrcode");
+                    qrDiv.innerHTML = ""; // clear previous QR
+                    const inputText = document.getElementById("text").value.trim();
+              
+                    if (!inputText) {
+                      alert("Please enter text or a URL.");
+                      return;
+                    }
+              
+                    qrCode = new QRCode(qrDiv, {
+                      text: inputText,
+                      width: 200,
+                      height: 200,
+                      colorDark: "#000000",
+                      colorLight: "#ffffff",
+                      correctLevel: QRCode.CorrectLevel.H
+                    });
+                  }
+              
+                  function downloadQRCode() {
+                    const qrCanvas = document.querySelector("#qrcode canvas");
+                    if (!qrCanvas) {
+                      alert("Please generate a QR code first!");
+                      return;
+                    }
+              
+                    const link = document.createElement("a");
+                    link.download = "qr_code.png";
+                    link.href = qrCanvas.toDataURL("image/png");
+                    link.click();
+                  }
+                </script>
+
+
+            </div>
+            <div class="grid-item-1">
+
+
+
+
+            </div>
+            
+        </div>
+
+   
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+</body>
+</html>

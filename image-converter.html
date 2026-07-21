@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Size Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, button {
+      margin: 10px 0;
+    }
+    canvas {
+      display: block;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <link rel="stylesheet" href="css/drawing.css">
+  <script src="js/art-board.js"></script>
+  <div id="content1" class="content-box">Loading first file...</div>
+
+  <h2>Image Size Converter</h2>
+
+  <div class="grid-container-2">
+    <div> 
+      <input type="file" id="upload" accept="image/*">
+
+    </div>
+  <div>
+    Width: <input type="number" id="width" placeholder="New width">
+    Height: <input type="number" id="height" placeholder="New height"><br><br>
+    <button onclick="resizeImage()">Resize Image ssds</button><br>
+  </div>
+  
+    </div>
+  <br>
+    <div class="grid-container-2">
+      <canvas id="canvas"></canvas><br>
+      <a id="download" style="display:none;" download="resized-image.png">Download Resized Image</a>
+    </div>
+  
+  
+  <div id="content2" class="content-box">Loading second file...</div>
+  <script>
+    let originalImage = new Image();
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+
+    document.getElementById('upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        originalImage.onload = () => {
+          document.getElementById('width').value = originalImage.width;
+          document.getElementById('height').value = originalImage.height;
+          canvas.width = originalImage.width;
+          canvas.height = originalImage.height;
+          ctx.drawImage(originalImage, 0, 0);
+        };
+        originalImage.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function resizeImage() {
+      const width = parseInt(document.getElementById('width').value);
+      const height = parseInt(document.getElementById('height').value);
+      if (isNaN(width) || isNaN(height)) {
+        alert("Please enter valid dimensions.");
+        return;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(originalImage, 0, 0, width, height);
+
+      const downloadLink = document.getElementById('download');
+      downloadLink.href = canvas.toDataURL();
+      downloadLink.style.display = 'inline';
+      downloadLink.textContent = 'Download Resized Image';
+    }
+  </script>
+
+</body>
+</html>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // You can change the file names here
+    const filesToLoad = {
+      content1: 'page1.html',
+      content2: 'page2.html'
+    };
+  
+    // Loop through and load each file into its matching div
+    for (const [divId, filename] of Object.entries(filesToLoad)) {
+      fetch(filename)
+        .then(response => {
+          if (!response.ok) throw new Error(`File not found: ${filename}`);
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById(divId).innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+        });
+    }
+  });
+  </script>

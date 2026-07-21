@@ -1,0 +1,58 @@
+
+  <title>Minutes to Seconds Converter</title>
+  <style>
+   
+    .result {
+      margin-top: 10px;
+      font-size: 28px;
+      color: #002e0d;
+      font-weight: bolder;
+    }
+  </style>
+</head>
+<body>
+  <div id="content1" class="content-box">Loading first file...</div>
+
+  <h2 class="text-8">⏱️ Minutes → Seconds Converter</h2>
+  <input type="number" id="minutes" placeholder="Enter minutes">
+  <button onclick="convert()">Convert</button>
+  <div class="result" id="result"></div>
+
+  <script>
+    function convert() {
+      const minutes = document.getElementById("minutes").value;
+      if (minutes === "" || minutes < 0) {
+        document.getElementById("result").innerText = "Please enter valid minutes.";
+        return;
+      }
+      const seconds = minutes * 60;
+      document.getElementById("result").innerText = `${minutes} minute(s) = ${seconds} seconds`;
+    }
+  </script>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

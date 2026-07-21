@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book PDF 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+      <link rel="stylesheet" href="css/style-book-one.css">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mea+Culpa&display=swap" rel="stylesheet">
+
+</head>
+
+      <!-- ye new he html2 canvas wala link -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        <!-- ye new he html2 canvas wala link -->
+        <script src="js/books.js"></script>
+        <style>
+            #main-div {
+            background-color: white;
+            width: 700px;
+            height:900px;
+            margin: auto;
+            background-image: url(images/book-a-sci-1.png);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border: 1px;
+            border-style: groove;
+            border-color: black;
+
+
+
+            }
+            #main-div img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                margin-top: 10px;
+            }
+
+
+            
+      
+        </style>
+        <style>
+          .collapsible {
+            background-color: #002642;
+            width: 100%;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            font-weight: bolder;
+            text-align: left;
+            outline: none;
+            font-size: 20px;
+          }
+          
+          .active, .collapsible:hover {
+            background-color: #000000;
+            color: #D6CCC2;
+            
+          }
+   
+          .content {
+            
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+         
+          }
+        .info{
+            font-size: small;
+        
+        }
+        
+           
+      </style>
+<body>
+
+    
+  <div class="containerB">
+    <div></div>
+    <div> 
+      <button class="collapsible"> Background Color:</button>
+<div class="content">
+  <p>
+    <input type="color" id="colorPickerA">
+    <button onclick="changeBackgroundA()">Background</button> 
+    <br>
+    <h2 class="text-3">Upload Your logo.</h2>
+            <input type="file" id="image-inputK" accept="image/jpeg, image/png, image/jpg">
+  </p>
+</div>
+</div>
+<div>
+  <button class="collapsible"> Heading - Book Name </button>
+  <div class="content">
+    <p>
+
+   
+    <input type="text" id="myTextA" placeholder="Enter text">
+
+      <!-- Color picker -->
+      <input type="color" id="textColorA" value="#000000">
+    
+      <button onclick="post2()">Click</button>
+    </div>
+</div>
+<div>
+  
+</div>
+
+</div>
+<!-- 
+2nd -->
+<div class="containerB">
+  <div></div>
+  <div> 
+    <button class="collapsible"> Chapter Heading</button>
+<div class="content">
+<p>
+  <input type="color" id="colorPickerD" />
+  <button onclick="changeBackgroundD()">Background</button> 
+  <br>
+    <input type="text" id="myTextC" placeholder="Enter text">
+    <input type="color" id="textColorC" value="#000000">
+    <button onclick="post3()">Click</button>
+</p>
+</div>
+</div>
+<div>
+  <button class="collapsible"> 1st Para</button>
+<div class="content">
+
+  <h2 class="text-1">1st Para- Mxm - 91 words 574 characters.   </h2>
+                <input type="text" id="myTextD" placeholder="Enter text">
+                <input type="color" id="textColorD" value="#000000">
+                <button onclick="post4()">Click</button>
+
+  </div>
+</div>
+<div>
+
+</div>
+
+</div>
+<!-- 3rd -->
+
+
+<div class="containerB">
+  <div></div>
+  <div> 
+    <button class="collapsible"> Page Number</button>
+<div class="content">
+<p>
+  <h2 class="text-3">First Upload A Big  <b>Photo</b> </h2>
+  <input type="file" id="image-inputRA" accept="image/jpeg, image/png, image/jpg">
+  <h2 class="text-4"> Page Number Section</h2>
+     <br>
+        <input type="color" id="colorPickerAg" />
+        <button onclick="changeBackgroundAg()">Background</button> 
+        <br>
+        <h2 class="text-4"> Set Your Border </h2>
+        <input type="color" id="borderColor1" value="#000000">
+          <select id="borderStyle1">
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+            <option value="double">Double</option>
+          </select>
+          <br>
+          <button onclick="borderCreator1.apply()">Apply Border </button>
+
+
+          <br>
+          <h2 class="text-4">Write Page Number</h2><br>
+          <input type="text" id="borderA" placeholder="Enter text">
+
+          <input type="color" id="textColorborA" value="#000000">
+
+          <button onclick="border1()">Click</button>
+
+</p>
+</div>
+</div>
+ 
+
+              
+               
+            
+                                      
+                                </div>
+                                       
+           
+   
+                                <div class="containerB">
+
+                                  <div></div>
+                                  <div> <button onclick="downloadScreenshot()">Download Post</button>  </div>
+                                  <div>   <button id="downloadBtn">Download PDF</button>  </div>
+                                  <div></div>
+                                  <div></div>
+                                </div>
+
+
+            <div> </div>
+            <div> </div>
+        </div>
+          <!-- Download Function -->
+        
+          
+          <br>
+        
+        
+          <script>
+              function downloadScreenshot() {
+                  let div = document.getElementById("main-div");
+                  html2canvas(div, { useCORS: true }).then(canvas => {
+                      let image = canvas.toDataURL("image/png");
+                      let link = document.createElement("a");
+                      link.href = image;
+                      link.download = "page-1.png";
+                      link.click();
+                  });
+              }
+          </script>
+          
+          <div id="main-div"> 
+   
+            <br> <br>
+            <div class="grid-container-2">
+              <div></div>
+             
+              <div id="bgdark1"> <div id="display-imageK"></div> </div>
+              <div>
+                   <p id="writeTextA"></p> 
+              </div>
+            <div></div>
+            </div> 
+          <div class="grid-container-1">
+            <div></div>
+            <div> 
+              <div id="bgdark4"><p id="writeTextc"></p></div>
+                <br>  <br>
+                <div id="bgdark5">   <p id="writeTextd"></p> </div>
+            </div> 
+    <div> </div>
+  </div>
+  <div class="grid-container-1">
+    <div></div>
+    <div>    <div><div id="display-imageRA"></div>  </div>  </div> 
+    <div> </div>
+  
+
+
+</div>
+
+    <div class="grid-container-4-a">
+      <div> </div>
+      <div> </div>
+      <div> </div>
+      <div id="mydiv-2">
+        <div id="mydivheader-2"></div>
+        <div> <div id="targetBox1">  <div id="bgdark33">  <p id="writeTextborder"></p> </div></div> </div>
+      
+      </div>
+    
+    
+    
+    </div></div>
+
+</div>
+
+
+<div class="containerB">
+  <div>
+
+  </div>
+
+  <div>
+    <img src="book-page/page-1.png" style="width:50%;">
+  </div>
+
+  <div>
+    <img src="images/alnafi-add.jpeg" style="width:50%;">
+  </div>
+
+  <div>
+
+  </div>
+
+   <div>
+
+  </div>
+</div>
+
+
+
+            
+
+
+<div class="controls">
+  <label>
+    <div class="grid-item-1 bg-g1">
+    <h2 class="text-3">Upload your own Background Image:</h2>
+    <input type="file" id="bg-input" accept="image/*">
+  </label></div>
+</div>
+
+<script>
+  document.getElementById('bg-input').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        document.getElementById('main-div').style.backgroundImage = `url('${e.target.result}')`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
+
+
+        <div class="grid-containerA-2">
+            <div>
+              <p class="text-2">
+                <b> Note :- </b> 
+                <hr style="height:4px;border-width:0;background-color:red"> <br> 
+                The size of each image is available in the heading and you can resize the image very easily with our tool. You just have to upload it, write the size and download it.
+               </p>
+            </div>
+            <div>
+              
+        
+      
+                <p class="text-2">
+             
+                </p>
+                 
+            </div>
+        
+            </div>
+         
+          
+    
+
+
+    </div>
+</div>
+</body>
+</html>
+
+
+
+<script>
+    document.getElementById('downloadBtn').addEventListener('click', function () {
+      const element = document.getElementById('main-div');
+  
+      const options = {
+        margin:       0.5,
+        filename:     'page-1.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+  
+      html2pdf().set(options).from(element).save();
+    });
+  </script>
+
+
+<script>
+    const image_input = document.querySelector("#image-input");
+  image_input.addEventListener("change", function() {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      const uploaded_image = reader.result;
+      document.querySelector("#display-image").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+   </script>
+  
+  <script>
+    var image_inputA = document.querySelector("#image-inputA");
+    
+    image_inputA.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageA").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+  
+  
+  
+  
+  
+  <script>
+    var image_inputRA = document.querySelector("#image-inputRA");
+    
+    image_inputRA.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageRA").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+  
+  <script>
+    var image_inputC = document.querySelector("#image-inputC");
+    
+    image_inputC.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageC").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+  
+  <script>
+    var image_inputD = document.querySelector("#image-inputD");
+    
+    image_inputD.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageD").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+  
+   
+  <script>
+    var image_inputE = document.querySelector("#image-inputE");
+    
+    image_inputE.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageE").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+  
+
+  <script>
+    var image_inputF = document.querySelector("#image-inputF");
+    
+    image_inputF.addEventListener("change", function() {
+      var reader = new FileReader();
+      reader.addEventListener("load", () => {
+        var uploaded_image = reader.result;
+        document.querySelector("#display-imageF").style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+    
+    
+    </script>
+
+<script>
+  var image_inputG = document.querySelector("#image-inputG");
+  
+  image_inputG.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageG").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+<script>
+  var image_inputH = document.querySelector("#image-inputH");
+  
+  image_inputH.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageH").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+
+<script>
+  var image_inputI = document.querySelector("#image-inputI");
+  
+  image_inputI.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageI").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+
+<script>
+  var image_inputJ = document.querySelector("#image-inputJ");
+  
+  image_inputJ.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageJ").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+<script>
+  var image_inputK = document.querySelector("#image-inputK");
+  
+  image_inputK.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageK").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+
+<script>
+  var image_inputL = document.querySelector("#image-inputL");
+  
+  image_inputL.addEventListener("change", function() {
+    var reader = new FileReader();
+    reader.addEventListener("load", () => {
+      var uploaded_image = reader.result;
+      document.querySelector("#display-imageL").style.backgroundImage = `url(${uploaded_image})`;
+    });
+    reader.readAsDataURL(this.files[0]);
+  });
+  
+  
+  </script>
+
+
+<script>
+  //Make the DIV element draggagle:
+  dragElement(document.getElementById("mydiv-2"));
+  
+  function dragElement(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (document.getElementById(elmnt.id + "header-2")) {
+      /* if present, the header is where you move the DIV from:*/
+      document.getElementById(elmnt.id + "header-2").onmousedown = dragMouseDown;
+    } else {
+      /* otherwise, move the DIV from anywhere inside the DIV:*/
+      elmnt.onmousedown = dragMouseDown;
+    }
+  
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // get the mouse cursor position at startup:
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      // call a function whenever the cursor moves:
+      document.onmousemove = elementDrag;
+    }
+  
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      // set the element's new position:
+      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+  
+    function closeDragElement() {
+      /* stop moving when mouse button is released:*/
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+  </script>
+
+
+<!-- 
+Page ke border ke lia section dono copy karni he or script border wali  -->
+<script>
+  class BorderCreator {
+    constructor(targetId, colorId, styleId) {
+      this.targetBox = document.getElementById(targetId);
+      this.colorInput = document.getElementById(colorId);
+      this.styleInput = document.getElementById(styleId);
+    }
+  
+    apply(size = 5) { // default border size is 5px
+      const color = this.colorInput.value;
+      const style = this.styleInput.value;
+      this.targetBox.style.border = `${size}px ${style} ${color}`;
+    }
+  }
+  
+  // Create instances for each box
+  const borderCreator1 = new BorderCreator("targetBox1", "borderColor1", "borderStyle1");
+  const borderCreator2 = new BorderCreator("targetBox2", "borderColor2", "borderStyle2");
+  const borderCreator3 = new BorderCreator("targetBox3", "borderColor3", "borderStyle3");
+  </script>
+<!-- collapsible -->
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+coll[i].addEventListener("click", function() {
+  this.classList.toggle("active");
+  var content = this.nextElementSibling;
+  if (content.style.maxHeight){
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + "px";
+  } 
+});
+}
+</script>
+
+

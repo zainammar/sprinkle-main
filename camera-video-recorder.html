@@ -1,0 +1,245 @@
+
+<title>Video Recorder</title>
+
+
+<div id="content1" class="content-box">Loading first file...</div>
+
+
+ <style>
+    video {
+      width: 640px;
+      height: 480px;
+      background-color: #000;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    /* Styling for buttons and the new 'a.button' */
+    button, a.button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+      transition: background-color 0.3s ease;
+      text-decoration: none; /* Important for 'a' tag to remove underline */
+      display: inline-block; /* Make 'a' tag behave like a button for layout */
+    }
+    button:hover, a.button:hover {
+      background-color: #0056b3;
+    }
+    /* Styling for disabled state, applied via class for <a> tag */
+    button:disabled, a.button.disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      pointer-events: none; /* Prevent clicks on disabled anchor tags */
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      min-height: 20px; /* Ensure space for status messages */
+    }
+ </style>
+
+        
+<div class="row-1 content-grid">
+  <div class="grid-item-1">
+
+    <h1>Webcam Recorder</h1>
+    <video id="webcam" autoplay playsinline></video>
+    <div>
+      <button id="startRecordButton">Start Recording</button>
+      <button id="stopRecordButton" disabled>Stop Recording</button>
+      <!-- Removed 'disabled' attribute from HTML for <a>, will be controlled by JS class -->
+      <a id="downloadVideoButton" class="button disabled">Download Video</a>
+    </div>
+    <p id="status"></p>
+  </div>
+
+  
+
+
+    </div>
+    <div class="grid-item-1">
+
+      
+
+     </div>
+      </div>
+
+
+      
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+// You can change the file names here
+const filesToLoad = {
+content1: 'page1.html',
+content2: 'page2.html'
+};
+
+// Loop through and load each file into its matching div
+for (const [divId, filename] of Object.entries(filesToLoad)) {
+fetch(filename)
+.then(response => {
+if (!response.ok) throw new Error(`File not found: ${filename}`);
+return response.text();
+})
+.then(data => {
+document.getElementById(divId).innerHTML = data;
+})
+.catch(error => {
+document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+});
+}
+});
+</script>
+</body>
+</html>
+<script>
+    const videoElement = document.getElementById('webcam');
+    const statusDiv = document.getElementById('status');
+    const startRecordButton = document.getElementById('startRecordButton');
+    const stopRecordButton = document.getElementById('stopRecordButton');
+    const downloadVideoButton = document.getElementById('downloadVideoButton');
+
+    let mediaRecorder;
+    let recordedChunks = [];
+    let videoBlobUrl = null;
+    let streamReference = null; // Store stream to stop tracks later
+
+    // Helper to set disabled state for buttons and links
+    function setButtonDisabled(buttonElement, isDisabled) {
+        buttonElement.disabled = isDisabled;
+        if (isDisabled) {
+            buttonElement.classList.add('disabled');
+        } else {
+            buttonElement.classList.remove('disabled');
+        }
+    }
+
+    // Function to start the webcam stream
+    async function startWebcam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        videoElement.srcObject = stream;
+        streamReference = stream; // Keep a reference to the stream
+        statusDiv.textContent = "Webcam is ready. Click 'Start Recording' to begin.";
+        setButtonDisabled(startRecordButton, false); // Enable start
+        return stream;
+      } catch (err) {
+        console.error('Error accessing webcam:', err);
+        statusDiv.textContent = `Failed to access webcam. Please ensure camera/microphone permissions are granted. Error: ${err.message}`;
+        setButtonDisabled(startRecordButton, true); // Disable start on error
+      }
+      return null;
+    }
+
+    // Event listener for starting recording
+    startRecordButton.addEventListener('click', async () => {
+      // If stream isn't already active, try to start it
+      const stream = videoElement.srcObject || await startWebcam();
+      if (!stream) {
+        statusDiv.textContent = "Cannot start recording: Webcam stream not available.";
+        return;
+      }
+
+      recordedChunks = []; // Clear previous recordings
+      if (videoBlobUrl) {
+          URL.revokeObjectURL(videoBlobUrl); // Clean up previous blob URL to prevent memory leaks
+          videoBlobUrl = null;
+          downloadVideoButton.href = '#'; // Reset href
+      }
+
+      // Determine the best MIME type for recording
+      let mimeType = 'video/webm'; // Default to webm
+      if (MediaRecorder.isTypeSupported('video/webm; codecs=vp8')) {
+        mimeType = 'video/webm; codecs=vp8';
+      } else if (MediaRecorder.isTypeSupported('video/mp4; codecs=avc1')) {
+         // MP4 is tricky; 'video/mp4' on its own might not work everywhere.
+         // 'video/mp4; codecs=avc1' is more specific.
+         // However, WebM is more universally supported for direct browser recording.
+         // I'll prioritize webm, but log if mp4 is considered.
+         console.warn("MP4 (avc1) MIME type is supported, but WebM is generally more reliable for direct browser recording.");
+      }
+      console.log(`Attempting to record with MIME type: ${mimeType}`);
+
+      try {
+        mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+      } catch (e) {
+        console.error('Failed to create MediaRecorder with specified mimeType, falling back to default:', e);
+        statusDiv.textContent = `Could not initialize recorder with preferred video format (${mimeType}). Trying browser default. Error: ${e.message}`;
+        try {
+            mediaRecorder = new MediaRecorder(stream); // Fallback to browser's default mimeType
+            console.log(`Fallback to default MIME type: ${mediaRecorder.mimeType}`);
+        } catch (fallbackError) {
+            console.error('Failed to create MediaRecorder even with default mimeType:', fallbackError);
+            statusDiv.textContent = `Failed to initialize video recorder. Error: ${fallbackError.message}`;
+            return;
+        }
+      }
+
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+          statusDiv.textContent = `Recording... (Data received: ${recordedChunks.length} chunks)`;
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        if (recordedChunks.length === 0) {
+            statusDiv.textContent = "Recording stopped, but no data was captured. Ensure camera/mic are active.";
+            setButtonDisabled(downloadVideoButton, true);
+            return;
+        }
+
+        const superBuffer = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+        console.log(`Final recorded Blob size: ${superBuffer.size} bytes`);
+
+        if (superBuffer.size === 0) {
+            statusDiv.textContent = "Recording stopped, but the resulting video file is empty. Check browser logs.";
+            setButtonDisabled(downloadVideoButton, true);
+            return;
+        }
+
+        videoBlobUrl = URL.createObjectURL(superBuffer);
+        
+        downloadVideoButton.href = videoBlobUrl;
+        // Dynamically set filename based on the detected MIME type extension
+        const fileExtension = mediaRecorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+        downloadVideoButton.download = `webcam-recording-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.${fileExtension}`;
+
+        setButtonDisabled(downloadVideoButton, false); // Enable download
+        statusDiv.textContent = `Recording stopped. Video size: ${(superBuffer.size / (1024 * 1024)).toFixed(2)} MB. Click 'Download Video' to save.`;
+      };
+
+      mediaRecorder.start();
+      statusDiv.textContent = "Recording started...";
+      setButtonDisabled(startRecordButton, true); // Disable start
+      setButtonDisabled(stopRecordButton, false); // Enable stop
+      setButtonDisabled(downloadVideoButton, true); // Disable download until recording stops
+    });
+
+    // Event listener for stopping recording
+    stopRecordButton.addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        // Stop all tracks from the stream to release camera/mic resources
+        if (streamReference) {
+            streamReference.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null; // Clear the video element source
+            streamReference = null;
+        }
+        setButtonDisabled(startRecordButton, false); // Enable start
+        setButtonDisabled(stopRecordButton, true); // Disable stop
+      }
+    });
+
+    // Initial webcam start
+    startWebcam();
+  </script>
