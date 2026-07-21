@@ -6,6 +6,11 @@ body{
         padding: 20px;
   
   }
+
+  a href{
+    text-decoration: none;
+    color:white;
+  }
   
   label {
     font-size:20px;
@@ -159,7 +164,30 @@ body{
    */
   
   
+   .button-1{
+    background-color:#3a3226;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    /* padding-top: 10px;
+    padding-left:10px;
+    padding-right:10px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 8px;
+    margin: 2px 1px;
+    /* margin-bottom: 10px;
+    margin-left: 10px; */
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
   
+  .button-1:hover{
+    background-color: white; 
+    color: black; 
+    border: 2px solid #008CBA;
+  }
   
   ::file-selector-button {
     font-size: 10px;
@@ -1016,4 +1044,36 @@ body{
     color:#ffffff;
     font-weight: bolder;
   
+  }
+
+
+
+  .tool-card.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tool-card:hover {
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    border-color: #a8763e;
+    transform: translateY(-4px);
+  }
+  .tool-icon {
+    font-size: 2.3rem;
+    margin-bottom: 14px;
+  }
+  .tool-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+  .tool-card p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #6b5f4f;
+    line-height: 1.5;
+  }
+
+
+  .footer{    
+    background-color: #3a3226;
+    text-align: center;
   }
