@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Image Tracer — JS (Image → SVG)</title>
+  <style>
+    :root { --bg:#0b0f14; --panel:#121821; --ink:#eef2f7; --muted:#8aa0b6; --acc:#4da3ff; }
+    *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto; background:var(--bg); color:var(--ink)}
+    header{padding:20px 16px;border-bottom:1px solid #1e2633}
+    h1{font-size:20px;margin:0 0 6px}
+    .wrap{display:grid;grid-template-columns:340px 1fr; gap:16px; padding:16px}
+    .card{background:var(--panel); border:1px solid #1e2633; border-radius:16px; box-shadow:0 6px 30px rgba(0,0,0,.25)}
+    .card h2{font-size:14px; font-weight:600; color:#b9c6d4; letter-spacing:.3px; text-transform:uppercase; margin:0; padding:14px 14px 0}
+    .card .body{padding:14px}
+    label{display:block; font-size:12px; color:var(--muted); margin:8px 0 6px}
+    input[type="number"], input[type="range"], select{width:100%; padding:8px 10px; border-radius:10px; border:1px solid #2a374a; background:#0e141c; color:var(--ink)}
+    .row{display:grid; grid-template-columns:1fr 80px; gap:10px; align-items:center}
+    .row small{display:block; text-align:right; color:#9fb3c7}
+    button{appearance:none; background:var(--acc); color:#001b36; border:0; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer}
+    button.secondary{background:#1e2938; color:#cfe4ff; border:1px solid #2a374a}
+    .drop{border:1.8px dashed #2a374a; border-radius:14px; padding:20px; text-align:center; color:#9fb3c7}
+    .drop.drag{border-color:var(--acc); color:#d3e8ff; background:#0f1620}
+    .preview{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    .pane{min-height:360px; height:60vh}
+    .pane > .inner{height:100%; overflow:auto; border-radius:12px; background:#0c1118; border:1px solid #1e2633}
+    .meta{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; border-top:1px solid #1e2633}
+    .muted{color:#9fb3c7}
+    .hint{font-size:12px; color:#9fb3c7}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    .footer{padding:14px; display:flex; gap:10px; border-top:1px solid #1e2633}
+    @media (max-width: 980px){ .wrap{grid-template-columns:1fr} .preview{grid-template-columns:1fr} }
+  </style>
+  <!-- ImageTracer.js from unpkg CDN -->
+  <script src="https://unpkg.com/imagetracerjs/imagetracer_v1.2.6.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Image Tracer — JavaScript (Bitmap → SVG)</h1>
+    <div class="hint">Drop a JPG/PNG/WebP, tweak options, and export an SVG. Powered by <code>ImageTracer.js</code>.</div>
+  </header>
+
+  <div class="wrap">
+    <!-- Controls -->
+    <section class="card">
+      <h2>1) Select Image</h2>
+      <div class="body">
+        <div id="drop" class="drop">Drop image here or <label style="display:inline; color:#cfe4ff; cursor:pointer"><input id="file" type="file" accept="image/*" hidden>browse</label></div>
+      </div>
+      <div class="footer">
+        <button id="traceBtn" disabled>Trace to SVG</button>
+        <button id="downloadBtn" class="secondary" disabled>Download SVG</button>
+      </div>
+
+      <h2>2) Options</h2>
+      <div class="body">
+        <label for="preset">Preset</label>
+        <select id="preset">
+          <option value="custom">Custom</option>
+          <option value="Posterized1">Posterized1</option>
+          <option value="Posterized2">Posterized2</option>
+          <option value="Grayscale">Grayscale</option>
+          <option value="Sharp">Sharp</option>
+          <option value="Curvy">Curvy</option>
+        </select>
+
+        <div class="grid2" style="margin-top:10px">
+          <div>
+            <label>Colors (numberofcolors)</label>
+            <div class="row">
+              <input id="colors" type="range" min="2" max="32" value="8">
+              <small id="colorsVal">8</small>
+            </div>
+          </div>
+          <div>
+            <label>Path Omit (px)</label>
+            <div class="row">
+              <input id="pathomit" type="range" min="0" max="20" step="1" value="2">
+              <small id="pathomitVal">2</small>
+            </div>
+          </div>
+          <div>
+            <label>LT Res (edge threshold)</label>
+            <div class="row">
+              <input id="ltres" type="range" min="0.1" max="10" step="0.1" value="1">
+              <small id="ltresVal">1</small>
+            </div>
+          </div>
+          <div>
+            <label>QT Res (curve fitting)</label>
+            <div class="row">
+              <input id="qtres" type="range" min="0.1" max="10" step="0.1" value="1">
+              <small id="qtresVal">1</small>
+            </div>
+          </div>
+          <div>
+            <label>Blur Radius</label>
+            <div class="row">
+              <input id="blurradius" type="range" min="0" max="5" step="0.5" value="0">
+              <small id="blurradiusVal">0</small>
+            </div>
+          </div>
+          <div>
+            <label>Blur Delta</label>
+            <div class="row">
+              <input id="blurdelta" type="range" min="0" max="255" step="5" value="20">
+              <small id="blurdeltaVal">20</small>
+            </div>
+          </div>
+          <div>
+            <label>Stroke Width</label>
+            <div class="row">
+              <input id="strokewidth" type="range" min="0" max="3" step="0.25" value="1">
+              <small id="strokewidthVal">1</small>
+            </div>
+          </div>
+          <div>
+            <label>Round Coords</label>
+            <div class="row">
+              <input id="roundcoords" type="range" min="0" max="3" step="0.25" value="1">
+              <small id="roundcoordsVal">1</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid3" style="margin-top:10px">
+          <label><input id="linefilter" type="checkbox"> Line Filter</label>
+          <label><input id="desc" type="checkbox" checked> Include &lt;desc&gt;</label>
+          <label><input id="viewbox" type="checkbox" checked> Use viewBox</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Previews -->
+    <section class="card">
+      <h2>Preview</h2>
+      <div class="body preview">
+        <div class="pane">
+          <div class="inner" style="display:flex; align-items:center; justify-content:center">
+            <canvas id="raster" style="max-width:100%; max-height:100%"></canvas>
+          </div>
+          <div class="meta"><span class="muted">Raster</span><span id="rmeta" class="muted"></span></div>
+        </div>
+        <div class="pane">
+          <div id="svgcontainer" class="inner"></div>
+          <div class="meta"><span class="muted">Vector (SVG)</span><span id="vmeta" class="muted"></span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // —————————— Utilities
+    const $ = sel => document.querySelector(sel);
+    const objURL = file => URL.createObjectURL(file);
+
+    // DOM refs
+    const file = $('#file');
+    const drop = $('#drop');
+    const rasterCanvas = $('#raster');
+    const rctx = rasterCanvas.getContext('2d');
+    const svgContainer = $('#svgcontainer');
+    const traceBtn = $('#traceBtn');
+    const downloadBtn = $('#downloadBtn');
+    const rmeta = $('#rmeta');
+    const vmeta = $('#vmeta');
+
+    // Option refs
+    const controls = ['preset','colors','pathomit','ltres','qtres','blurradius','blurdelta','strokewidth','roundcoords','linefilter','desc','viewbox']
+      .reduce((acc,id)=> (acc[id] = document.getElementById(id), acc), {});
+
+    function readOptions(){
+      if(controls.preset.value !== 'custom') return controls.preset.value;
+      return {
+        numberofcolors: +controls.colors.value,
+        pathomit: +controls.pathomit.value,
+        ltres: +controls.ltres.value,
+        qtres: +controls.qtres.value,
+        blurradius: +controls.blurradius.value,
+        blurdelta: +controls.blurdelta.value,
+        strokewidth: +controls.strokewidth.value,
+        roundcoords: +controls.roundcoords.value,
+        linefilter: controls.linefilter.checked,
+        desc: controls.desc.checked,
+        viewbox: controls.viewbox.checked,
+      };
+    }
+
+    function bindRange(ref){
+      const el = controls[ref];
+      const disp = document.getElementById(ref+'Val');
+      el.addEventListener('input', ()=> disp.textContent = el.value);
+      disp.textContent = el.value;
+    }
+    ['colors','pathomit','ltres','qtres','blurradius','blurdelta','strokewidth','roundcoords'].forEach(bindRange);
+
+    // —————————— File loading & preview
+    let currentURL = null; let currentSVG = '';
+
+    function loadImageFromFile(f){
+      if(currentURL) URL.revokeObjectURL(currentURL);
+      currentURL = objURL(f);
+      const img = new Image();
+      img.onload = ()=>{
+        // Scale canvas to image size (cap huge images for preview performance)
+        const maxW = 1200, maxH = 1200;
+        let {width:w, height:h} = img;
+        const scale = Math.min(1, maxW/w, maxH/h);
+        rasterCanvas.width = Math.round(w*scale);
+        rasterCanvas.height = Math.round(h*scale);
+        rctx.clearRect(0,0,rasterCanvas.width,rasterCanvas.height);
+        rctx.drawImage(img, 0, 0, rasterCanvas.width, rasterCanvas.height);
+        rmeta.textContent = `${w}×${h}px`;
+        traceBtn.disabled = false;
+      };
+      img.onerror = ()=> alert('Could not load image. Try a different file.');
+      img.src = currentURL;
+    }
+
+    file.addEventListener('change', e=>{
+      const f = e.target.files?.[0];
+      if(f) loadImageFromFile(f);
+    });
+
+    // Drag & drop
+    ;['dragenter','dragover'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('drag'); }));
+    ;['dragleave','drop'].forEach(ev=> drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('drag'); }));
+    drop.addEventListener('drop', e=>{
+      const f = e.dataTransfer.files?.[0];
+      if(f) loadImageFromFile(f);
+    });
+
+    // —————————— Tracing
+    traceBtn.addEventListener('click', ()=>{
+      if(!currentURL) return;
+      traceBtn.disabled = true; vmeta.textContent = 'Tracing…'; svgContainer.innerHTML = '';
+      const opts = readOptions();
+      // imageToSVG(src, callback(svgString), options)
+      ImageTracer.imageToSVG(currentURL, (svgstr)=>{
+        currentSVG = svgstr;
+        svgContainer.innerHTML = svgstr;
+        const svgEl = svgContainer.querySelector('svg');
+        if(svgEl){ vmeta.textContent = `${svgEl.getAttribute('width') || rasterCanvas.width}×${svgEl.getAttribute('height') || rasterCanvas.height}`; }
+        downloadBtn.disabled = false; traceBtn.disabled = false;
+      }, opts);
+    });
+
+    // —————————— Download
+    downloadBtn.addEventListener('click', ()=>{
+      if(!currentSVG) return;
+      const blob = new Blob([currentSVG], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'traced.svg';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 4000);
+    });
+  </script>
+</body>
+</html>

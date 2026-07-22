@@ -692,7 +692,37 @@ body{
               1px 1px 0 #2d0752;    /* Bottom-right border */
         
         }
-                
+        
+        .text-12{
+          font-family: "Trirong", serif;
+          color: #ffffff;
+          font-family: 'Great Vibes', cursive;
+          font-size:30px;
+          text-align:center;
+          padding:10px;
+          margin:10px;
+          /* justify-content: space-around; */
+          color: #faf8fc; /* Text color */
+          text-shadow: 
+              -1px -1px 0 #2d0752,  /* Top-left border */
+              1px -1px 0 #2d0752,   /* Top-right border */
+              -1px 1px 0 #2d0752,   /* Bottom-left border */
+              1px 1px 0 #2d0752;    /* Bottom-right border */
+        
+        }
+        
+
+        .text-13{
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 20px;
+          font-weight: bolder;
+          color: #ffffff;
+          text-align:left;
+          padding:10px;
+          margin: 10px;
+         }
+  
+
          hr.blue {
           border: 1px solid blue;
           border-radius: 5px;
@@ -1076,4 +1106,11 @@ body{
   .footer{    
     background-color: #3a3226;
     text-align: center;
+  }
+
+  .dark{    
+    background-color: #3a3226;
+    text-align: center;
+    color:white;
+    
   }

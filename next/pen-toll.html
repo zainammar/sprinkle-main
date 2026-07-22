@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fabric.js Pen Tool</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    #controls { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+    #canvas-wrapper { border: 1px solid #aaa; width: 800px; height: 500px; }
+    canvas { width: 100%; height: 100%; }
+    label, button { font-size: 14px; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+</head>
+<body>
+
+  <div id="controls">
+    <label>Pen Color: <input id="pen-color" type="color" value="#000000"></label>
+    <label>Width: <input id="pen-width" type="number" value="5" min="1" max="50" style="width: 60px;"></label>
+    <label><input id="eraser-mode" type="checkbox"> Eraser</label>
+    <label><input id="draw-toggle" type="checkbox" checked> Drawing Mode</label>
+    <button id="clear-btn">Clear</button>
+    <button id="save-btn">Save PNG</button>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="c" width="800" height="500"></canvas>
+  </div>
+
+<script>
+  // Initialize Fabric canvas
+  const canvas = new fabric.Canvas('c', {
+    isDrawingMode: true,
+    backgroundColor: '#ffffff'
+  });
+
+  // Default brush settings
+  canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+  canvas.freeDrawingBrush.color = document.getElementById('pen-color').value;
+  canvas.freeDrawingBrush.width = parseInt(document.getElementById('pen-width').value, 10);
+
+  // === Control handlers ===
+  document.getElementById('pen-color').addEventListener('input', function() {
+    canvas.freeDrawingBrush.color = this.value;
+  });
+
+  document.getElementById('pen-width').addEventListener('input', function() {
+    canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
+  });
+
+  document.getElementById('draw-toggle').addEventListener('change', function() {
+    canvas.isDrawingMode = this.checked;
+  });
+
+  document.getElementById('eraser-mode').addEventListener('change', function() {
+    if (this.checked) {
+      // Use built-in EraserBrush if available (Fabric v5+)
+      if (fabric.EraserBrush) {
+        canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
+      } else {
+        // Fallback: simulate erase by compositing
+        const eraser = new fabric.PencilBrush(canvas);
+        eraser.color = "rgba(0,0,0,1)";
+        eraser.globalCompositeOperation = 'destination-out';
+        canvas.freeDrawingBrush = eraser;
+      }
+    } else {
+      // Back to normal brush
+      const brush = new fabric.PencilBrush(canvas);
+      brush.color = document.getElementById('pen-color').value;
+      brush.width = parseInt(document.getElementById('pen-width').value, 10);
+      canvas.freeDrawingBrush = brush;
+    }
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', function() {
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+  });
+
+  document.getElementById('save-btn').addEventListener('click', function() {
+    const dataURL = canvas.toDataURL({ format: 'png' });
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'drawing.png';
+    link.click();
+  });
+</script>
+
+</body>
+</html>

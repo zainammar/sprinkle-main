@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fabric.js Multi Brush Tool</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    #controls { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    #canvas-wrapper { border: 1px solid #aaa; width: 900px; height: 500px; }
+    canvas { width: 100%; height: 100%; }
+    label, button, select { font-size: 14px; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+</head>
+<body>
+
+  <div id="controls">
+    <label>Brush Type:
+      <select id="brush-type">
+        <option value="pencil">Pencil</option>
+        <option value="spray">Spray</option>
+        <option value="circle">Circle</option>
+        <option value="pattern">Flat Pattern</option>
+      </select>
+    </label>
+
+    <label>Color: <input id="pen-color" type="color" value="#000000"></label>
+    <label>Width: <input id="pen-width" type="number" value="8" min="1" max="100" style="width: 60px;"></label>
+
+    <label><input id="eraser-mode" type="checkbox"> Eraser</label>
+    <label><input id="draw-toggle" type="checkbox" checked> Drawing Mode</label>
+
+    <button id="clear-btn">Clear</button>
+    <button id="save-btn">Save PNG</button>
+  </div>
+
+  <div id="canvas-wrapper">
+    <canvas id="c" width="900" height="500"></canvas>
+  </div>
+
+<script>
+  // Initialize Fabric canvas
+  const canvas = new fabric.Canvas('c', {
+    isDrawingMode: true,
+    backgroundColor: '#ffffff'
+  });
+
+  const colorInput = document.getElementById('pen-color');
+  const widthInput = document.getElementById('pen-width');
+  const brushTypeSelect = document.getElementById('brush-type');
+  const eraserInput = document.getElementById('eraser-mode');
+  const drawToggle = document.getElementById('draw-toggle');
+
+  // === Brush Setup ===
+  function setBrush() {
+    const brushType = brushTypeSelect.value;
+    const color = colorInput.value;
+    const width = parseInt(widthInput.value, 10);
+
+    let brush;
+
+    if (eraserInput.checked) {
+      if (fabric.EraserBrush) {
+        brush = new fabric.EraserBrush(canvas);
+      } else {
+        brush = new fabric.PencilBrush(canvas);
+        brush.globalCompositeOperation = 'destination-out';
+      }
+    } else {
+      switch (brushType) {
+        case 'pencil':
+          brush = new fabric.PencilBrush(canvas);
+          break;
+
+        case 'spray':
+          brush = new fabric.SprayBrush(canvas);
+          break;
+
+        case 'circle':
+          brush = new fabric.CircleBrush(canvas);
+          break;
+
+        case 'pattern':
+          brush = new fabric.PatternBrush(canvas);
+          // create a simple flat line pattern
+          const patternCanvas = document.createElement('canvas');
+          patternCanvas.width = patternCanvas.height = 10;
+          const ctx = patternCanvas.getContext('2d');
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(0, 5);
+          ctx.lineTo(10, 5);
+          ctx.stroke();
+          brush.source = patternCanvas;
+          break;
+
+        default:
+          brush = new fabric.PencilBrush(canvas);
+      }
+
+      brush.color = color;
+      brush.width = width;
+    }
+
+    canvas.freeDrawingBrush = brush;
+  }
+
+  // === Event Listeners ===
+  colorInput.addEventListener('input', setBrush);
+  widthInput.addEventListener('input', setBrush);
+  brushTypeSelect.addEventListener('change', setBrush);
+  eraserInput.addEventListener('change', setBrush);
+
+  drawToggle.addEventListener('change', function() {
+    canvas.isDrawingMode = this.checked;
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', function() {
+    canvas.clear();
+    canvas.backgroundColor = '#ffffff';
+    canvas.renderAll();
+  });
+
+  document.getElementById('save-btn').addEventListener('click', function() {
+    const dataURL = canvas.toDataURL({ format: 'png' });
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'drawing.png';
+    link.click();
+  });
+
+  // Initial brush setup
+  setBrush();
+</script>
+
+</body>
+</html>
