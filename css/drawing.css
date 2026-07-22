@@ -7,6 +7,16 @@ body{
   
   }
 
+  /* 
+  
+  
+  #3066BE 
+  
+  #441151
+
+  #1B065E
+  */
+
   a href{
     text-decoration: none;
     color:white;
@@ -716,12 +726,40 @@ body{
           font-family: 'Times New Roman', Times, serif;
           font-size: 20px;
           font-weight: bolder;
+          line-height: 1.5;
+          color: #ffffff;
+          text-align:center;
+          padding:10px;
+          margin: 10px;
+         }
+
+         .text-14{
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 15px;
+          line-height: 1.5;
+          font-weight: bolder;
           color: #ffffff;
           text-align:left;
           padding:10px;
           margin: 10px;
          }
+
+         .text-15{
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 20px;
+          font-weight: bolder;
+          line-height: 1.5;
+          color: #ffffff;
+          text-align:left;
+          padding:10px;
+          margin: 10px;
+         }
+
   
+         .lefta{
+          text-align: left;
+         }
+
 
          hr.blue {
           border: 1px solid blue;
@@ -1113,4 +1151,9 @@ body{
     text-align: center;
     color:white;
     
+  }
+
+
+  .dark-2{
+    background-color: #441151;
   }
