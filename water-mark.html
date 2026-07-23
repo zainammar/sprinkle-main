@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Image Watermark Tool (JS)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Inter, Arial, sans-serif; margin: 18px; color:#111; }
+    h1 { font-size:18px; margin:0 0 12px 0; }
+    .controls { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; align-items:center; }
+    .controls label { font-size:13px; display:flex; flex-direction:column; gap:6px; }
+    input[type="file"] { padding:6px 0; }
+    canvas { border:1px solid #ddd; display:block; max-width:100%; margin-bottom:12px; touch-action: none; }
+    .btn { padding:8px 12px; border-radius:6px; border:1px solid #aaa; background:#f6f6f6; cursor:pointer; }
+    .btn.primary { background:#2563eb; color:white; border-color:transparent; }
+    .small { font-size:13px; padding:6px 8px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .muted { color:#666; font-size:13px; }
+    .info { margin-top:8px; font-size:13px; color:#444; }
+  </style>
+</head>
+<body>
+  <h1>Image Watermark Tool — add & drag a watermark</h1>
+
+  <div class="controls">
+    <label>
+      Base image
+      <input id="baseFile" type="file" accept="image/*">
+    </label>
+
+    <label>
+      Watermark (text)
+      <input id="wmText" type="text" placeholder="Type watermark text" value="© MyBrand">
+    </label>
+
+    <label>
+      Font
+      <select id="fontSelect">
+        <option value="48px sans-serif">48px sans-serif</option>
+        <option value="48px Arial">48px Arial</option>
+        <option value="48px 'Times New Roman'">48px Times</option>
+        <option value="36px sans-serif">36px sans-serif</option>
+      </select>
+    </label>
+
+    <label>
+      Color
+      <input id="wmColor" type="color" value="#ffffff">
+    </label>
+
+    <label>
+      Opacity
+      <input id="wmOpacity" type="range" min="0" max="1" step="0.05" value="0.5">
+    </label>
+
+    <label>
+      Text / Image watermark
+      <select id="wmMode">
+        <option value="text">Text</option>
+        <option value="image">Image</option>
+      </select>
+    </label>
+
+    <label id="wmImageLabel" style="display:none;">
+      Upload watermark image
+      <input id="wmFile" type="file" accept="image/*">
+    </label>
+
+    <label id="imgScaleLabel" style="display:none;">
+      Scale
+      <input id="imgScale" type="range" min="0.1" max="2" step="0.05" value="0.5">
+    </label>
+
+    <div class="row">
+      <button id="resetBtn" class="btn small">Reset position</button>
+      <button id="bakeBtn" class="btn primary small">Bake & Download</button>
+    </div>
+  </div>
+
+  <canvas id="canvas" width="800" height="500"></canvas>
+
+  <div class="info">
+    Drag the watermark to position it. Use touch on a mobile device. Click <strong>Bake & Download</strong> to export a PNG file.
+  </div>
+
+<script>
+(() => {
+  const baseFile = document.getElementById('baseFile');
+  const wmFile = document.getElementById('wmFile');
+  const wmText = document.getElementById('wmText');
+  const fontSelect = document.getElementById('fontSelect');
+  const wmColor = document.getElementById('wmColor');
+  const wmOpacity = document.getElementById('wmOpacity');
+  const wmMode = document.getElementById('wmMode');
+  const wmImageLabel = document.getElementById('wmImageLabel');
+  const imgScale = document.getElementById('imgScale');
+  const imgScaleLabel = document.getElementById('imgScaleLabel');
+  const resetBtn = document.getElementById('resetBtn');
+  const bakeBtn = document.getElementById('bakeBtn');
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  let baseImg = new Image();
+  let wmImg = new Image();
+  let baseLoaded = false;
+  let wmLoaded = false;
+
+  // watermark state
+  let wm = {
+    mode: 'text',        // 'text' or 'image'
+    text: wmText.value,
+    font: fontSelect.value,
+    color: wmColor.value,
+    opacity: parseFloat(wmOpacity.value),
+    x: 50,
+    y: 50,
+    scale: parseFloat(imgScale.value)
+  };
+
+  // internal for dragging
+  let dragging = false;
+  let dragOffset = {x:0,y:0};
+
+  // limit canvas max dimension to avoid huge images in browser
+  const MAX_DIM = 1600;
+
+  function clampCanvasSize(w,h){
+    if (w <= MAX_DIM && h <= MAX_DIM) return {w,h};
+    const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+    return { w: Math.round(w * ratio), h: Math.round(h * ratio) };
+  }
+
+  function draw(){
+    if (!baseLoaded) {
+      // clear canvas
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = '#f8f8f8';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = '#bbb';
+      ctx.font = '14px sans-serif';
+      ctx.fillText('Please upload a base image', 12, 24);
+      return;
+    }
+    // draw base
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
+
+    // draw watermark overlay
+    ctx.save();
+    ctx.globalAlpha = wm.opacity;
+
+    if (wm.mode === 'text') {
+      ctx.font = wm.font;
+      ctx.fillStyle = wm.color;
+      ctx.textBaseline = 'top';
+      // draw text with a slight shadow for visibility
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 4;
+      ctx.fillText(wm.text, wm.x, wm.y);
+      ctx.shadowColor = 'transparent';
+    } else if (wm.mode === 'image' && wmLoaded) {
+      const iw = wmImg.naturalWidth * wm.scale;
+      const ih = wmImg.naturalHeight * wm.scale;
+      ctx.drawImage(wmImg, wm.x, wm.y, iw, ih);
+    }
+    ctx.restore();
+  }
+
+  function setCanvasToImage(img) {
+    const dim = clampCanvasSize(img.naturalWidth, img.naturalHeight);
+    canvas.width = dim.w;
+    canvas.height = dim.h;
+  }
+
+  baseFile.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    baseImg = new Image();
+    baseImg.onload = () => {
+      baseLoaded = true;
+      setCanvasToImage(baseImg);
+      // position watermark default bottom-right-ish
+      wm.x = Math.round(canvas.width * 0.7);
+      wm.y = Math.round(canvas.height * 0.8);
+      draw();
+      URL.revokeObjectURL(url);
+    };
+    baseImg.src = url;
+  });
+
+  wmMode.addEventListener('change', () => {
+    wm.mode = wmMode.value;
+    if (wm.mode === 'image'){
+      wmImageLabel.style.display = '';
+      imgScaleLabel.style.display = '';
+    } else {
+      wmImageLabel.style.display = 'none';
+      imgScaleLabel.style.display = 'none';
+    }
+    draw();
+  });
+
+  wmFile.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    wmImg = new Image();
+    wmImg.onload = () => {
+      wmLoaded = true;
+      // set default scale so watermark doesn't cover too much
+      const targetW = canvas.width * 0.25;
+      wm.scale = Math.min(1, targetW / wmImg.naturalWidth);
+      imgScale.value = wm.scale;
+      // default position
+      wm.x = Math.round(canvas.width * 0.7);
+      wm.y = Math.round(canvas.height * 0.7);
+      draw();
+      URL.revokeObjectURL(url);
+    };
+    wmImg.src = url;
+  });
+
+  // controls
+  wmText.addEventListener('input', e => { wm.text = e.target.value || ''; draw(); });
+  fontSelect.addEventListener('change', e => { wm.font = e.target.value; draw(); });
+  wmColor.addEventListener('change', e => { wm.color = e.target.value; draw(); });
+  wmOpacity.addEventListener('input', e => { wm.opacity = parseFloat(e.target.value); draw(); });
+  imgScale.addEventListener('input', e => { wm.scale = parseFloat(e.target.value); draw(); });
+
+  resetBtn.addEventListener('click', () => {
+    wm.x = Math.round(canvas.width * 0.05);
+    wm.y = Math.round(canvas.height * 0.05);
+    draw();
+  });
+
+  // Pointer events for drag (works with mouse & touch)
+  function getPointerPos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (evt.touches && evt.touches.length) {
+      clientX = evt.touches[0].clientX;
+      clientY = evt.touches[0].clientY;
+    } else {
+      clientX = evt.clientX;
+      clientY = evt.clientY;
+    }
+    return {
+      x: Math.round((clientX - rect.left) * (canvas.width / rect.width)),
+      y: Math.round((clientY - rect.top) * (canvas.height / rect.height))
+    };
+  }
+
+  function hitTestWatermark(px, py) {
+    if (wm.mode === 'text') {
+      ctx.save();
+      ctx.font = wm.font;
+      const metrics = ctx.measureText(wm.text || '');
+      const w = Math.max(1, metrics.width);
+      // approximate height from font size number
+      const fontPx = parseInt((wm.font||'48px').match(/\d+/)?.[0] || 48, 10);
+      const h = fontPx;
+      ctx.restore();
+      return px >= wm.x && px <= wm.x + w && py >= wm.y && py <= wm.y + h;
+    } else if (wm.mode === 'image' && wmLoaded) {
+      const iw = wmImg.naturalWidth * wm.scale;
+      const ih = wmImg.naturalHeight * wm.scale;
+      return px >= wm.x && px <= wm.x + iw && py >= wm.y && py <= wm.y + ih;
+    }
+    return false;
+  }
+
+  function pointerDown(e) {
+    if (!baseLoaded) return;
+    const pos = getPointerPos(e);
+    if (hitTestWatermark(pos.x, pos.y)) {
+      dragging = true;
+      dragOffset.x = pos.x - wm.x;
+      dragOffset.y = pos.y - wm.y;
+      e.preventDefault();
+    }
+  }
+  function pointerMove(e) {
+    if (!dragging) return;
+    const pos = getPointerPos(e);
+    wm.x = pos.x - dragOffset.x;
+    wm.y = pos.y - dragOffset.y;
+    // constrain to canvas slightly (allow small overflow)
+    wm.x = Math.max(-1000, Math.min(canvas.width + 1000, wm.x));
+    wm.y = Math.max(-1000, Math.min(canvas.height + 1000, wm.y));
+    draw();
+    e.preventDefault();
+  }
+  function pointerUp(e) {
+    dragging = false;
+  }
+
+  // Attach mouse & touch
+  canvas.addEventListener('mousedown', pointerDown);
+  canvas.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+
+  canvas.addEventListener('touchstart', pointerDown, {passive:false});
+  canvas.addEventListener('touchmove', pointerMove, {passive:false});
+  window.addEventListener('touchend', pointerUp);
+
+  // Bake & download the final image
+  bakeBtn.addEventListener('click', () => {
+    if (!baseLoaded) {
+      alert('Please upload a base image first.');
+      return;
+    }
+    // Create temporary canvas same size (we already draw full)
+    // just export current canvas content
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataURL;
+    const name = (document.getElementById('baseFile').files[0]?.name || 'image').replace(/\.[^/.]+$/, "");
+    link.download = name + '_watermarked.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  });
+
+  // Initial draw
+  draw();
+})();
+</script>
+</body>
+</html>

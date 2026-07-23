@@ -1,0 +1,65 @@
+<link rel="stylesheet" href="css/drawing.css">
+<title>Change Case</title>
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<div class="row-1 content-grid">
+    <div class="grid-item-1">
+  
+
+<div class="container">
+
+    <h1>PDF Splitter</h1>
+
+    <input type="file" id="pdfFile" accept=".pdf">
+    <p id="totalPages">Total Pages: 0</p>
+    <input
+        type="text"
+        id="pages"
+        placeholder="Example: 1-3,5,7"
+    >
+
+    <button id="splitBtn">
+        Split PDF
+    </button>
+
+    <p id="status"></p>
+
+</div>
+
+</div>
+</div>
+<div class="row-1 content-grid">
+    <div class="grid-item-1">
+  
+        </div></div>
+<script src="js/script.js"></script>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

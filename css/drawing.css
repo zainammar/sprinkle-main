@@ -160,6 +160,15 @@ body{
     align-items: flex-end;
   }
   
+  #status{
+
+    margin-top:15px;
+    
+    color:green;
+    
+    font-weight:bold;
+    
+    }
   /* 
   canvas{
     width: 70%;
@@ -760,6 +769,12 @@ body{
           text-align: left;
          }
 
+<<<<<<< HEAD
+=======
+         .centera{
+          text-align: center;
+         }
+>>>>>>> 62bf977 (Update project files)
 
          hr.blue {
           border: 1px solid blue;
@@ -1156,4 +1171,10 @@ body{
 
   .dark-2{
     background-color: #441151;
+<<<<<<< HEAD
   }
+=======
+  }
+
+
+>>>>>>> 62bf977 (Update project files)

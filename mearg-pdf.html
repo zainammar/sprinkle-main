@@ -1,0 +1,149 @@
+<link rel="stylesheet" href="css/drawing.css">
+<title>Change Case</title>
+<div id="content1" class="content-box">Loading first file...</div>
+  <meta charset="UTF-8">
+  <title>Merge PDFs (One by One Upload)</title>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <style>
+
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    #uploaded-list {
+      margin-top: 20px;
+      font-size: 25px;
+      color:blue;
+      font-weight: bold;
+    }
+  </style>
+<div class="row-1 content-grid">
+  <div class="grid-item-1">
+
+    <div id="content1" class="content-box">Loading first file...</div>
+    <h2>📎 Upload PDFs One by One</h2>
+    <input type="file" id="uploadBtn" accept="application/pdf">
+    <button onclick="mergePDFs()">📄 Merge All PDFs</button>
+    <div id="uploaded-list"><strong>Uploaded PDFs:</strong><br></div>
+  <br><br>
+    <script>
+      const uploadedList = document.getElementById("uploaded-list");
+      const fileInput = document.getElementById("uploadBtn");
+      let uploadedPDFs = [];
+  
+      fileInput.addEventListener("change", async () => {
+        const file = fileInput.files[0];
+        if (!file || file.type !== "application/pdf") {
+          alert("Please select a PDF file.");
+          return;
+        }
+  
+        const arrayBuffer = await file.arrayBuffer();
+        uploadedPDFs.push(arrayBuffer);
+        uploadedList.innerHTML += `✔️ ${file.name}<br>`;
+        fileInput.value = ""; // reset input so same file can be added again
+      });
+  
+      async function mergePDFs() {
+        if (uploadedPDFs.length < 2) {
+          alert("Upload at least two PDFs to merge.");
+          return;
+        }
+  
+        const mergedPdf = await PDFLib.PDFDocument.create();
+  
+        for (const buffer of uploadedPDFs) {
+          const pdf = await PDFLib.PDFDocument.load(buffer);
+          const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+          pages.forEach((page) => mergedPdf.addPage(page));
+        }
+  
+        const mergedBytes = await mergedPdf.save();
+        const blob = new Blob([mergedBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+  
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "merged.pdf";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+
+  </div>
+
+</div>
+
+  <div id="content2" class="content-box">Loading second file...</div>
+  <!-- Header Fotter -->
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // You can change the file names here
+    const filesToLoad = {
+      content1: 'page1.html',
+      content2: 'page2.html'
+    };
+  
+    // Loop through and load each file into its matching div
+    for (const [divId, filename] of Object.entries(filesToLoad)) {
+      fetch(filename)
+        .then(response => {
+          if (!response.ok) throw new Error(`File not found: ${filename}`);
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById(divId).innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+        });
+    }
+  });
+  </script>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+    <script>
+        function toUpperCaseText() {
+            let text = document.getElementById("userInput").value;
+            document.getElementById("result").innerText = text.toUpperCase();
+        }
+
+        function toLowerCaseText() {
+            let text = document.getElementById("userInput").value;
+            document.getElementById("result").innerText = text.toLowerCase();
+        }
+
+        function toTitleCaseText() {
+            let text = document.getElementById("userInput").value;
+            document.getElementById("result").innerText = text
+                .toLowerCase()
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+    </script>
+   
