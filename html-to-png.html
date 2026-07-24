@@ -1,0 +1,68 @@
+<link rel="stylesheet" href="css/drawing.css">
+<title>HTML to PNG Converter</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<div class="row-1 content-grid">
+  <div class="grid-item-1">
+
+    <h2 class="heading-one">📄 Upload HTML → Get PNG</h2>
+<p class="text-6">Convert HTML to PNG online for free. Upload your HTML file and instantly download it as a high-quality PNG image. Supports CSS, responsive design, and transparent backgrounds. Fast & secure.</p>
+<input type="file" id="htmlFile" accept=".html,.htm">
+<br>
+<div id="preview"></div>
+</div>
+</div>
+<div></div>
+<br>
+<script>
+const input = document.getElementById('htmlFile');
+const preview = document.getElementById('preview');
+
+input.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+  preview.innerHTML = text;
+  preview.style.display = 'block';
+
+  // Wait a bit for rendering
+  setTimeout(() => {
+    html2canvas(preview, { scale: 2, useCORS: true }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = file.name.replace(/\.[^/.]+$/, "") + ".png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  }, 500);
+});
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

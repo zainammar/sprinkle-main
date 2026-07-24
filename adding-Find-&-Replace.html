@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enhanced Notepad Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f5;
+        --bg-tertiary: #e8e8e8;
+        --text-primary: #1a1a1a;
+        --text-secondary: #4a4a4a;
+        --border-color: #d1d5db;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --danger: #ef4444;
+        --danger-hover: #dc2626;
+        --success: #10b981;
+        --highlight: #fbbf24;
+        --highlight-current: #f59e0b;
+        --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #3a3a3a;
+        --text-primary: #f5f5f5;
+        --text-secondary: #d1d5db;
+        --border-color: #4b5563;
+        --accent: #60a5fa;
+        --accent-hover: #3b82f6;
+        --danger: #f87171;
+        --danger-hover: #ef4444;
+        --success: #34d399;
+        --highlight: #fbbf24;
+        --highlight-current: #f59e0b;
+        --shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: background 0.3s ease, color 0.3s ease;
+        overflow: hidden;
+    }
+
+    .toolbar {
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px var(--shadow);
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 100;
+    }
+
+    .toolbar-group {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        padding-right: 0.75rem;
+        border-right: 1px solid var(--border-color);
+    }
+
+    .toolbar-group:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .btn {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.875rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .btn:hover {
+        background: var(--bg-tertiary);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px var(--shadow);
+    }
+
+    .btn:active {
+        transform: translateY(0);
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+    }
+
+    .btn-icon {
+        padding: 0.5rem;
+        width: 2.25rem;
+        height: 2.25rem;
+        justify-content: center;
+    }
+
+    .editor-container {
+        position: relative;
+        height: calc(100vh - 128px);
+        background: var(--bg-primary);
+    }
+
+    .editor {
+        width: 100%;
+        height: 100%;
+        padding: 2rem;
+        font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        border: none;
+        outline: none;
+        resize: none;
+        background: var(--bg-primary);
+        color: rgb(8, 252, 232);
+        tab-size: 4;
+    }
+
+    .editor-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2rem;
+        font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: hidden;
+        pointer-events: none;
+        color: transparent;
+        z-index: 1;
+    }
+
+    .editor {
+        position: relative;
+        z-index: 2;
+        background: transparent;
+        caret-color: var(--text-primary);
+    }
+
+    mark {
+        background: var(--highlight);
+        color: #000;
+        border-radius: 2px;
+        padding: 0 2px;
+    }
+
+    mark.current {
+        background: var(--highlight-current);
+        box-shadow: 0 0 0 2px var(--highlight-current);
+    }
+
+    .status-bar {
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        height: 40px;
+    }
+
+    .status-group {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .find-dialog {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        box-shadow: 0 10px 40px var(--shadow);
+        width: 420px;
+        max-width: calc(100vw - 40px);
+        z-index: 1000;
+        display: none;
+        animation: slideIn 0.2s ease-out;
+    }
+
+    .find-dialog.active {
+        display: block;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .find-dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .find-dialog-title {
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        font-size: 1.25rem;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .input-group {
+        margin-bottom: 0.875rem;
+    }
+
+    .input-group label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        margin-bottom: 0.375rem;
+        color: var(--text-secondary);
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .checkbox-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+        accent-color: var(--accent);
+    }
+
+    .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .find-info {
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 60px;
+        right: 20px;
+        background: var(--success);
+        color: white;
+        padding: 0.875rem 1.25rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px var(--shadow);
+        display: none;
+        z-index: 2000;
+        animation: slideInUp 0.3s ease-out;
+    }
+
+    .toast.show {
+        display: block;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    select {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    select:hover {
+        background: var(--bg-tertiary);
+    }
+
+    select:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    .logo {
+        font-weight: 700;
+        font-size: 1.125rem;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .toolbar {
+            padding: 0.5rem;
+        }
+
+        .toolbar-group {
+            padding-right: 0.5rem;
+        }
+
+        .btn span {
+            display: none;
+        }
+
+        .btn {
+            padding: 0.5rem;
+        }
+
+        .find-dialog {
+            right: 10px;
+            left: 10px;
+            width: auto;
+        }
+
+        .editor {
+            padding: 1rem;
+            font-size: 14px;
+        }
+
+        .editor-backdrop {
+            padding: 1rem;
+            font-size: 14px;
+        }
+
+        .status-bar {
+            font-size: 0.75rem;
+        }
+
+        .status-group {
+            gap: 1rem;
+        }
+
+        .button-group {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .logo span {
+            display: none;
+        }
+    }
+</style>
+</head>
+<body data-theme="light">
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <div class="logo">
+                <i class="fa-solid fa-note-sticky"></i>
+                <span>Notepad Pro</span>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <button class="btn" id="newBtn" title="New File (Ctrl+N)">
+                <i class="fa-solid fa-file"></i>
+                <span>New</span>
+            </button>
+            <button class="btn" id="openBtn" title="Open File (Ctrl+O)">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Open</span>
+            </button>
+            <button class="btn btn-primary" id="saveBtn" title="Save File (Ctrl+S)">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save</span>
+            </button>
+            <input type="file" id="fileInput" accept=".txt,.md,.js,.html,.css,.json,.xml,.log" style="display: none;">
+        </div>
+
+        <div class="toolbar-group">
+            <button class="btn" id="findBtn" title="Find & Replace (Ctrl+H)">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Find</span>
+            </button>
+            <button class="btn" id="undoBtn" title="Undo (Ctrl+Z)">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button class="btn" id="redoBtn" title="Redo (Ctrl+Y)">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+
+        <div class="toolbar-group">
+            <select id="fontSizeSelect" title="Font Size">
+                <option value="12">12px</option>
+                <option value="13">13px</option>
+                <option value="14">14px</option>
+                <option value="15" selected>15px</option>
+                <option value="16">16px</option>
+                <option value="18">18px</option>
+                <option value="20">20px</option>
+                <option value="24">24px</option>
+            </select>
+            <button class="btn btn-icon" id="themeBtn" title="Toggle Dark Mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="editor-container">
+        <div class="editor-backdrop" id="backdrop"></div>
+        <textarea class="editor" id="editor" placeholder="Start typing..."></textarea>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-group">
+            <div class="status-item">
+                <i class="fa-solid fa-file-lines"></i>
+                <span id="lineCount">Line: 1 Col: 1</span>
+            </div>
+            <div class="status-item">
+                <i class="fa-solid fa-font"></i>
+                <span id="wordCount">Words: 0</span>
+            </div>
+            <div class="status-item">
+                <i class="fa-solid fa-calculator"></i>
+                <span id="charCount">Chars: 0</span>
+            </div>
+        </div>
+        <div class="status-group">
+            <div class="status-item">
+                <i class="fa-solid fa-code"></i>
+                <span id="fileType">Plain Text</span>
+            </div>
+            <div class="status-item">
+                <i class="fa-solid fa-clock"></i>
+                <span id="modifiedStatus">Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="find-dialog" id="findDialog">
+        <div class="find-dialog-header">
+            <div class="find-dialog-title">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Find & Replace
+            </div>
+            <button class="close-btn" id="closeFindBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <div class="input-group">
+            <label for="findInput">Find</label>
+            <input type="text" class="input-field" id="findInput" placeholder="Text to find...">
+        </div>
+
+        <div class="input-group">
+            <label for="replaceInput">Replace with</label>
+            <input type="text" class="input-field" id="replaceInput" placeholder="Replacement text...">
+        </div>
+
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="caseSensitive">
+                <span>Case sensitive</span>
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="wholeWord">
+                <span>Whole word</span>
+            </label>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" id="findNextBtn">
+                <i class="fa-solid fa-arrow-down"></i>
+                Next
+            </button>
+            <button class="btn" id="replaceBtn">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                Replace
+            </button>
+            <button class="btn" id="replaceAllBtn">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                All
+            </button>
+        </div>
+
+        <div class="find-info" id="findInfo">Enter text to search</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const backdrop = document.getElementById('backdrop');
+        const findDialog = document.getElementById('findDialog');
+        const findInput = document.getElementById('findInput');
+        const replaceInput = document.getElementById('replaceInput');
+        const findInfo = document.getElementById('findInfo');
+        const toast = document.getElementById('toast');
+        
+        let currentFileName = 'untitled.txt';
+        let isModified = false;
+        let matches = [];
+        let currentMatchIndex = -1;
+        let undoStack = [];
+        let redoStack = [];
+        let lastSavedState = '';
+
+        // Initialize
+        function init() {
+            loadTheme();
+            loadContent();
+            updateStats();
+            editor.focus();
+            pushUndoState();
+        }
+
+        // Theme Management
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const current = document.body.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('notepad-theme', newTheme);
+            
+            const icon = document.querySelector('#themeBtn i');
+            icon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        });
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('notepad-theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            const icon = document.querySelector('#themeBtn i');
+            icon.className = savedTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        // Font Size
+        document.getElementById('fontSizeSelect').addEventListener('change', (e) => {
+            const size = e.target.value;
+            editor.style.fontSize = size + 'px';
+            backdrop.style.fontSize = size + 'px';
+            updateHighlights();
+        });
+
+        // File Operations
+        document.getElementById('newBtn').addEventListener('click', newFile);
+        document.getElementById('openBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+        document.getElementById('saveBtn').addEventListener('click', saveFile);
+        document.getElementById('fileInput').addEventListener('change', openFile);
+
+        function newFile() {
+            if (isModified && !confirm('You have unsaved changes. Create new file anyway?')) {
+                return;
+            }
+            editor.value = '';
+            currentFileName = 'untitled.txt';
+            isModified = false;
+            updateStats();
+            updateHighlights();
+            clearFindResults();
+            showToast('New file created');
+            pushUndoState();
+        }
+
+        function openFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                editor.value = event.target.result;
+                currentFileName = file.name;
+                isModified = false;
+                updateFileType();
+                updateStats();
+                updateHighlights();
+                clearFindResults();
+                showToast(`Opened ${file.name}`);
+                pushUndoState();
+                lastSavedState = editor.value;
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        function saveFile() {
+            const blob = new Blob([editor.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            isModified = false;
+            lastSavedState = editor.value;
+            updateStats();
+            showToast('File saved successfully');
+        }
+
+        // Editor Events
+        editor.addEventListener('input', () => {
+            isModified = editor.value !== lastSavedState;
+            updateStats();
+            updateHighlights();
+            if (!findDialog.classList.contains('active')) {
+                clearFindResults();
+            }
+        });
+
+        editor.addEventListener('scroll', () => {
+            backdrop.scrollTop = editor.scrollTop;
+            backdrop.scrollLeft = editor.scrollLeft;
+        });
+
+        editor.addEventListener('keyup', updateCursorPosition);
+        editor.addEventListener('click', updateCursorPosition);
+
+        editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+                updateStats();
+            }
+        });
+
+        // Undo/Redo
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('redoBtn').addEventListener('click', redo);
+
+        function pushUndoState() {
+            undoStack.push(editor.value);
+            if (undoStack.length > 50) undoStack.shift();
+            redoStack = [];
+        }
+
+        function undo() {
+            if (undoStack.length > 1) {
+                redoStack.push(undoStack.pop());
+                editor.value = undoStack[undoStack.length - 1];
+                updateStats();
+                updateHighlights();
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const state = redoStack.pop();
+                undoStack.push(state);
+                editor.value = state;
+                updateStats();
+                updateHighlights();
+            }
+        }
+
+        // Find & Replace
+        document.getElementById('findBtn').addEventListener('click', toggleFindDialog);
+        document.getElementById('closeFindBtn').addEventListener('click', closeFindDialog);
+        document.getElementById('findNextBtn').addEventListener('click', findNext);
+        document.getElementById('replaceBtn').addEventListener('click', replace);
+        document.getElementById('replaceAllBtn').addEventListener('click', replaceAll);
+
+        findInput.addEventListener('input', () => {
+            if (findInput.value) {
+                updateHighlights();
+            } else {
+                clearFindResults();
+            }
+        });
+
+        document.getElementById('caseSensitive').addEventListener('change', updateHighlights);
+        document.getElementById('wholeWord').addEventListener('change', updateHighlights);
+
+        function toggleFindDialog() {
+            findDialog.classList.toggle('active');
+            if (findDialog.classList.contains('active')) {
+                findInput.focus();
+                findInput.select();
+                if (editor.selectionStart !== editor.selectionEnd) {
+                    findInput.value = editor.value.substring(editor.selectionStart, editor.selectionEnd);
+                    updateHighlights();
+                }
+            } else {
+                clearFindResults();
+            }
+        }
+
+        function closeFindDialog() {
+            findDialog.classList.remove('active');
+            clearFindResults();
+            editor.focus();
+        }
+
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function findMatches() {
+            const searchText = findInput.value;
+            if (!searchText) {
+                matches = [];
+                currentMatchIndex = -1;
+                return;
+            }
+
+            const text = editor.value;
+            const flags = document.getElementById('caseSensitive').checked ? 'g' : 'gi';
+            let pattern = escapeRegex(searchText);
+            
+            if (document.getElementById('wholeWord').checked) {
+                pattern = `\\b${pattern}\\b`;
+            }
+
+            const regex = new RegExp(pattern, flags);
+            matches = [];
+            let match;
+            
+            while ((match = regex.exec(text)) !== null) {
+                matches.push({
+                    start: match.index,
+                    end: match.index + match[0].length,
+                    text: match[0]
+                });
+            }
+
+            updateFindInfo();
+        }
+
+        function updateHighlights() {
+            findMatches();
+            
+            if (matches.length === 0) {
+                backdrop.innerHTML = '';
+                return;
+            }
+
+            const text = editor.value;
+            let html = '';
+            let lastIndex = 0;
+
+            matches.forEach((match, index) => {
+                html += escapeHtml(text.substring(lastIndex, match.start));
+                const className = index === currentMatchIndex ? 'current' : '';
+                html += `<mark class="${className}">${escapeHtml(match.text)}</mark>`;
+                lastIndex = match.end;
+            });
+
+            html += escapeHtml(text.substring(lastIndex));
+            backdrop.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function clearFindResults() {
+            matches = [];
+            currentMatchIndex = -1;
+            backdrop.innerHTML = '';
+            findInfo.textContent = 'Enter text to search';
+        }
+
+        function findNext() {
+            if (matches.length === 0) {
+                findMatches();
+            }
+            
+            if (matches.length === 0) {
+                findInfo.textContent = 'No matches found';
+                return;
+            }
+
+            currentMatchIndex = (currentMatchIndex + 1) % matches.length;
+            const match = matches[currentMatchIndex];
+            
+            editor.focus();
+            editor.setSelectionRange(match.start, match.end);
+            
+            // Scroll to match
+            const lineHeight = parseInt(getComputedStyle(editor).lineHeight);
+            const lines = editor.value.substring(0, match.start).split('\n').length;
+            editor.scrollTop = Math.max(0, (lines - 5) * lineHeight);
+            
+            updateHighlights();
+            updateFindInfo();
+        }
+
+        function replace() {
+            if (currentMatchIndex === -1 || matches.length === 0) {
+                findNext();
+                return;
+            }
+
+            const match = matches[currentMatchIndex];
+            const replacement = replaceInput.value;
+            const before = editor.value.substring(0, match.start);
+            const after = editor.value.substring(match.end);
+            
+            pushUndoState();
+            editor.value = before + replacement + after;
+            
+            const newCursorPos = match.start + replacement.length;
+            editor.setSelectionRange(newCursorPos, newCursorPos);
+            
+            updateStats();
+            updateHighlights();
+            findNext();
+            showToast('Replaced 1 occurrence');
+        }
+
+        function replaceAll() {
+            findMatches();
+            if (matches.length === 0) {
+                findInfo.textContent = 'No matches to replace';
+                return;
+            }
+
+            const replacement = replaceInput.value;
+            const count = matches.length;
+            
+            pushUndoState();
+            
+            // Replace from end to start to maintain positions
+            let text = editor.value;
+            for (let i = matches.length - 1; i >= 0; i--) {
+                const match = matches[i];
+                text = text.substring(0, match.start) + replacement + text.substring(match.end);
+            }
+            
+            editor.value = text;
+            updateStats();
+            clearFindResults();
+            showToast(`Replaced ${count} occurrence${count !== 1 ? 's' : ''}`);
+        }
+
+        function updateFindInfo() {
+            if (matches.length === 0) {
+                findInfo.textContent = findInput.value ? 'No matches found' : 'Enter text to search';
+            } else {
+                findInfo.textContent = `Match ${currentMatchIndex + 1} of ${matches.length}`;
+            }
+        }
+
+        // Stats & UI Updates
+        function updateStats() {
+            const text = editor.value;
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const chars = text.length;
+            const lines = text.split('\n').length;
+            
+            document.getElementById('wordCount').textContent = `Words: ${words.toLocaleString()}`;
+            document.getElementById('charCount').textContent = `Chars: ${chars.toLocaleString()}`;
+            document.getElementById('modifiedStatus').textContent = isModified ? 'Modified' : 'Ready';
+            
+            updateCursorPosition();
+        }
+
+        function updateCursorPosition() {
+            const cursorPos = editor.selectionStart;
+            const textBeforeCursor = editor.value.substring(0, cursorPos);
+            const lines = textBeforeCursor.split('\n');
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            
+            document.getElementById('lineCount').textContent = `Line: ${line} Col: ${col}`;
+        }
+
+        function updateFileType() {
+            const ext = currentFileName.split('.').pop().toLowerCase();
+            const types = {
+                'txt': 'Plain Text',
+                'md': 'Markdown',
+                'js': 'JavaScript',
+                'html': 'HTML',
+                'css': 'CSS',
+                'json': 'JSON',
+                'xml': 'XML',
+                'log': 'Log File'
+            };
+            document.getElementById('fileType').textContent = types[ext] || 'Plain Text';
+        }
+
+        // Persistence
+        function loadContent() {
+            const saved = localStorage.getItem('notepad-content');
+            if (saved) {
+                editor.value = saved;
+                lastSavedState = saved;
+            }
+        }
+
+        function saveContent() {
+            localStorage.setItem('notepad-content', editor.value);
+        }
+
+        // Auto-save every 2 seconds
+        setInterval(saveContent, 2000);
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 'n':
+                        e.preventDefault();
+                        newFile();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        saveFile();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        document.getElementById('fileInput').click();
+                        break;
+                    case 'h':
+                        e.preventDefault();
+                        toggleFindDialog();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        toggleFindDialog();
+                        break;
+                }
+            }
+            
+            if (findDialog.classList.contains('active')) {
+                if (e.key === 'Escape') {
+                    closeFindDialog();
+                } else if (e.key === 'Enter' && document.activeElement !== replaceInput) {
+                    e.preventDefault();
+                    findNext();
+                }
+            }
+        });
+
+        // Toast Notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Prevent data loss
+        window.addEventListener('beforeunload', (e) => {
+            saveContent();
+            if (isModified) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>

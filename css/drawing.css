@@ -558,7 +558,15 @@ body{
         }
   
   
-  
+        #preview {
+          display: none;
+          width: 800px;
+          min-height: 400px;
+          margin: 0 auto;
+          background: white;
+          color: black;
+          overflow: auto;
+        }
   
   
       input{

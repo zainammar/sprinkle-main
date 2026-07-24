@@ -1,0 +1,1472 @@
+
+<title>Art Bord</title>
+<link rel="stylesheet" href="css/drawing.css">
+<script src="js/art-board.js"></script>
+<style>
+  .masked-wrapper {
+    position:absolute;
+    left:40px;
+    top:40px;
+    width:260px;
+    height:160px;
+    cursor:move;
+    user-select:none;
+    touch-action: none;
+  }
+  .masked-wrapper svg { width:100%; height:100%; display:block; pointer-events:auto; }
+
+
+  .mask-delete{
+    display:none !important;
+}
+   
+  .resize-handle {
+    position:absolute;
+    right:-8px;
+    bottom:-8px;
+    width:80px;height:80px;
+
+    cursor:se-resize;z-index:60;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .resize-handle :hover{
+        background:#007bff;border-radius:50%;
+  }
+  .masked-wrapper:hover .mask-delete,
+  .masked-wrapper:hover .resize-handle { display:flex; }
+</style>
+<style>
+
+  #main-div {
+    position: relative;
+    background-color:#ffffff;
+    width: 650px;
+    height: 300px;
+    border: 2px solid #333;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: width 0.3s, height 0.3s;
+    background-size: cover;
+    background-position: center;
+  }
+
+</style>
+<style>
+  .collapsible {
+    background-color: #002642;
+    width: 100%;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    font-weight: bolder;
+    text-align: left;
+    outline: none;
+    font-size: 10px;
+  }
+  
+  .active, .collapsible:hover {
+    background-color: #000000;
+    color: #D6CCC2;
+    
+  }
+  
+  .collapsible:after {
+    content: '\002B';
+    color: white;
+    font-weight: bold;
+    float: center;
+    margin-left: 5px;
+  }
+  
+  .active:after {
+    content: "\2212";
+  }
+  
+  .content {
+    padding: 0 18px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+ 
+  }
+.info{
+    font-size: small;
+
+}
+
+
+/* Scroll */
+
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+</head>
+<body>
+<div id="content1" class="content-box">Loading first file...</div>
+<div class="containerA">
+  <div></div>
+
+  <div>
+
+    <div class="containerA">
+      <div></div>
+      <div> 
+          <h1 class="text-9">Sprinkle Art Board</h1> 
+          <h3 class="text-11"> Interactive digital artboard tool  </h3>
+      </div>
+      <div></div>  
+    </div>
+    <br>
+<label style="background-color: aqua;   color:rgb(0, 0, 0);font-weight: bold;padding: 10px;margin: 10px;">Choose Background Color:</label>
+<input type="color" id="bgColorPicker" onchange="changeBgColor()">
+<br>
+
+
+
+<br>
+  
+  <!-- Art Board Div -->
+  <div class="containerA">
+      <div></div>
+      
+      <div>
+  
+  <div>  
+      <div id="main-div">    <div id="mainDiv" class="main-div" aria-live="polite">
+      <canvas id="canvas" width="2000" height="2000"></canvas>
+    </div></div>
+    </div>
+    
+      </div>
+  
+      <div></div>  
+  
+    </div>
+  
+    <div class="containerA">
+      <div></div>
+      <div>
+          <div class=""> 
+              <h2 class="text-11">Download Your Design</h2>
+              <button id="downloadBtn">Download PDF</button>
+              <button onclick="downloadScreenshot()">Download Post</button>
+            </div>
+      </div>
+      <div></div>
+  
+     </div>
+  
+  <!-- Collepes -->
+  
+    <div class="containerB">
+      <div></div>
+      <div> 
+          <button class="collapsible"> Background Color:</button>
+  <div class="content">
+    <p>
+  
+      <label>
+        <p class="text-2">Upload Background Image or Color </p>
+        <input type="color" id="bg-color-input" value="#f0f0f0">
+      </label>
+      <button onclick="applyBgColor()">Apply Color</button>
+  
+      <br>
+      <label>     
+        <input type="file" id="bg-input" accept="image/*">
+      </label>
+    </p>
+  </div>
+      </div>
+      <div>
+          <button class="collapsible"> Reset Art Board Size</button>
+          <div class="content">
+            <p>
+          
+             
+              <div class="controls">
+              
+                <label>
+                <p class="text-2"> Width (px): </p> 
+                  <input type="number" id="width-input" value="300">
+                </label>
+                <label>
+                    <p class="text-2"> Height (px): </p>  
+                  <input type="number" id="height-input" value="200">
+                </label>
+                <br>
+                <button onclick="resizeDiv()">Apply</button>
+             
+              </div>
+          
+            </p>
+          </div>
+      </div>
+      <div></div>
+  
+  </div>
+  <div class="containerB">
+      <div></div>
+      <div>
+          <button class="collapsible">Text & Text Style</button>
+          <div class="content">
+          <p>
+            <div id="controls">
+              <input type="text" id="textInput" placeholder="Enter text" />
+              <input type="color" id="colorPicker" value="#000000" />
+              
+              <select id="fontFamily">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Oswald">Oswald</option>
+              </select>
+          
+              <input type="number" id="fontSize" min="10" max="120" value="15" />
+          
+              <!-- Bold / Italic Buttons -->
+              <button id="boldBtn" class="toggle-btn">B</button>
+              <button id="italicBtn" class="toggle-btn"><i>I</i></button>
+          
+              <button id="addTextBtn">Add Text</button>
+              <button id="deleteBtn">🗑️ Delete Selected</button>
+            </div>
+          </p>
+          </div>
+      </div>
+  
+      <div>
+          <button class="collapsible"> Shapes & Upload Images</button>
+  <div class="content">
+    <p>
+      <div id="toolbar">
+        <!-- Shape Tools -->
+  
+        <button onclick="addRect()">Rectangle</button>      
+        <button onclick="addCircle()">Circle</button>
+        <button onclick="addTriangle()">Triangle</button>
+        <button onclick="addLine()">Line</button>
+        <button onclick="addEllipse()">Ellipse</button>
+        <button onclick="addPolygon()">Polygon</button>
+        <button onclick="addStar()">Star</button>
+        <!-- <button onclick="addText()">Text</button> -->
+        <br>
+    
+     
+        <!-- Upload + Delete -->
+        <input type="file" id="upload" multiple accept="image/*">
+        <button id="delete">🗑️ Delete</button>
+        <br>
+    
+        <!-- Color + Stroke Controls -->
+   
+        <label>Gradient:</label>
+        <input type="color" id="gradientColor" value="#ff9900"><br>
+        <label>Stroke:</label>
+        <input type="color" id="strokeColor" value="#000000"><br>
+        <label>Stroke Size:</label> 
+        <input type="number" id="strokeSize" value="2" min="0" max="20" style="width:60px;"><br>
+        <button onclick="applyGradient()">Apply Gradient</button>
+      </div>
+     
+      </p>
+      </div> 
+      <div></div>
+  
+      </div>  </div>
+      
+      <div class="containerB">
+          <div></div>
+          <div>
+              <button class="collapsible"> Image Filter</button>
+              <div class="content">
+                <p> 
+                  
+            <div id="controls">
+            <input type="file" id="fileInput" accept="image/*">
+            <button id="resetBtn">Reset Filters</button>
+            
+            <label>Brightness <input type="range" id="brightness" min="-1" max="1" step="0.01" value="0"></label>
+            <label>Contrast <input type="range" id="contrast" min="-1" max="1" step="0.01" value="0"></label>
+            <label>Blur <input type="range" id="blur" min="0" max="1" step="0.01" value="0"></label>
+            
+            <label><input type="checkbox" id="grayscale"> Grayscale</label>
+            <label><input type="checkbox" id="invert"> Invert</label>
+            <label><input type="checkbox" id="sepia"> Sepia</label>
+            </div>
+            
+                  
+                </p>
+  
+          </div>     </div>
+          <div>
+              <button class="collapsible"> Text | Image Masked (Clip Mask)</button>
+      <div class="content">
+        <p>    
+          <div class="controls">
+            <!-- Image Mask Panel -->
+            <div class="panel" id="image-panel">
+              <strong>Image Mask</strong><br><br>
+              <label>Choose image <br>      <input type="file" id="image-file" accept="image/*"></label> <br>
+              <label>Mask shape <br>
+                <select id="mask-shape">
+                  <option value="circle">Circle</option>
+                  <option value="ellipse">Ellipse</option>
+                  <option value="rounded-rect">Rounded Rect</option>
+                  <option value="star">Star</option>
+                  <option value="heart">Heart</option>
+                  <option value="pentagon">Pentagon</option>
+                  <option value="polygon">Custom Polygon</option>
+                </select>
+              </label>
+              <div id="polygon-points-label" style="display:none;margin-top:8px">
+                <label>Polygon points (x,y x,y ...):
+                  <input id="polygon-points" placeholder="10,0 90,30 75,90 25,90 10,30" style="width:260px">
+                </label>
+              </div>
+              <div style="margin-top:8px">
+                <button id="add-masked-btn" class="btn-primary">➕ Add Masked Image</button>
+              </div>
+            </div>
+            <br>
+            <!-- Text Mask Panel -->
+            <div class="panel" id="text-panel">
+              <strong>Text Mask (image inside text)</strong><br><br>
+              <label>Enter Text
+                <input type="text" id="maskTextInput" value="HELLO WORLD" style="width:220px">
+              </label> <br>
+              <label>Font Size
+                <input type="number" id="maskFontSize" value="120" style="width:90px">
+              </label>  <br>
+              <label>Font Family
+                <select id="maskFontFamily">
+                  <option value="Impact">Impact</option>
+                  <option value="Arial Black">Arial Black</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Oswald">Oswald</option>
+                  <option value="Georgia">Georgia</option>
+                </select>
+              </label>
+              <br>
+              <label style="margin-top:8px">Upload Image
+                <input type="file" id="maskImageInput" accept="image/*">
+              </label>
+              <div style="margin-top:8px">
+                <button id="addMaskTextBtn" class="btn-primary">➕ Add Text Mask</button>
+              </div>
+            </div>
+        <br>
+            <!-- Global actions -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button id="deleteSelectedBtn" class="btn-ghost">🗑️ Delete Selected</button>
+              <button id="clearAllBtn" class="btn-ghost">Clear All</button>
+              <div class="info">Tip: click an object to select it. For text masks, hold <b>Shift</b> + drag to move the image inside the text.</div>
+            </div>
+          </div>
+          </p>
+      </div>
+          </div>
+          <div></div>
+      </div>  
+      
+      <!-- next Option -->
+      <div class="containerB">
+        <div></div>
+        <div>
+          <button class="collapsible"> 
+            <br>
+            Grid On ART Board</button>
+          <div class="content">
+            <p>    
+              <b>After Compleate Your Work Turn Off Grid</b>
+          <div class="controls">
+            <button id="toggleBtn">Turn Grid On</button>  <br>  <br> 
+            <label class="hint">Grid size: <input id="sizeRange" type="range" min="8" max="128" value="32"></label>
+            <br> <br>
+            <label class="hint">Opacity: <input id="opacityRange" type="range" min="0" max="100" value="18"></label>
+          </div>
+          </div> 
+        
+        
+        </div>
+        
+        <div>
+          <button class="collapsible"> 
+            <br>
+            Brush / Pen Tool Brush </button>
+          <div class="content">
+          
+        
+  <div id="controls">
+    <!-- Brush Tools -->
+    <label>Brush:</label>
+    <select id="brushType" onchange="changeBrush(this.value)"> <br>
+      <option value="none">None</option> <br>
+      <option value="pencil">Pencil</option> <br>
+      <option value="spray">Spray</option> <br>
+      <option value="pattern">Pattern</option> <br>
+      <option value="eraser">Eraser</option> <br>
+    </select>
+
+    <label>Fill:</label>
+    <input type="color" id="fillColor" value="#00aaff"><br>
+<br>
+    <label>Brush Size:</label>
+    <input type="number" id="brushSize" value="10" min="1" max="100" style="width:60px;">
+    <br>
+
+  </div>
+
+          </div> 
+        
+        
+        </div>
+    </div>  
+   
+    <div></div>
+   
+  </div>
+     
+      <div></div>
+     
+    </div>
+
+
+    <!-- 
+
+   -->
+     
+  
+
+
+  </div>
+
+  <div></div>
+
+</div>
+
+       
+<!-- 
+   🎨 Art Board – How to Use
+
+   Open the Art Board page.
+   
+   Choose a background color or upload a background image.
+   
+   Add text using the text tool (adjust font, size, and color).
+   
+   Insert shapes, draw freely, or upload images.
+   
+   Resize and position elements as needed.
+   
+   Apply filters or styling if available.
+   
+   Click Download/Export to save your design (PDF or image format). -->
+        
+
+<!-- Download Option Start -->
+<div id="content2" class="content-box">Loading second file...</div>
+
+<script>
+
+function downloadScreenshot() {
+    let div = document.getElementById("main-div");
+    html2canvas(div, { useCORS: true }).then(canvas => {
+        let image = canvas.toDataURL("image/png");
+        let link = document.createElement("a");
+        link.href = image;
+        link.download = "your-post.png";
+        link.click();
+    });
+}
+</script>
+<script>
+document.getElementById('downloadBtn').addEventListener('click', function () {
+  const element = document.getElementById('main-div');
+
+  const options = {
+    margin:       0.5,
+    filename:     'main-div-content.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(options).from(element).save();
+});
+</script>
+<script>
+function applyBgColor() {
+const color = document.getElementById('bg-color-input').value;
+const mainDiv = document.getElementById('main-div');
+mainDiv.style.backgroundImage = "none"; // remove any background image
+mainDiv.style.backgroundColor = color;  // set selected color
+}
+
+</script>
+<script>
+function resizeDiv() {
+ const width = document.getElementById('width-input').value;
+ const height = document.getElementById('height-input').value;
+ const mainDiv = document.getElementById('main-div');
+ mainDiv.style.width = width + 'px';
+ mainDiv.style.height = height + 'px';
+}
+
+function downloadDiv() {
+ const mainDiv = document.getElementById('main-div');
+ html2canvas(mainDiv).then(canvas => {
+   const link = document.createElement('a');
+   link.download = 'main-div.png';
+   link.href = canvas.toDataURL('image/png');
+   link.click();
+ });
+}
+
+</script>
+
+<script>
+document.getElementById('downloadBtn').addEventListener('click', function () {
+  const element = document.getElementById('main-div');
+
+  const options = {
+    margin:       0.5,
+    filename:     'main-div-content.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(options).from(element).save();
+});
+</script>
+<!-- background  -->
+     
+<Script>
+document.getElementById('bg-input').addEventListener('change', function (event) {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function (e) {
+  document.getElementById('main-div').style.backgroundImage = `url('${e.target.result}')`;
+};
+reader.readAsDataURL(file);
+}
+});
+</Script>
+<script>
+  // === Setup ===
+  const canvas = new fabric.Canvas('canvas');
+  const fillColorInput = document.getElementById('fillColor');
+  const strokeColorInput = document.getElementById('strokeColor');
+  const strokeSizeInput = document.getElementById('strokeSize');
+  const gradientColorInput = document.getElementById('gradientColor');
+  const brushType = document.getElementById('brushType');
+  const brushSize = document.getElementById('brushSize');
+
+  // === Shape Tools ===
+  function addRect() {
+    const rect = new fabric.Rect({
+      left: 100, top: 100, width: 120, height: 80,
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(rect);
+  }
+
+  function addCircle() {
+    const circle = new fabric.Circle({
+      left: 250, top: 150, radius: 50,
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(circle);
+  }
+
+  function addTriangle() {
+    const triangle = new fabric.Triangle({
+      left: 400, top: 150, width: 100, height: 100,
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(triangle);
+  }
+
+  function addLine() {
+    const line = new fabric.Line([50, 50, 250, 50], {
+      left: 200, top: 200,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(line);
+  }
+
+  function addEllipse() {
+    const ellipse = new fabric.Ellipse({
+      left: 200, top: 300,
+      rx: 80, ry: 40,
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(ellipse);
+  }
+
+  function addPolygon() {
+    const points = [
+      {x: 350, y: 250}, {x: 400, y: 200},
+      {x: 450, y: 250}, {x: 425, y: 300}, {x: 375, y: 300}
+    ];
+    const polygon = new fabric.Polygon(points, {
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(polygon);
+  }
+
+  function addStar() {
+    const points = [];
+    const cx = 600, cy = 200, spikes = 5, outerRadius = 50, innerRadius = 25;
+    let rot = Math.PI / 2 * 3, step = Math.PI / spikes;
+    for (let i = 0; i < spikes; i++) {
+      points.push({x: cx + Math.cos(rot) * outerRadius, y: cy + Math.sin(rot) * outerRadius});
+      rot += step;
+      points.push({x: cx + Math.cos(rot) * innerRadius, y: cy + Math.sin(rot) * innerRadius});
+      rot += step;
+    }
+    const star = new fabric.Polygon(points, {
+      fill: fillColorInput.value,
+      stroke: strokeColorInput.value,
+      strokeWidth: parseInt(strokeSizeInput.value)
+    });
+    canvas.add(star);
+  }
+
+  // function addText() {
+  //   const text = new fabric.Textbox("Your Text", {
+  //     left: 100, top: 400,
+  //     fontSize: 24,
+  //     fill: fillColorInput.value,
+  //     stroke: strokeColorInput.value,
+  //     strokeWidth: parseInt(strokeSizeInput.value)
+  //   });
+  //   canvas.add(text);
+  // }
+
+  // === Gradient ===
+  function applyGradient() {
+    const active = canvas.getActiveObject();
+    if (!active) return alert("Select a shape first!");
+
+    const gradient = new fabric.Gradient({
+      type: 'linear',
+      gradientUnits: 'percentage',
+      coords: { x1: 0, y1: 0, x2: 1, y2: 0 },
+      colorStops: [
+        { offset: 0, color: fillColorInput.value },
+        { offset: 1, color: gradientColorInput.value }
+      ]
+    });
+    active.set('fill', gradient);
+    canvas.renderAll();
+  }
+
+  // === Delete ===
+  function deleteSelected() {
+    const active = canvas.getActiveObject();
+    if (active) {
+      canvas.remove(active);
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    }
+  }
+
+  document.getElementById('delete').addEventListener('click', deleteSelected);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Delete' || e.key === 'Backspace') deleteSelected();
+  });
+
+  // === Live Color Update ===
+  [fillColorInput, strokeColorInput, strokeSizeInput].forEach(input => {
+    input.addEventListener('input', () => {
+      const obj = canvas.getActiveObject();
+      if (!obj) return;
+      if (obj.type === 'line') {
+        obj.set({ stroke: strokeColorInput.value, strokeWidth: parseInt(strokeSizeInput.value) });
+      } else {
+        obj.set({
+          fill: fillColorInput.value,
+          stroke: strokeColorInput.value,
+          strokeWidth: parseInt(strokeSizeInput.value)
+        });
+      }
+      canvas.renderAll();
+    });
+  });
+
+  // === Upload Multiple Images ===
+  document.getElementById('upload').addEventListener('change', function (e) {
+    const files = e.target.files;
+    if (!files.length) return;
+
+    Array.from(files).forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function (f) {
+        const imgObj = new Image();
+        imgObj.src = f.target.result;
+        imgObj.onload = function () {
+          const fabricImg = new fabric.Image(imgObj, {
+            left: 50 + index * 30,
+            top: 50 + index * 30,
+            scaleX: 0.4,
+            scaleY: 0.4,
+          });
+          canvas.add(fabricImg);
+          canvas.setActiveObject(fabricImg);
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // === Brush Tools ===
+  function changeBrush(type) {
+    if (type === "none") {
+      canvas.isDrawingMode = false;
+      return;
+    }
+
+    canvas.isDrawingMode = true;
+
+    switch (type) {
+      case "pencil":
+        canvas.freeDrawingBrush = new fabric.PencilBrush(canvas);
+        break;
+      case "spray":
+        canvas.freeDrawingBrush = new fabric.SprayBrush(canvas);
+        break;
+      case "pattern":
+        const patternBrush = new fabric.PatternBrush(canvas);
+        patternBrush.getPatternSrc = function() {
+          const patternCanvas = document.createElement('canvas');
+          patternCanvas.width = patternCanvas.height = 10;
+          const ctx = patternCanvas.getContext('2d');
+          ctx.fillStyle = fillColorInput.value;
+          ctx.fillRect(0, 0, 10, 10);
+          return patternCanvas;
+        };
+        canvas.freeDrawingBrush = patternBrush;
+        break;
+      case "eraser":
+        canvas.freeDrawingBrush = new fabric.EraserBrush(canvas);
+        break;
+    }
+
+    canvas.freeDrawingBrush.width = parseInt(brushSize.value);
+    canvas.freeDrawingBrush.color = fillColorInput.value;
+  }
+
+  brushSize.addEventListener('input', () => {
+    if (canvas.freeDrawingBrush)
+      canvas.freeDrawingBrush.width = parseInt(brushSize.value);
+  });
+
+  fillColorInput.addEventListener('input', () => {
+    if (canvas.freeDrawingBrush)
+      canvas.freeDrawingBrush.color = fillColorInput.value;
+  });
+
+  // === Start Empty ===
+  canvas.clear();
+</script>
+
+</body>
+</html>
+<!-- collapsible -->
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+coll[i].addEventListener("click", function() {
+  this.classList.toggle("active");
+  var content = this.nextElementSibling;
+  if (content.style.maxHeight){
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + "px";
+  } 
+});
+}
+</script>
+
+
+
+
+<!-- Image Filter Script  -->
+<script>
+// const canvas = new fabric.Canvas('c');
+// let fabricImage = null;
+
+// Load image from local file input
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(f) {
+    fabric.Image.fromURL(f.target.result, function(img) {
+      canvas.clear();
+      img.scaleToWidth(800);
+      img.scaleToHeight(450);
+      canvas.add(img);
+      fabricImage = img;
+    });
+  };
+  reader.readAsDataURL(file);
+});
+
+function applyFilters() {
+  if (!fabricImage) return;
+
+  const filters = [];
+
+  const brightness = parseFloat(document.getElementById('brightness').value);
+  const contrast = parseFloat(document.getElementById('contrast').value);
+  const blur = parseFloat(document.getElementById('blur').value);
+  const grayscale = document.getElementById('grayscale').checked;
+  const invert = document.getElementById('invert').checked;
+  const sepia = document.getElementById('sepia').checked;
+
+  if (brightness !== 0) filters.push(new fabric.Image.filters.Brightness({ brightness }));
+  if (contrast !== 0) filters.push(new fabric.Image.filters.Contrast({ contrast }));
+  if (blur > 0) filters.push(new fabric.Image.filters.Blur({ blur }));
+  if (grayscale) filters.push(new fabric.Image.filters.Grayscale());
+  if (invert) filters.push(new fabric.Image.filters.Invert());
+  if (sepia) filters.push(new fabric.Image.filters.Sepia());
+
+  fabricImage.filters = filters;
+  fabricImage.applyFilters();
+  canvas.renderAll();
+}
+
+// Event listeners for filters
+['brightness', 'contrast', 'blur'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyFilters);
+});
+['grayscale', 'invert', 'sepia'].forEach(id => {
+  document.getElementById(id).addEventListener('change', applyFilters);
+});
+
+// Reset filters
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!fabricImage) return;
+  fabricImage.filters = [];
+  document.querySelectorAll('#controls input').forEach(el => {
+    if (el.type === 'range') el.value = 0;
+    if (el.type === 'checkbox') el.checked = false;
+  });
+  fabricImage.applyFilters();
+  canvas.renderAll();
+});
+</script>
+
+<script>
+// const canvas = new fabric.Canvas('canvas', {
+//   backgroundColor: '#fff',
+//   preserveObjectStacking: true,
+// });
+
+const addTextBtn = document.getElementById('addTextBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+const boldBtn = document.getElementById('boldBtn');
+const italicBtn = document.getElementById('italicBtn');
+
+// Toggle state
+let isBold = false;
+let isItalic = false;
+
+boldBtn.onclick = () => {
+  isBold = !isBold;
+  boldBtn.classList.toggle('active', isBold);
+  const obj = canvas.getActiveObject();
+  if (obj && obj.type === 'textbox') {
+    obj.set('fontWeight', isBold ? 'bold' : 'normal');
+    canvas.renderAll();
+  }
+};
+
+italicBtn.onclick = () => {
+  isItalic = !isItalic;
+  italicBtn.classList.toggle('active', isItalic);
+  const obj = canvas.getActiveObject();
+  if (obj && obj.type === 'textbox') {
+    obj.set('fontStyle', isItalic ? 'italic' : 'normal');
+    canvas.renderAll();
+  }
+};
+
+addTextBtn.onclick = function () {
+  const textValue = document.getElementById('textInput').value || 'New Text';
+  const colorValue = document.getElementById('colorPicker').value;
+  const fontValue = document.getElementById('fontFamily').value;
+  const fontSizeValue = parseInt(document.getElementById('fontSize').value);
+
+  const text = new fabric.Textbox(textValue, {
+    left: 200,
+    top: 200,
+    fontSize: fontSizeValue,
+    fill: colorValue,
+    fontFamily: fontValue,
+    fontWeight: isBold ? 'bold' : 'normal',
+    fontStyle: isItalic ? 'italic' : 'normal',
+    editable: true,
+    borderColor: '#007bff',
+    cornerColor: '#007bff',
+    cornerSize: 10,
+    transparentCorners: false,
+    rotatingPointOffset: 30,
+  });
+
+  canvas.add(text);
+  canvas.setActiveObject(text);
+  canvas.renderAll();
+};
+
+// 🗑️ Delete selected text
+deleteBtn.onclick = function () {
+  const activeObject = canvas.getActiveObject();
+  if (activeObject && activeObject.type === 'textbox') {
+    canvas.remove(activeObject);
+    canvas.discardActiveObject();
+    canvas.renderAll();
+  }
+};
+
+// 🎯 Click outside to deselect
+canvas.on('mouse:down', function (e) {
+  if (!e.target) {
+    canvas.discardActiveObject();
+    canvas.renderAll();
+  }
+});
+
+// 🎨 Live updates for color, font, and size
+document.getElementById('colorPicker').oninput = () => {
+  const obj = canvas.getActiveObject();
+  if (obj && obj.type === 'textbox') {
+    obj.set('fill', document.getElementById('colorPicker').value);
+    canvas.renderAll();
+  }
+};
+
+document.getElementById('fontFamily').onchange = () => {
+  const obj = canvas.getActiveObject();
+  if (obj && obj.type === 'textbox') {
+    obj.set('fontFamily', document.getElementById('fontFamily').value);
+    canvas.renderAll();
+  }
+};
+
+document.getElementById('fontSize').oninput = () => {
+  const obj = canvas.getActiveObject();
+  if (obj && obj.type === 'textbox') {
+    obj.set('fontSize', parseInt(document.getElementById('fontSize').value));
+    canvas.renderAll();
+  }
+};
+</script>
+
+<!-- Mask Text & Image -->
+
+
+<script>
+(function () {
+  // Namespaces
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const XLINK_NS = 'http://www.w3.org/1999/xlink';
+
+  // Controls / DOM
+  const mainDiv = document.getElementById('main-div');
+
+  // Image mask controls
+  const fileInput = document.getElementById('image-file');
+  const shapeSelect = document.getElementById('mask-shape');
+  const addBtn = document.getElementById('add-masked-btn');
+  const polygonLabel = document.getElementById('polygon-points-label');
+  const polygonPointsInput = document.getElementById('polygon-points');
+
+  // Text mask controls
+  const maskImageInput = document.getElementById('maskImageInput');
+  const addMaskTextBtn = document.getElementById('addMaskTextBtn');
+  const maskTextInput = document.getElementById('maskTextInput');
+  const maskFontSize = document.getElementById('maskFontSize');
+  const maskFontFamily = document.getElementById('maskFontFamily');
+
+  // Global buttons
+  const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+
+  // show polygon points input when polygon selected
+  shapeSelect.addEventListener('change', () => {
+    polygonLabel.style.display = shapeSelect.value === 'polygon' ? 'block' : 'none';
+  });
+
+  // unique id helper
+  let uidCounter = 1;
+  function uid(prefix='id') { return `${prefix}-${Date.now().toString(36)}-${uidCounter++}`; }
+
+  // selection state
+  let selectedElement = null; // DOM element (wrapper or maskContainer or others)
+
+  function setSelected(el) {
+    // deselect previous
+    if (selectedElement) {
+      selectedElement.classList.remove('selected');
+      // hide its delete button if present
+      const dd = selectedElement.querySelector('.mask-delete, .text-delete');
+      if (dd) dd.style.display = '';
+    }
+    selectedElement = el;
+    if (selectedElement) {
+      selectedElement.classList.add('selected');
+      // show delete button
+      const dd = selectedElement.querySelector('.mask-delete, .text-delete');
+      if (dd) dd.style.display = 'flex';
+    }
+  }
+
+  // clicking on mainDiv deselects
+  mainDiv.addEventListener('mousedown', (e) => {
+    // only deselect if click on background (not on any item)
+    if (e.target === mainDiv) setSelected(null);
+  });
+
+  // --- BUILD SVG CLIP SHAPES ---
+  function buildClipPath(clipId, shapeName) {
+    const cp = document.createElementNS(SVG_NS, 'clipPath');
+    cp.setAttribute('id', clipId);
+    cp.setAttribute('clipPathUnits', 'userSpaceOnUse'); // coords 0..100
+    let shapeEl;
+    switch (shapeName) {
+      case 'circle':
+        shapeEl = document.createElementNS(SVG_NS, 'circle'); shapeEl.setAttribute('cx','50'); shapeEl.setAttribute('cy','50'); shapeEl.setAttribute('r','45'); break;
+      case 'ellipse':
+        shapeEl = document.createElementNS(SVG_NS, 'ellipse'); shapeEl.setAttribute('cx','50'); shapeEl.setAttribute('cy','44'); shapeEl.setAttribute('rx','48'); shapeEl.setAttribute('ry','36'); break;
+      case 'rounded-rect':
+        shapeEl = document.createElementNS(SVG_NS, 'rect'); shapeEl.setAttribute('x','6'); shapeEl.setAttribute('y','10'); shapeEl.setAttribute('width','88'); shapeEl.setAttribute('height','80'); shapeEl.setAttribute('rx','12'); shapeEl.setAttribute('ry','12'); break;
+      case 'star':
+        shapeEl = document.createElementNS(SVG_NS, 'path'); shapeEl.setAttribute('d','M50 6 L61 39 L97 39 L67 59 L78 92 L50 72 L22 92 L33 59 L3 39 L39 39 Z'); break;
+      case 'heart':
+        shapeEl = document.createElementNS(SVG_NS, 'path'); shapeEl.setAttribute('d','M50 82 L18 50 C4 36 14 12 34 22 C46 29 50 44 50 44 C50 44 54 29 66 22 C86 12 96 36 82 50 Z'); break;
+      case 'pentagon':
+        shapeEl = document.createElementNS(SVG_NS, 'polygon'); shapeEl.setAttribute('points','50,6 93,38 76,91 24,91 7,38'); break;
+      case 'polygon':
+        const pts = (polygonPointsInput.value || '').trim();
+        shapeEl = document.createElementNS(SVG_NS, 'polygon');
+        shapeEl.setAttribute('points', pts || '10,0 90,30 75,90 25,90 10,30');
+        break;
+      default:
+        shapeEl = document.createElementNS(SVG_NS, 'rect'); shapeEl.setAttribute('x','0'); shapeEl.setAttribute('y','0'); shapeEl.setAttribute('width','100'); shapeEl.setAttribute('height','100');
+    }
+    cp.appendChild(shapeEl);
+    return cp;
+  }
+
+  // --- CREATE MASKED IMAGE ---
+  function createMaskedImage(dataUrl, shapeName) {
+    const clipId = uid('clip');
+
+    // wrapper element
+    const wrapper = document.createElement('div');
+    wrapper.className = 'masked-wrapper';
+    wrapper.style.left = '40px';
+    wrapper.style.top = '40px';
+    wrapper.style.width = '260px';
+    wrapper.style.height = '160px';
+    wrapper.style.zIndex = 20;
+
+    // svg
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox','0 0 100 100');
+    svg.setAttribute('width','100%');
+    svg.setAttribute('height','100%');
+    svg.setAttribute('preserveAspectRatio','xMidYMid slice');
+
+    // defs + clipPath
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    const clipPathEl = buildClipPath(clipId, shapeName);
+    defs.appendChild(clipPathEl);
+    svg.appendChild(defs);
+
+    // image
+    const img = document.createElementNS(SVG_NS, 'image');
+    img.setAttribute('x','0'); img.setAttribute('y','0'); img.setAttribute('width','100'); img.setAttribute('height','100');
+    img.setAttribute('preserveAspectRatio','xMidYMid slice');
+    img.setAttributeNS(XLINK_NS, 'href', dataUrl);
+    img.setAttribute('href', dataUrl);
+    img.setAttribute('clip-path', `url(#${clipId})`);
+    svg.appendChild(img);
+
+    // delete button (hidden until select or hover)
+    const del = document.createElement('div');
+    del.className = 'mask-delete';
+    del.innerHTML = '&times;';
+    del.title = 'Delete';
+    del.style.display = 'none';
+    del.addEventListener('click', (ev) => { ev.stopPropagation(); if (wrapper.parentElement) wrapper.parentElement.removeChild(wrapper); if (selectedElement===wrapper) selectedElement=null; });
+
+    // resize handle
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'resize-handle';
+    resizeHandle.style.display = 'none';
+
+    // assemble
+    wrapper.appendChild(svg);
+    wrapper.appendChild(del);
+    wrapper.appendChild(resizeHandle);
+    mainDiv.appendChild(wrapper);
+
+    // events: selection on click
+    wrapper.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      setSelected(wrapper);
+    });
+    wrapper.addEventListener('mouseenter', () => {
+      if (!wrapper.classList.contains('selected')) { del.style.display='flex'; resizeHandle.style.display=''; }
+    });
+    wrapper.addEventListener('mouseleave', () => {
+      if (!wrapper.classList.contains('selected')) { del.style.display='none'; resizeHandle.style.display='none'; }
+    });
+
+    // interactions
+    makeDraggable(wrapper, resizeHandle, del);
+    makeResizable(wrapper, resizeHandle);
+  }
+
+  // --- DRAGGING for masked wrapper ---
+  function makeDraggable(wrapper, resizeHandle, del) {
+    let dragging = false;
+    let startX=0, startY=0, startLeft=0, startTop=0;
+
+    function getClient(e) { if (e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY}; return {x:e.clientX, y:e.clientY}; }
+
+    function start(e) {
+      if (e.target === del || e.target === resizeHandle) return;
+      const c = getClient(e);
+      const rect = wrapper.getBoundingClientRect();
+      const containerRect = mainDiv.getBoundingClientRect();
+      dragging = true; startX = c.x; startY = c.y;
+      startLeft = rect.left - containerRect.left; startTop = rect.top - containerRect.top;
+      wrapper.style.zIndex = (1000 + Date.now() % 100000).toString();
+      setSelected(wrapper);
+      e.preventDefault();
+    }
+    function move(e) {
+      if (!dragging) return;
+      const c = getClient(e); const dx = c.x - startX; const dy = c.y - startY;
+      const containerRect = mainDiv.getBoundingClientRect();
+      let newLeft = Math.max(0, Math.min(containerRect.width - wrapper.offsetWidth, startLeft + dx));
+      let newTop = Math.max(0, Math.min(containerRect.height - wrapper.offsetHeight, startTop + dy));
+      wrapper.style.left = newLeft + 'px'; wrapper.style.top = newTop + 'px';
+      e.preventDefault();
+    }
+    function end() { dragging = false; }
+
+    wrapper.addEventListener('mousedown', start);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', end);
+    // touch
+    wrapper.addEventListener('touchstart', start, {passive:false});
+    document.addEventListener('touchmove', move, {passive:false});
+    document.addEventListener('touchend', end);
+  }
+
+  // --- RESIZING for masked wrapper (corner handle) ---
+  function makeResizable(wrapper, handle) {
+    let resizing = false, startX=0, startY=0, startW=0, startH=0;
+    function start(e) {
+      if (e.target !== handle) return;
+      const t = e.touches && e.touches[0]; startX = t? t.clientX : e.clientX; startY = t? t.clientY : e.clientY;
+      startW = wrapper.offsetWidth; startH = wrapper.offsetHeight; resizing = true;
+      e.stopPropagation(); e.preventDefault();
+    }
+    function move(e) {
+      if (!resizing) return;
+      const t = e.touches && e.touches[0]; const cx = t? t.clientX : e.clientX; const cy = t? t.clientY : e.clientY;
+      const dx = cx - startX; const dy = cy - startY;
+      wrapper.style.width = Math.max(40, startW + dx) + 'px';
+      wrapper.style.height = Math.max(30, startH + dy) + 'px';
+      e.preventDefault();
+    }
+    function end() { resizing = false; }
+    handle.addEventListener('mousedown', start);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', end);
+    handle.addEventListener('touchstart', start, {passive:false});
+    document.addEventListener('touchmove', move, {passive:false});
+    document.addEventListener('touchend', end);
+  }
+
+  // --- DROP support for adding by drag/drop into mainDiv ---
+  mainDiv.addEventListener('dragover', (e) => { e.preventDefault(); mainDiv.style.outline = '2px dashed #007bff'; });
+  mainDiv.addEventListener('dragleave', () => { mainDiv.style.outline = 'none'; });
+  mainDiv.addEventListener('drop', (e) => {
+    e.preventDefault(); mainDiv.style.outline = 'none';
+    const f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => createMaskedImage(ev.target.result, shapeSelect.value);
+      reader.readAsDataURL(f);
+    }
+  });
+
+  // wired up add masked image button
+  addBtn.addEventListener('click', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return alert('Please choose an image file first.');
+    const reader = new FileReader();
+    reader.onload = (e) => createMaskedImage(e.target.result, shapeSelect.value);
+    reader.onerror = () => alert('Failed to read the image file.');
+    reader.readAsDataURL(file);
+  });
+
+  // --- TEXT MASK PART ---
+  let uploadedImageForText = null;
+  maskImageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) { uploadedImageForText = event.target.result; };
+    reader.readAsDataURL(file);
+  });
+
+  addMaskTextBtn.addEventListener('click', () => {
+    const text = maskTextInput.value || "Sample";
+    const fontSize = parseInt(maskFontSize.value || 120,10);
+    const fontFamily = maskFontFamily.value || 'Impact';
+    if (!uploadedImageForText) return alert('Please upload an image for text fill first.');
+
+    const maskContainer = document.createElement('div');
+    maskContainer.className = 'masked-text';
+    maskContainer.style.left = '50px';
+    maskContainer.style.top = '50px';
+    maskContainer.style.fontFamily = fontFamily;
+    maskContainer.style.fontSize = fontSize + 'px';
+    maskContainer.style.fontWeight = '900';
+    maskContainer.style.color = 'transparent';
+    maskContainer.style.webkitBackgroundClip = 'text';
+    maskContainer.style.backgroundClip = 'text';
+    maskContainer.style.backgroundImage = `url(${uploadedImageForText})`;
+    maskContainer.style.backgroundSize = 'cover';
+    maskContainer.style.backgroundPosition = 'center';
+    maskContainer.textContent = text;
+    maskContainer.style.overflow = 'hidden';
+    maskContainer.style.position = 'absolute';
+    maskContainer.style.display = 'inline-block';
+
+    // delete button
+    const deleteBtn = document.createElement('div');
+    deleteBtn.className = 'text-delete';
+    deleteBtn.textContent = '';
+    deleteBtn.title = 'Delete';
+    deleteBtn.style.display = 'none';
+    deleteBtn.addEventListener('click', (ev)=>{ ev.stopPropagation(); if (maskContainer.parentElement) maskContainer.parentElement.removeChild(maskContainer); if (selectedElement===maskContainer) selectedElement=null; });
+
+    maskContainer.appendChild(deleteBtn);
+    mainDiv.appendChild(maskContainer);
+
+    // selection & hover behavior
+    maskContainer.addEventListener('mousedown', (e) => { e.stopPropagation(); setSelected(maskContainer); });
+    maskContainer.addEventListener('mouseenter', () => { if (!maskContainer.classList.contains('selected')) deleteBtn.style.display='flex'; });
+    maskContainer.addEventListener('mouseleave', () => { if (!maskContainer.classList.contains('selected')) deleteBtn.style.display='none'; });
+
+    // draggable (text container)
+    makeDraggableText(maskContainer);
+
+    // move image inside text with Shift + drag
+    makeInnerImageMovable(maskContainer);
+  });
+
+  // makeText draggable (simple move)
+  function makeDraggableText(el) {
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    function getClient(e){ if (e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY}; return {x:e.clientX, y:e.clientY}; }
+    function start(e){
+      if (e.target.classList && e.target.classList.contains('text-delete')) return;
+      if (e.shiftKey) return; // shift used to move image inside
+      const c = getClient(e);
+      const rect = el.getBoundingClientRect();
+      const containerRect = mainDiv.getBoundingClientRect();
+      dragging=true; startX=c.x; startY=c.y;
+      startLeft = rect.left - containerRect.left; startTop = rect.top - containerRect.top;
+      setSelected(el);
+      el.style.zIndex = (1000 + Date.now() % 100000).toString();
+      e.preventDefault();
+    }
+    function move(e){
+      if (!dragging) return;
+      const c = getClient(e);
+      const dx = c.x - startX; const dy = c.y - startY;
+      const containerRect = mainDiv.getBoundingClientRect();
+      let newLeft = Math.max(0, Math.min(containerRect.width - el.offsetWidth, startLeft + dx));
+      let newTop = Math.max(0, Math.min(containerRect.height - el.offsetHeight, startTop + dy));
+      el.style.left = newLeft + 'px'; el.style.top = newTop + 'px';
+    }
+    function end(){ dragging=false; }
+    el.addEventListener('mousedown', start);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', end);
+    el.addEventListener('touchstart', start, {passive:false});
+    document.addEventListener('touchmove', move, {passive:false});
+    document.addEventListener('touchend', end);
+  }
+
+  // move image inside text (Shift + drag)
+  function makeInnerImageMovable(el) {
+    let isMovingImage=false, startX=0, startY=0, posX=0, posY=0;
+    function start(e){
+      if (!e.shiftKey) return;
+      isMovingImage=true; startX = e.clientX; startY = e.clientY;
+      el.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+    function move(e){
+      if (!isMovingImage) return;
+      const dx = e.clientX - startX; const dy = e.clientY - startY;
+      startX = e.clientX; startY = e.clientY;
+      posX += dx; posY += dy;
+      // update background-position in px
+      el.style.backgroundPosition = `${posX}px ${posY}px`;
+    }
+    function end(){ isMovingImage=false; el.style.cursor='move'; }
+    el.addEventListener('mousedown', start);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', end);
+    // touch (use two-finger? skip for simplicity)
+  }
+
+  // Delete selected via button
+  deleteSelectedBtn.addEventListener('click', () => {
+    if (!selectedElement) return;
+    if (selectedElement.parentElement) selectedElement.parentElement.removeChild(selectedElement);
+    selectedElement = null;
+  });
+
+  // Clear all
+  clearAllBtn.addEventListener('click', () => {
+    mainDiv.querySelectorAll('.masked-wrapper, .masked-text').forEach(n => n.remove());
+    selectedElement = null;
+  });
+
+  // keyboard delete
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+      if (selectedElement.parentElement) selectedElement.parentElement.removeChild(selectedElement);
+      selectedElement = null;
+    }
+  });
+
+  // helpful log
+  console.info('Merged mask tool ready.');
+})();
+</script>
+<script>
+  const mainDiv = document.getElementById('mainDiv');
+  const toggleBtn = document.getElementById('toggleBtn');
+  const sizeRange = document.getElementById('sizeRange');
+  const opacityRange = document.getElementById('opacityRange');
+
+  function updateToggle(){
+    const on = mainDiv.classList.toggle('grid-on');
+    toggleBtn.textContent = on ? 'Turn Grid Off' : 'Turn Grid On';
+  }
+
+  toggleBtn.addEventListener('click', updateToggle);
+
+  // live update CSS variable for size
+  sizeRange.addEventListener('input', e => {
+    const v = e.target.value + 'px';
+    document.documentElement.style.setProperty('--grid-size', v);
+  });
+
+  // live update CSS variable for opacity (range 0-100 -> 0-1)
+  opacityRange.addEventListener('input', e => {
+    const v = (Number(e.target.value) / 100).toFixed(3);
+    document.documentElement.style.setProperty('--grid-opacity', v);
+  });
+
+  // set initial CSS variables from inputs
+  document.documentElement.style.setProperty('--grid-size', sizeRange.value + 'px');
+  document.documentElement.style.setProperty('--grid-opacity', (Number(opacityRange.value)/100).toFixed(3));
+
+  // Optional: keyboard shortcut G to toggle
+  window.addEventListener('keydown', (ev) => {
+    if(ev.key.toLowerCase() === 'g' && !ev.metaKey && !ev.ctrlKey && !ev.altKey){
+      updateToggle();
+    }
+  });
+</script>
+
+
+<!-- Header Fotter -->
+
+
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
+
+<script>
+  function copyTextA() {
+  const text = document.getElementById("textToCopyA");
+  text.select();
+  text.setSelectionRange(0, 99999); // For mobile devices
+  
+  navigator.clipboard.writeText(text.value).then(() => {
+    alert("Copied to clipboard!");
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
+  }
+  
+  function changeBgColor() {
+  let color = document.getElementById("bgColorPicker").value;
+  document.body.style.backgroundColor = color;
+  }
+  
+  </script>
+  
