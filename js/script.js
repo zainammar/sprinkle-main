@@ -149,3 +149,20 @@ function downloadPDF(bytes, fileName) {
     URL.revokeObjectURL(url);
 
 }
+
+
+document.getElementById("beautify").addEventListener("click", () => {
+
+    const input = document.getElementById("input").value;
+
+    const output = css_beautify(input, {
+        indent_size: 4,
+        indent_char: " ",
+        end_with_newline: true,
+        preserve_newlines: true,
+        max_preserve_newlines: 2
+    });
+
+    document.getElementById("output").value = output;
+
+});
