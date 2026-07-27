@@ -111,6 +111,9 @@ body{
   border: 2px solid #008CBA;
   }
   
+
+    
+
   /* buttononclick{
     padding: 25px;
     margin: 25px;
@@ -180,6 +183,8 @@ body{
     margin: 10px;
   
   }
+
+  
    */
   
   
@@ -595,6 +600,8 @@ body{
           font-size: 20px;
           color: #000;
           text-align:center;
+          padding: 10px;
+          margin: 10px;
          }
         
   
@@ -776,13 +783,6 @@ body{
          .lefta{
           text-align: left;
          }
-
-<<<<<<< HEAD
-=======
-         .centera{
-          text-align: center;
-         }
->>>>>>> 62bf977 (Update project files)
 
          hr.blue {
           border: 1px solid blue;
@@ -1179,10 +1179,28 @@ body{
 
   .dark-2{
     background-color: #441151;
-<<<<<<< HEAD
+
   }
-=======
+  /* color:#a8763e;  */
+  .catag-2{
+    background-color: #fffdfd;
+
+    border:double;
+    border-radius: 20px;
+    border-width: 10px;
+    border-color: #a8763e;
+
   }
 
 
->>>>>>> 62bf977 (Update project files)
+  .tool-card.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .catag-2:hover {
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+    border-color:#000000 ;
+    transform: translateY(-4px);
+  }
+
+  

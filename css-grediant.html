@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gradient Generator</title>
+<link rel="stylesheet" href="css/style-m1.css">
+
+<style>
+    a href{
+    text-decoration: none;
+    color:white;
+  }
+  
+  .buttonx{
+    background-color: #ffffff; /* Green */
+    border: none;
+    color: rgb(0, 0, 0);
+    padding: 4px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    }
+    
+    .buttonx:hover{
+    background-color: white; 
+    color: black; 
+    border: 2px solid #008CBA;
+    }
+</style>
+</head>
+<body>
+
+
+
+        <div class="container">
+            <button class="buttonx">
+                <a href="css-tolls.html">CSS Tolls</a>
+            </button>
+            <h1>🎨 Gradient Generator</h1>
+            
+            <div class="controls">
+            
+            <div class="control">
+            <label>Gradient Type</label>
+            <select id="type">
+            <option value="linear">Linear</option>
+            <option value="radial">Radial</option>
+            <option value="conic">Conic</option>
+            </select>
+            </div>
+            
+            <div class="control">
+            <label>Angle</label>
+            <input type="range" id="angle" min="0" max="360" value="90">
+            <span id="angleValue">90°</span>
+            </div>
+            
+            <div class="control">
+            <label>Color 1</label>
+            <input type="color" id="color1" value="#ff0000">
+            </div>
+            
+            <div class="control">
+            <label>Color 2</label>
+            <input type="color" id="color2" value="#0000ff">
+            </div>
+            
+            </div>
+            
+            <div class="preview" id="preview"></div>
+            
+            <div class="buttons">
+            <button id="randomBtn">🎲 Random</button>
+            <button id="copyBtn">📋 Copy CSS</button>
+            </div>
+            
+            <textarea id="cssCode" readonly></textarea>
+            
+            </div>
+  
+
+
+
+
+<script>
+
+const preview=document.getElementById("preview");
+const type=document.getElementById("type");
+const angle=document.getElementById("angle");
+const angleValue=document.getElementById("angleValue");
+const color1=document.getElementById("color1");
+const color2=document.getElementById("color2");
+const cssCode=document.getElementById("cssCode");
+
+function generateGradient(){
+
+let gradient="";
+
+if(type.value==="linear"){
+gradient=`linear-gradient(${angle.value}deg, ${color1.value}, ${color2.value})`;
+}
+
+if(type.value==="radial"){
+gradient=`radial-gradient(circle, ${color1.value}, ${color2.value})`;
+}
+
+if(type.value==="conic"){
+gradient=`conic-gradient(from ${angle.value}deg, ${color1.value}, ${color2.value})`;
+}
+
+preview.style.background=gradient;
+
+cssCode.value=`background: ${gradient};`;
+
+angleValue.innerHTML=angle.value+"°";
+
+}
+
+function randomColor(){
+return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,"0");
+}
+
+document.getElementById("randomBtn").onclick=function(){
+
+color1.value=randomColor();
+color2.value=randomColor();
+angle.value=Math.floor(Math.random()*361);
+
+generateGradient();
+
+};
+
+document.getElementById("copyBtn").onclick=function(){
+
+navigator.clipboard.writeText(cssCode.value);
+
+alert("CSS Copied!");
+
+};
+
+type.onchange=generateGradient;
+angle.oninput=generateGradient;
+color1.oninput=generateGradient;
+color2.oninput=generateGradient;
+
+generateGradient();
+
+</script>
+
+</body>
+</html>

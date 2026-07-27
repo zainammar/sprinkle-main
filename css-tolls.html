@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<div class="row-3 content-grid">
+  <div class="grid-item-1  catag-2">
+
+    
+    <a href="notepad.html">
+      <div class="tool-icon text-3">📝</div>
+      <h3 class="text-3">Notepad</h3>
+      <p class="text-3">A distraction-free space to jot down quick notes right in your browser.</p>
+    </a>
+
+
+
+</div>
+<div class="grid-item-1  catag-2">
+
+    
+  <a href="css-grediant.html">
+    <div class="tool-icon text-3">📝</div>
+    <h3 class="text-3">Gradient Generator</h3>
+    <p class="text-3">A distraction-free space to jot down quick notes right in your browser.</p>
+  </a>
+
+
+
+</div>
+
+
+
+<div class="grid-item-1  catag-2">
+
+    
+  <a href="notepad.html">
+    <div class="tool-icon text-3">📝</div>
+    <h3 class="text-3">Notepad</h3>
+    <p class="text-3">A distraction-free space to jot down quick notes right in your browser.</p>
+  </a>
+
+
+
+</div>
+
+
+
+</div>
+<br>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
