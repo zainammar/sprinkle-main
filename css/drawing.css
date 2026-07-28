@@ -591,14 +591,7 @@ body{
         }
   
   
-      input{
-          font-family: "Trirong", serif;
-          font-size: 18px;
-          color:rgb(0, 0, 0);
-          padding:0px;
-          margin:0px;
-        }
-      
+   
         .text-1{
           font-family: "Trirong", serif;
           font-size:30px;
@@ -1237,4 +1230,46 @@ line-height: 1.5;
     transform: translateY(-4px);
   }
 
-  
+  .info{
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    margin-bottom:20px;
+    color:#666;
+    font-size:14px;
+} 
+
+
+
+.generate{
+  background:#2563eb;
+  color:#fff;
+}
+
+.generate:hover{
+  background:#1d4ed8;
+}
+
+.copy{
+  background:#16a34a;
+  color:#fff;
+}
+
+.copy:hover{
+  background:#15803d;
+}
+
+.clear{
+  background:#dc2626;
+  color:#fff;
+}
+
+.clear:hover{
+  background:#b91c1c;
+}
+
+.output{
+  width:100%;
+  min-height:170px;
+  background:#fafafa;
+}

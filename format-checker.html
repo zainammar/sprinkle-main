@@ -1,0 +1,231 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<title>File Format Detector</title>
+
+<style>
+
+table{
+    width:80%;
+    border-collapse:collapse;
+}
+th,td{
+    border:1px solid #050000;
+    padding:10px;
+}
+th{
+    width:35%;
+    background:#f1f5ff;
+    text-align:left;
+}
+
+</style>
+</head>
+<body>
+    <div class="row-1 content-grid">
+        <div class="grid-item-1">
+            <div class="container">
+
+                <h1>File Format Detector</h1>
+                <p class="subtitle">
+                Detect the real format of uploaded files using signatures and content analysis.
+                </p>
+                
+                <input type="file" id="fileInput">
+                <br>
+                <table>
+                <tr><th>File Name</th><td id="name">-</td></tr>
+                <tr><th>Current Extension</th><td id="ext">-</td></tr>
+                <tr><th>File Size</th><td id="size">-</td></tr>
+                <tr><th>Browser MIME Type</th><td id="mime">-</td></tr>
+                <tr><th>Detected Format</th><td id="format">-</td></tr>
+                <tr><th>Suggested Extension</th><td id="suggested">-</td></tr>
+                <tr><th>Confidence</th><td id="confidence">-</td></tr>
+                <tr><th>Status</th><td class="status" id="status">Waiting...</td></tr>
+                </table>
+                
+                </div>
+                
+                <script>
+                
+                const input=document.getElementById("fileInput");
+                
+                input.addEventListener("change",async e=>{
+                
+                const file=e.target.files[0];
+                if(!file) return;
+                
+                document.getElementById("name").textContent=file.name;
+                document.getElementById("size").textContent=(file.size/1024).toFixed(2)+" KB";
+                document.getElementById("mime").textContent=file.type||"Unknown";
+                
+                const ext=file.name.includes(".")?file.name.split(".").pop():"(none)";
+                document.getElementById("ext").textContent=ext;
+                
+                const buffer=await file.slice(0,32).arrayBuffer();
+                const bytes=new Uint8Array(buffer);
+                
+                let format="Unknown";
+                let suggested="Unknown";
+                let confidence="Low";
+                
+                /* ---------- Binary Signatures ---------- */
+                
+                if(bytes[0]==0x25 && bytes[1]==0x50 && bytes[2]==0x44 && bytes[3]==0x46){
+                format="PDF";
+                suggested=".pdf";
+                confidence="High";
+                }
+                else if(bytes[0]==0x89 && bytes[1]==0x50 && bytes[2]==0x4E && bytes[3]==0x47){
+                format="PNG Image";
+                suggested=".png";
+                confidence="High";
+                }
+                else if(bytes[0]==0xFF && bytes[1]==0xD8){
+                format="JPEG Image";
+                suggested=".jpg";
+                confidence="High";
+                }
+                else if(bytes[0]==0x47 && bytes[1]==0x49 && bytes[2]==0x46){
+                format="GIF Image";
+                suggested=".gif";
+                confidence="High";
+                }
+                else if(bytes[0]==0x50 && bytes[1]==0x4B){
+                format="ZIP / DOCX / XLSX / PPTX";
+                suggested=".zip";
+                confidence="High";
+                }
+                else if(bytes[0]==0x52 && bytes[1]==0x61 && bytes[2]==0x72 && bytes[3]==0x21){
+                format="RAR Archive";
+                suggested=".rar";
+                confidence="High";
+                }
+                else if(bytes[0]==0x37 && bytes[1]==0x7A){
+                format="7-Zip Archive";
+                suggested=".7z";
+                confidence="High";
+                }
+                else{
+                
+                const text=await file.text();
+                const t=text.trim();
+                
+                /* ---------- Markdown ---------- */
+                
+                if(
+                t.startsWith("# ")||
+                t.startsWith("## ")||
+                t.includes("\n# ")||
+                t.includes("```")||
+                /^\s*[-*+]\s/m.test(t)
+                ){
+                format="Markdown";
+                suggested=".md";
+                confidence="High";
+                }
+                
+                /* ---------- HTML ---------- */
+                
+                else if(/<!doctype html>|<html/i.test(t)){
+                format="HTML";
+                suggested=".html";
+                confidence="High";
+                }
+                
+                /* ---------- JSON ---------- */
+                
+                else{
+                try{
+                JSON.parse(t);
+                format="JSON";
+                suggested=".json";
+                confidence="High";
+                }catch{}
+                }
+                
+                /* ---------- XML ---------- */
+                
+                if(format=="Unknown" && t.startsWith("<?xml")){
+                format="XML";
+                suggested=".xml";
+                confidence="High";
+                }
+                
+                /* ---------- CSV ---------- */
+                
+                if(format=="Unknown"){
+                const lines=t.split("\n");
+                if(lines.length>2 && lines[0].includes(",") && lines[1].includes(",")){
+                format="CSV";
+                suggested=".csv";
+                confidence="Medium";
+                }
+                }
+                
+                /* ---------- CSS ---------- */
+                
+                if(format=="Unknown" && /{[^}]*}/.test(t) && t.includes(":")){
+                format="CSS";
+                suggested=".css";
+                confidence="Medium";
+                }
+                
+                /* ---------- JavaScript ---------- */
+                
+                if(format=="Unknown" && /(function|const |let |var |=>|import |export )/.test(t)){
+                format="JavaScript";
+                suggested=".js";
+                confidence="Medium";
+                }
+                
+                /* ---------- Plain Text ---------- */
+                
+                if(format=="Unknown"){
+                format="Plain Text";
+                suggested=".txt";
+                confidence="Medium";
+                }
+                
+                }
+                
+                document.getElementById("format").textContent=format;
+                document.getElementById("suggested").textContent=suggested;
+                document.getElementById("confidence").textContent=confidence;
+                document.getElementById("status").textContent="Detection Complete";
+                
+                });
+                
+                </script>
+                
+      
+        </div></div>
+
+<br>
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

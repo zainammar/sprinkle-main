@@ -1,0 +1,250 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+<!-- 
+.info{
+    display:flex;
+    justify-content:space-between;
+    margin-top:8px;
+    margin-bottom:20px;
+    color:#666;
+    font-size:14px;
+} -->
+<!-- 
+
+.generate{
+    background:#2563eb;
+    color:#fff;
+}
+
+.generate:hover{
+    background:#1d4ed8;
+}
+
+.copy{
+    background:#16a34a;
+    color:#fff;
+}
+
+.copy:hover{
+    background:#15803d;
+}
+
+.clear{
+    background:#dc2626;
+    color:#fff;
+}
+
+.clear:hover{
+    background:#b91c1c;
+}
+
+.output{
+    width:100%;
+    min-height:170px;
+    background:#fafafa;
+}
+
+.status{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+    color:#16a34a;
+} -->
+
+
+<!-- <style>
+
+footer{
+    margin-top:25px;
+    text-align:center;
+    color:#888;
+    font-size:13px;
+}
+
+@media(max-width:600px){
+
+.info{
+    flex-direction:column;
+    gap:6px;
+}
+
+button{
+    width:100%;
+}
+}
+
+</style> -->
+
+
+    <div class="row-1 content-grid">
+        <div class="grid-item-1">
+      
+            <div class="container">
+
+                <h1>SHA-256 Generator</h1>
+                
+                <label>Input Text</label>
+                
+                <textarea
+                id="input"
+                placeholder="Type or paste your text here..."
+                oninput="updateCount(); autoGenerate();"></textarea>
+                
+                <div class="info">
+                <span id="chars">Characters: 0</span>
+                <span id="bytes">Bytes: 0</span>
+                </div>
+                
+                <div class="buttons">
+                <button class="generate" onclick="generateHash()">Generate SHA-256</button>
+                <button class="copy" onclick="copyHash()">Copy Hash</button>
+                <button class="clear" onclick="clearAll()">Clear</button>
+                </div>
+                
+                <label>SHA-256 Hash</label>
+                
+                <textarea
+                id="output"
+                class="output"
+                readonly
+                placeholder="Generated SHA-256 hash will appear here..."></textarea>
+                
+                <div class="status" id="status"></div>
+        </div></div>
+
+        <div class="row-6 content-grid">
+            <div class="grid-item-1"></div>
+            <div class="grid-item-1">
+                <p class="text-6">Powered by Web Crypto API • No external libraries required</p>
+            </div>
+            <div class="grid-item-1"></div>
+        
+        
+        </div>
+
+
+</div>
+
+<script>
+
+updateCount();
+
+function updateCount(){
+
+const text=document.getElementById("input").value;
+
+document.getElementById("chars").innerHTML=
+"Characters: "+text.length;
+
+const bytes=new TextEncoder().encode(text).length;
+
+document.getElementById("bytes").innerHTML=
+"Bytes: "+bytes;
+
+}
+
+async function generateHash(){
+
+const input=document.getElementById("input").value;
+
+const output=document.getElementById("output");
+
+const status=document.getElementById("status");
+
+status.innerHTML="";
+
+const encoder=new TextEncoder();
+
+const data=encoder.encode(input);
+
+const hashBuffer=await crypto.subtle.digest("SHA-256",data);
+
+const hashArray=Array.from(new Uint8Array(hashBuffer));
+
+const hashHex=hashArray.map(b=>
+b.toString(16).padStart(2,"0")
+).join("");
+
+output.value=hashHex;
+
+status.innerHTML="SHA-256 generated successfully.";
+
+}
+
+function autoGenerate(){
+
+if(document.getElementById("input").value===""){
+
+document.getElementById("output").value="";
+document.getElementById("status").innerHTML="";
+return;
+
+}
+
+generateHash();
+
+}
+
+function copyHash(){
+
+const output=document.getElementById("output");
+
+if(output.value===""){
+alert("Nothing to copy.");
+return;
+}
+
+output.select();
+output.setSelectionRange(0,999999);
+
+navigator.clipboard.writeText(output.value);
+
+document.getElementById("status").innerHTML=
+"Hash copied to clipboard.";
+
+}
+
+function clearAll(){
+
+document.getElementById("input").value="";
+document.getElementById("output").value="";
+document.getElementById("status").innerHTML="";
+
+updateCount();
+
+document.getElementById("input").focus();
+
+}
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
