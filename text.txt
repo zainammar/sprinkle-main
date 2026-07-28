@@ -35,6 +35,32 @@ document.body.style.backgroundColor = color;
 
 
 
+Text 
+
+case-change.html
+text-replace.html
+case-change.html
+
+
+
+PDF
+
+pdf-viewer.html
+pdf-splitter.html
+pdf-splitter.html
+mearg-pdf.html
+
+Design
+
+artboard.html
+html-to-png.html
+
+
+
+
+
+
+
 
 
 <div id="content2" class="content-box">Loading second file...</div>

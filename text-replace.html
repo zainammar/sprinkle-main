@@ -1,11 +1,16 @@
-<div id="content1" class="content-box">Loading first file...</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
-
+            background-color: rgb(3, 0, 0);
+            color: rgb(8, 252, 232);
         }
       
         button {
@@ -47,12 +52,38 @@
     padding: 10px;
   }
 
-  
+  h2{
+    font-size: medium;
+    text-align: left;
+    color: rgb(8, 252, 232);
+  }
         
     </style>
     <style>
-     
-        
+        #copyBtn {
+          padding: 8px 16px;
+          background-color:#6E0E0A;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        #copyBtn:active {
+          background-color:#6E0E0A;
+        }
+        #copyBtn:hover {
+          background-color: #95818D;
+          color: #6E0E0A;
+        }
+        h2 {
+          display: inline-block;
+          margin-right: 10px;
+          color: rgb(8, 252, 232);
+          font-size: medium;
+          text-align: left;
+    
+        }
+
         textarea{
           padding: 8px 16px;
           background-color:#000000;
@@ -67,11 +98,15 @@
       </style>
 </head>
 <body>
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjXg8JV3sNGJYzz68dFKbkDU0W9vjaE_5G8Vh9V2UWeXx7T3d96KVLJSEkapWOAusP5eQeh25GtX13KcCNoeIoy6Vbw7W4CncBeLb1Hsyq_wvvAFLjEiPl5JmI6Xi5pAbioTqYMQMFVx4A-JcXhPYYQ04BPOxCzrsBiN_T4oMc6msIG_EF-GfjH7l7sNmrj/s320/resized-image.png" style=width:50px;height:auto;align-items:center;>
 
+<br>
+<br>   <br>
+<label style="color:white;font-weight: bold;">Choose Background Color:</label>
+<input type="color" id="bgColorPicker" onchange="changeBgColor()">
+<br>
 
-
-    <h2 class="text-8">Notepad</h2>
-    <P> Online Notepad & Text Utility Tool is a lightweight browser-based application that lets users write, edit, and manage text without installing any software. It includes a built-in notepad, clipboard copy functionality, customizable background color, and the ability to export notes in TXT, CSV, and JSON formats. The tool also supports dynamically loading external HTML content, making it useful for documentation, templates, and reusable page sections.</P>
+    <h2 class="heading-1">Zain Ammar</h2>
     <br>
     <textarea id="notepad" placeholder="Write your notes here..."></textarea>
     <br>
@@ -104,6 +139,8 @@
         }
     </script>
 
+<br><br><br>
+  <h2 id="textToCopy">https://dgkrpw7s91dr0.cloudfront.net</h2>
  
 <br><br>
   <script>
@@ -134,32 +171,81 @@
     }
   </script>
   <br>
-  <div id="content2" class="content-box">Loading second file...</div>
-  <!-- Header Fotter -->
-  <script>
-  window.addEventListener('DOMContentLoaded', () => {
-    // You can change the file names here
-    const filesToLoad = {
-      content1: 'page1.html',
-      content2: 'page2.html'
-    };
+
+<div>
+  <div>
+    <h2>  
+  [<br>
+    "pdf",<br>
+    "done"<br>
+]<br>
+</h2> 
+</div>
+</div>
+  <div class="grid-container-4">
+<div>
+<h2>https://dgkrpw7s91dr0.cloudfront.net</h2><br>
+
+
+<div>
+
+
+  <h2>  python3 -m venv env      </h2> <br>
+  <h2>  source env/bin/activate      </h2> <br>
+  <h2>  python3 manage.py runserver      </h2> <br>
+
+  <h2> git init                     </h2><br>
+  <h2> git status</h2><br>
+  <h2> git add .</h2><br>
+  <h2> git commit -m "Change UI"  </h2><br>
+  <h2> git push -u origin main </h2><br>
+ <h2> python3 manage.py makemigrations </h2><br>
+ <h2> python3 manage.py migrate </h2><br>
+</div>
+    </div>
+
+
+    <div>
+
+
+      <h2> python3 manage.py startapp themeOne    </h2> <br>
+      <h2> python3 -m PIL    </h2> <br>
+      <h2> python3 -m pip install Pillow    </h2> <br>
+      <h2> pip install django   </h2> <br>
+      <h2> python3 manage.py makemigrations   </h2> <br>
+      <h2> python3 -m django --version   </h2> <br>
+      <h2> python3 manage.py startapp assignments       </h2> <br>
+      <h2> python3 manage.py runserver       </h2> <br>
+      <h2> python3 manage.py createsuperuser       </h2> <br>
   
-    // Loop through and load each file into its matching div
-    for (const [divId, filename] of Object.entries(filesToLoad)) {
-      fetch(filename)
-        .then(response => {
-          if (!response.ok) throw new Error(`File not found: ${filename}`);
-          return response.text();
-        })
-        .then(data => {
-          document.getElementById(divId).innerHTML = data;
-        })
-        .catch(error => {
-          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
-        });
-    }
-  });
-  </script>
+    
+    
+    </div>
+        </div>
+
+
+
+
+<!-- 
+    <div>
+
+
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+      <h2>        </h2> <br>
+    
+    
+    </div>
+        </div> -->
+
+
 
 </body>
 </html>
@@ -205,7 +291,7 @@ navigator.clipboard.writeText(text).then(() => {
 </script>
 <br>
 
-<!-- <script>
+<script>
 function copyTextA() {
 const text = document.getElementById("textToCopyA");
 text.select();
@@ -223,5 +309,4 @@ let color = document.getElementById("bgColorPicker").value;
 document.body.style.backgroundColor = color;
 }
 
-</script> -->
-
+</script>

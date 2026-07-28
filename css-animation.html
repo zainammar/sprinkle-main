@@ -1,0 +1,145 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+
+
+<title>CSS Animation Generator</title>
+<style>
+
+.wrap{display:grid;grid-template-columns:320px 1fr;gap:20px;padding:20px}
+.panel,.preview{background:#626366;border-radius:12px;padding:18px}
+label{display:block;margin:10px 0 4px}
+input,select,textarea,button{width:100%}
+.stage{height:320px;display:flex;align-items:center;justify-content:center;background:#111827;border-radius:10px}
+#box{width:120px;height:120px;background:#3b82f6;border-radius:12px;animation:demo 2s ease infinite alternate}
+textarea{height:220px;margin-top:15px}
+@keyframes demo{0%{transform:none}100%{transform:translateX(150px) rotate(360deg) scale(1.5)}}
+
+</style>
+<!-- A CSS Animation Generator is a powerful tool that helps developers create smooth and engaging animations without writing complex CSS code manually. Simply customize properties such as duration, delay, timing function, iteration count, direction, and keyframes through an intuitive interface, then instantly generate production-ready CSS code. It allows you to preview animations in real time, making it easier to fine-tune effects for buttons, cards, text, images, and other UI elements. Whether you're building interactive websites, landing pages, or web applications, a CSS Animation Generator speeds up development while ensuring clean, responsive, and reusable animation code. -->
+<div class="row-3 content-grid">
+  <div class="grid-item-1">
+
+</div>
+<div class="grid-item-1">
+
+</div>
+<div class="grid-item-1">
+
+</div>
+</div>
+<div class="row-11 content-grid">
+    <div class="grid-item-1">
+
+        <div class="panel">
+            <label2>Duration <span id=dv>2</span>s</label><input id=dur type=range min=.5 max=10 step=.5 value=2>
+            <label2>Translate X <span id=tv>150</span>px</label><input id=tx type=range min=-250 max=250 value=150>
+            <label2>Rotate <span id=rv>360</span>°</label><input id=rot type=range min=0 max=360 value=360>
+            <label2>Scale <span id=sv>1.5</span></label><input id=sc type=range min=.5 max=3 step=.1 value=1.5>
+            <label2>Colour</label><input id=col type=color value="#3b82f6">
+            <button id=copy>Copy CSS</button>
+            </div>
+            </div>
+            <div class="grid-item-1">
+
+            </div>
+            <div class="grid-item-1">
+            <div class="preview">
+            <div class="stage"><div id=box></div></div>
+            <textarea id=css readonly></textarea>
+            </div>
+        </div>
+           <script>
+            const b=box;
+            function upd(){
+            dv.textContent=dur.value;tv.textContent=tx.value;rv.textContent=rot.value;sv.textContent=sc.value;
+            b.style.background=col.value;
+            const k=`@keyframes demo{
+            0%{transform:translateX(0) rotate(0deg) scale(1)}
+            100%{transform:translateX(${tx.value}px) rotate(${rot.value}deg) scale(${sc.value})}
+            }`;
+            css.value=`.box{
+            animation:demo ${dur.value}s ease infinite alternate;
+            background:${col.value};
+            }
+            \n${k}`;
+            let st=document.getElementById("dyn");
+            if(!st){st=document.createElement("style");st.id="dyn";document.head.appendChild(st);}
+            st.textContent=k;
+            b.style.animation="none";void b.offsetWidth;
+            b.style.animation=`demo ${dur.value}s ease infinite alternate`;
+            }
+            document.querySelectorAll("input").forEach(i=>i.oninput=upd);
+            copy.onclick=()=>navigator.clipboard.writeText(css.value);
+            upd();
+            </script>
+
+    </div>
+    <div class="grid-item-1">
+        <div class="wrap">
+
+
+</div>
+
+</div>
+<div class="row-1 content-grid">
+  <div class="grid-item-1">
+<style>
+.box{
+            animation:demo 2s ease infinite alternate;
+            background:#3be1f7;
+            }
+            
+@keyframes demo{
+            0%{transform:translateX(0) rotate(0deg) scale(1)}
+            100%{transform:translateX(150px) rotate(360deg) scale(1.5)}
+            }
+</style>
+</div>
+
+</div>
+
+<div class="row-11 content-grid">
+<div class="grid-item-1">
+
+
+</div>
+<div class="grid-item-1">
+
+  <div class="box text-7">Demo</div>
+</div>
+</div>
+<div class="grid-item-1">
+
+  
+</div>
+
+</div>
+<br>
+    <div id="content2" class="content-box">Loading second file...</div>
+    <!-- Header Fotter -->
+    <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // You can change the file names here
+      const filesToLoad = {
+        content1: 'page1.html',
+        content2: 'page2.html'
+      };
+    
+      // Loop through and load each file into its matching div
+      for (const [divId, filename] of Object.entries(filesToLoad)) {
+        fetch(filename)
+          .then(response => {
+            if (!response.ok) throw new Error(`File not found: ${filename}`);
+            return response.text();
+          })
+          .then(data => {
+            document.getElementById(divId).innerHTML = data;
+          })
+          .catch(error => {
+            document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+          });
+      }
+    });
+    </script>
+    
