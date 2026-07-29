@@ -247,7 +247,10 @@ function getWordHtml() {
 document.getElementById('downloadDocxBtn').addEventListener('click', () => {
   if (!editor.innerText.trim()) { alert('Pehle kuch likhein.'); return; }
   const html = getWordHtml();
-  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const blob = new Blob(
+    [html],
+    { type: 'application/msword;charset=utf-8' }
+);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;

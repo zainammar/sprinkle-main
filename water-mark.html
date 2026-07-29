@@ -1,18 +1,17 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
   <title>Image Watermark Tool (JS)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <style>
-    body { font-family: Inter, Arial, sans-serif; margin: 18px; color:#111; }
+    /* body { font-family: Inter, Arial, sans-serif; margin: 18px; color:#111; }
     h1 { font-size:18px; margin:0 0 12px 0; }
     .controls { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; align-items:center; }
     .controls label { font-size:13px; display:flex; flex-direction:column; gap:6px; }
     input[type="file"] { padding:6px 0; }
     canvas { border:1px solid #ddd; display:block; max-width:100%; margin-bottom:12px; touch-action: none; }
     .btn { padding:8px 12px; border-radius:6px; border:1px solid #aaa; background:#f6f6f6; cursor:pointer; }
-    .btn.primary { background:#2563eb; color:white; border-color:transparent; }
+    .btn.primary { background:#2563eb; color:white; border-color:transparent; } */
     .small { font-size:13px; padding:6px 8px; }
     .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .muted { color:#666; font-size:13px; }
@@ -20,69 +19,81 @@
   </style>
 </head>
 <body>
-  <h1>Image Watermark Tool — add & drag a watermark</h1>
+  <div class="row-1 content-grid">
+    <div class="grid-item-1">
+  <h1>Sprinkle Design Text & Image Watermark Tool — add & drag a watermark</h1>
 
-  <div class="controls">
-    <label>
-      Base image
-      <input id="baseFile" type="file" accept="image/*">
-    </label>
+  </div></div>
+  <div class="row-3 content-grid">
+    <div class="grid-item-1"></div>
+    <div class="grid-item-1">
 
-    <label>
-      Watermark (text)
-      <input id="wmText" type="text" placeholder="Type watermark text" value="© MyBrand">
-    </label>
-
-    <label>
-      Font
-      <select id="fontSelect">
-        <option value="48px sans-serif">48px sans-serif</option>
-        <option value="48px Arial">48px Arial</option>
-        <option value="48px 'Times New Roman'">48px Times</option>
-        <option value="36px sans-serif">36px sans-serif</option>
-      </select>
-    </label>
-
-    <label>
-      Color
-      <input id="wmColor" type="color" value="#ffffff">
-    </label>
-
-    <label>
-      Opacity
-      <input id="wmOpacity" type="range" min="0" max="1" step="0.05" value="0.5">
-    </label>
-
-    <label>
-      Text / Image watermark
-      <select id="wmMode">
-        <option value="text">Text</option>
-        <option value="image">Image</option>
-      </select>
-    </label>
-
-    <label id="wmImageLabel" style="display:none;">
-      Upload watermark image
-      <input id="wmFile" type="file" accept="image/*">
-    </label>
-
-    <label id="imgScaleLabel" style="display:none;">
-      Scale
-      <input id="imgScale" type="range" min="0.1" max="2" step="0.05" value="0.5">
-    </label>
-
-    <div class="row">
-      <button id="resetBtn" class="btn small">Reset position</button>
-      <button id="bakeBtn" class="btn primary small">Bake & Download</button>
+      <div class="controls">
+        <label>
+          Base image
+          <input id="baseFile" type="file" accept="image/*">
+        </label>
+    
+        <label>
+          Watermark (text)
+          <input id="wmText" type="text" placeholder="Type watermark text" value="© MyBrand">
+        </label>
+    
+        <label>
+          Font
+          <select id="fontSelect">
+            <option value="48px sans-serif">48px sans-serif</option>
+            <option value="48px Arial">48px Arial</option>
+            <option value="48px 'Times New Roman'">48px Times</option>
+            <option value="36px sans-serif">36px sans-serif</option>
+          </select>
+        </label>
+    
+        <label>
+          Color
+          <input id="wmColor" type="color" value="#ffffff">
+        </label>
+    
+        <label>
+          Opacity
+          <input id="wmOpacity" type="range" min="0" max="1" step="0.05" value="0.5">
+        </label>
+    
+        <label>
+          Text / Image watermark
+          <select id="wmMode">
+            <option value="text">Text</option>
+            <option value="image">Image</option>
+          </select>
+        </label>
+    
+        <label id="wmImageLabel" style="display:none;">
+          Upload watermark image
+          <input id="wmFile" type="file" accept="image/*">
+        </label>
+    
+        <label id="imgScaleLabel" style="display:none;">
+          Scale
+          <input id="imgScale" type="range" min="0.1" max="2" step="0.05" value="0.5">
+        </label>
+    
+        <div class="row">
+          <button id="resetBtn" class="btn small">Reset position</button>
+          <button id="bakeBtn" class="btn primary small">Bake & Download</button>
+        </div>
+      </div>
+    
+      <canvas id="canvas" width="800" height="500"></canvas>
+    
+      <div class="info">
+        Drag the watermark to position it. Use touch on a mobile device. Click <strong>Bake & Download</strong> to export a PNG file.
+      </div>
+    
     </div>
+  
+    <div class="grid-item-1"></div>
   </div>
-
-  <canvas id="canvas" width="800" height="500"></canvas>
-
-  <div class="info">
-    Drag the watermark to position it. Use touch on a mobile device. Click <strong>Bake & Download</strong> to export a PNG file.
-  </div>
-
+  
 <script>
 (() => {
   const baseFile = document.getElementById('baseFile');
@@ -327,5 +338,40 @@
   draw();
 })();
 </script>
-</body>
-</html>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+  
+    </div>
+  
+  
+  </div>
+  
+
+
+
