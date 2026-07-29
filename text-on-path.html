@@ -1,0 +1,251 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+<title>Text on Path — SVG (editable)</title>
+
+<style>
+ 
+  .controls { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  label { font-size:13px; color:#222; display:flex; gap:6px; align-items:center; }
+  input[type="text"], select, input[type="number"], input[type="range"] { padding:8px; border-radius:6px; border:1px solid #ddd; }
+  button { padding:8px 10px; border-radius:6px; border:0; background:#0b78ff; color:white; cursor:pointer; }
+  #svgwrap { background:white; border-radius:8px; padding:12px; box-shadow:0 8px 24px rgba(10,20,40,0.06); width:920px; max-width:100%; }
+  svg { width:900px; height:360px; display:block; background:transparent; border:1px dashed rgba(0,0,0,0.06); }
+  .hint { font-size:13px; color:#555; margin-top:10px; }
+  .small { font-size:12px; color:#444; }
+</style>
+</head>
+<body>
+      
+    <div class="row-1 content-grid">
+        <div class="grid-item-1">
+            <h2 class="text-9">Text on Path — SVG (editable)</h2>
+      
+        </div>
+      
+      
+      </div>
+
+
+<div class="controls">
+  <label>Text: <input id="textInput" type="text" value="Write on this path!" style="width:360px"></label>
+  <label>Font size: <input id="fontSize" type="number" min="8" max="200" value="36" style="width:90px"></label>
+  <label>Font: 
+    <select id="fontFamily">
+      <option>Arial</option><option>Georgia</option><option>Impact</option><option>"Times New Roman"</option><option>Verdana</option>
+    </select>
+  </label>
+  <label>Direction:
+    <select id="direction"><option value="ltr" selected>left → right</option><option value="rtl">right → left</option></select>
+  </label>
+
+  <label>startOffset:
+    <input id="startOffset" type="range" min="0" max="100" value="0" style="width:160px">
+  </label>
+
+  <button id="swapPath">➕ Change Path</button>
+  <button id="exportBtn">💾 Export PNG</button>
+</div>
+
+<div id="svgwrap">
+  <svg id="svg" viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs></defs>
+
+    <!-- sample path (id=mainPath) and visible stroke for editing -->
+    <g id="pathGroup" transform="translate(0,0)" style="cursor:grab">
+      <path id="mainPath" d="M40 200 Q 225 20 410 200 Q 595 380 780 200" fill="none" stroke="rgba(20,120,255,0.18)" stroke-width="4" />
+    </g>
+
+    <!-- text block anchored to path -->
+    <text id="textOnPath" font-size="36" font-family="Arial" fill="#111">
+      <textPath id="tp" xlink:href="#mainPath" startOffset="0%">
+        Write on this path!
+      </textPath>
+    </text>
+
+    <!-- small helper: visible handle circle at path center (optional) -->
+  </svg>
+</div>
+
+<div class="hint">Tip: Drag the path to move it. Use the <b>startOffset</b> slider to move text along the path. Change text/font/size in controls. Click <b>Export PNG</b> to download.</div>
+
+<script>
+(() => {
+  // Elements
+  const svg = document.getElementById('svg');
+  const mainPath = document.getElementById('mainPath');
+  const tp = document.getElementById('tp');
+  const textInput = document.getElementById('textInput');
+  const fontSizeInput = document.getElementById('fontSize');
+  const fontFamilySelect = document.getElementById('fontFamily');
+  const directionSelect = document.getElementById('direction');
+  const startOffsetRange = document.getElementById('startOffset');
+  const swapPathBtn = document.getElementById('swapPath');
+  const exportBtn = document.getElementById('exportBtn');
+  const pathGroup = document.getElementById('pathGroup');
+
+  // sample paths
+  const samplePaths = [
+    'M40 200 Q 225 20 410 200 Q 595 380 780 200',
+    'M40 180 C 120 60, 200 300, 280 160 C 360 20, 440 300, 520 160 C 600 20, 680 300, 780 160',
+    'M40 200 A 360 360 0 0 1 860 200',
+    'M150 200 C 150 70, 360 70, 360 200 C 360 300, 150 300, 150 200 Z'
+  ];
+  let curPath = 0;
+
+  // update text when user types
+  textInput.addEventListener('input', () => {
+    tp.textContent = textInput.value || ' ';
+  });
+
+  // update font size/family
+  function applyFont() {
+    const fs = parseInt(fontSizeInput.value, 10) || 36;
+    document.getElementById('textOnPath').setAttribute('font-size', fs);
+    document.getElementById('textOnPath').setAttribute('font-family', fontFamilySelect.value);
+  }
+  fontSizeInput.addEventListener('input', applyFont);
+  fontFamilySelect.addEventListener('change', applyFont);
+
+  // direction (rtl -> reverse path by reversing the path string)
+  directionSelect.addEventListener('change', () => {
+    const dir = directionSelect.value;
+    if (dir === 'ltr') {
+      // restore current sample path
+      mainPath.setAttribute('d', samplePaths[curPath]);
+    } else {
+      // reverse path commands roughly by reversing points (simple approach: reverse segments)
+      // For our simple sample paths this works; for complex arbitrary svg paths, you'd need a path parser.
+      mainPath.setAttribute('d', reversePathString(samplePaths[curPath]));
+    }
+  });
+
+  // startOffset slider (0..100 perc)
+  startOffsetRange.addEventListener('input', () => {
+    tp.setAttribute('startOffset', startOffsetRange.value + '%');
+  });
+
+  // swap path
+  swapPathBtn.addEventListener('click', () => {
+    curPath = (curPath + 1) % samplePaths.length;
+    const dir = directionSelect.value;
+    mainPath.setAttribute('d', dir === 'ltr' ? samplePaths[curPath] : reversePathString(samplePaths[curPath]));
+  });
+
+  // simple path reverse helper (works for our sample path shapes)
+  function reversePathString(d) {
+    // This is a naive reversal appropriate for the sample cubic/quad/arc paths used above.
+    // For production use, use a proper SVG path parser and reverse segments correctly.
+    // We'll split by 'M' then reverse the numeric sequences; this keeps examples working.
+    // Better approach: convert to points and rebuild path (omitted for brevity).
+    // Fallback: reverse the entire string as characters (not ideal) — so we implement a little smarter:
+    // For our patterns, just mirror horizontally by translating coordinates; easiest visual "reverse" is to flip horizontally.
+    // We'll mirror path by reflecting x around center 450 (svg width/2).
+    const cmds = d.match(/[A-Za-z][^A-Za-z]*/g) || [];
+    const width = 900;
+    const cx = width / 2;
+    const reversed = cmds.map(token => {
+      const cmd = token[0];
+      const nums = token.slice(1).trim().split(/[\s,]+/).filter(Boolean).map(Number);
+      // reflect x coordinates (every even index starting at 0 is x)
+      for (let i = 0; i < nums.length; i += 2) {
+        if (!isNaN(nums[i])) nums[i] = 2 * cx - nums[i];
+      }
+      return cmd + nums.join(' ');
+    }).join(' ');
+    return reversed;
+  }
+
+  // allow dragging the whole pathGroup
+  let dragging = false, start = {x:0,y:0}, curTransform = {x:0,y:0};
+  pathGroup.style.cursor = 'grab';
+  pathGroup.addEventListener('pointerdown', (ev) => {
+    dragging = true; pathGroup.setPointerCapture(ev.pointerId);
+    start.x = ev.clientX; start.y = ev.clientY;
+    // parse current translate
+    const tr = pathGroup.getAttribute('transform') || 'translate(0,0)';
+    const m = tr.match(/translate\((-?\d+\.?\d*),\s*(-?\d+\.?\d*)\)/);
+    curTransform.x = m ? parseFloat(m[1]) : 0;
+    curTransform.y = m ? parseFloat(m[2]) : 0;
+    pathGroup.style.cursor = 'grabbing';
+  });
+  pathGroup.addEventListener('pointermove', (ev) => {
+    if (!dragging) return;
+    const dx = ev.clientX - start.x;
+    const dy = ev.clientY - start.y;
+    pathGroup.setAttribute('transform', `translate(${curTransform.x + dx}, ${curTransform.y + dy})`);
+  });
+  pathGroup.addEventListener('pointerup', (ev) => { dragging = false; pathGroup.releasePointerCapture(ev.pointerId); pathGroup.style.cursor = 'grab'; });
+
+  // Export PNG: serialize SVG, create Image, draw to canvas
+  exportBtn.addEventListener('click', async () => {
+    // synchronize startOffset to percentage textContent in case ranges or values are set
+    const svgCopy = svg.cloneNode(true);
+    // Remove any controls we don't want (none)
+    // Set width/height for rasterization
+    const width = 900, height = 360;
+    svgCopy.setAttribute('width', width);
+    svgCopy.setAttribute('height', height);
+    // Fix xlink namespace for serialization
+    svgCopy.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+    // Inline external fonts? We'll use system fonts for now.
+
+    const serializer = new XMLSerializer();
+    const svgStr = serializer.serializeToString(svgCopy);
+    const blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      // white background (optional) - comment out if you want transparent background
+      // ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      // download
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = 'text-on-path.png';
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+    img.onerror = (e) => { URL.revokeObjectURL(url); alert('Failed to export image.'); };
+    img.src = url;
+  });
+
+  // Initialize values
+  tp.setAttribute('startOffset', startOffsetRange.value + '%');
+  tp.textContent = textInput.value;
+  applyFont();
+})();
+</script>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
