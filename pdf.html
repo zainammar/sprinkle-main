@@ -1,0 +1,79 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+  
+
+
+
+
+        <div class="row-4 content-grid">
+
+            <div class="grid-item-1  tool-card">
+      
+                <a href="pdf-viewer.html">
+                    <div class="tool-icon">📄</div>
+                    <h3>PDF Viewer</h3>
+                    <p>View PDF from here</p>
+                  </a>
+              
+            </div>
+
+
+            <div class="grid-item-1  tool-card2">
+          
+          
+    <a  href="mearg-pdf.html">
+        <div class="tool-icon">📄</div>
+        <h3> Merge All PDFs</h3>
+        <p>You can easily merge PDFs with this app.</p>
+      </a>
+  
+           
+              </div>
+            
+                <div class="grid-item-1  tool-card2">
+          
+                    <a href="pdf-splitter.html">
+                        <div class="tool-icon">📄</div>
+                        <h3>Split PDF</h3>
+                        <p>Files quickly and easily by selecting specific pages or page ranges.</p>
+                      </a>
+                </div>
+              
+                <div class="grid-item-1 ">
+          
+                  
+
+
+                </div>
+            </div>
+
+
+        
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

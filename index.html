@@ -1,7 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sprinkle — Handy Little Web Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -341,7 +340,7 @@
 </head>
 <body>
 
-<header>
+<!-- <header>
   <nav class="wrap">
     <div class="brand"><span class="dot"></span>Sprinkle</div>
     <div class="nav-links">
@@ -351,7 +350,7 @@
     </div>
     <a class="nav-cta" href="#tools">Browse tools</a>
   </nav>
-</header>
+</header> -->
 
 <section class="hero wrap">
   <div class="hero-top">
@@ -361,17 +360,17 @@
   </div>
 
   <div class="collage">
-    <div class="sticker s1"><span class="emoji">🎨</span><span class="label">Artboard</span></div>
-    <div class="sticker s2 solid"><span class="emoji">🔳</span><span class="label">QR Codes</span></div>
-    <div class="sticker s3 mustard"><span class="emoji">🌈</span><span class="label">Gradients</span></div>
-    <div class="sticker s4"><span class="emoji">🖼️</span><span class="label">HTML → PNG</span></div>
-    <div class="sticker s5"><span class="emoji">🔐</span><span class="label">SHA-256</span></div>
-    <div class="sticker s6 solid"><span class="emoji">📄</span><span class="label">Merge PDFs</span></div>
-    <div class="sticker s7"><span class="emoji">🔤</span><span class="label">Case Changer</span></div>
-    <div class="sticker s8 mustard"><span class="emoji">⏰</span><span class="label">Time</span></div>
-    <div class="sticker s9"><span class="emoji">🟣</span><span class="label">CSS Minifier</span></div>
-    <div class="sticker s10"><span class="emoji">🎥</span><span class="label">Camera</span></div>
-    <div class="sticker s11 solid"><span class="emoji">🧪</span><span class="label">Format Check</span></div>
+    <div class="sticker s1">    <a href="artboard.html"><span class="emoji">🎨</span><span class="label">Artboard</span></a></div>
+    <div class="sticker s2 solid">    <a href="qr-code.html"> <span class="emoji">🔳</span><span class="label">QR Codes</span></a></div>
+    <div class="sticker s3 mustard"><a href="css-grediant.html"><span class="emoji">🌈</span><span class="label">Gradients</span></a></div>
+    <div class="sticker s4"><a  href="html-to-png.html"><span class="emoji">🖼️</span><span class="label">HTML → PNG</span></a></div>
+    <div class="sticker s5"><a  href="sha-256.html"><span class="emoji">🔐</span><span class="label">SHA-256</span></a></div>
+    <div class="sticker s6 solid"><a  href="mearg-pdf.html"><span class="emoji">📄</span><span class="label">Merge PDFs</span></a></div>
+    <div class="sticker s7"><a  href="case-change.html"><span class="emoji">🔤</span><span class="label">Case Changer</span></a></div>
+    <div class="sticker s8 mustard"><a href="time.html"><span class="emoji">⏰</span><span class="label">Time</span></a></div>
+    <div class="sticker s9"><a href="css-minifier.html"><span class="emoji">🟣</span><span class="label">CSS Minifier</span></a></div>
+    <div class="sticker s10"><a  href="camera-video-recorder.html"><span class="emoji">🎥</span><span class="label">Camera</span></a></div>
+    <div class="sticker s11 solid"><a href="format-checker.html"><span class="emoji">🧪</span><span class="label">Format Check</span></a></div>
   </div>
 </section>
 
@@ -481,40 +480,30 @@
   </div>
 </div>
 
-<footer class="wrap">
-  <div class="footer-grid">
-    <div>
-      <div class="brand"><span class="dot"></span>Sprinkle</div>
-      <p style="color:var(--ink-soft); font-size:13px; max-width:220px; margin-top:12px;"> Sprinkle is your pocket toolkit for the web. A collection of fast, handy, and free browser tools that just work — no installs, no sign-ups, no hassle.</p>
-    </div>
-    <div>
-      <h4>Tolls</h4>
-      <div class="footer-links">
-        <a href="#tools">All tools</a>
-        <a href="#about">Suggest a tool</a>
-      </div>
-    </div>
-    <div>
-      <h4>Studio</h4>
-      <div class="footer-links">
-        <a href="https://zainammar.website" target="_blank">Portfolio</a>
-        <h4>Other Products</h4>
-        <a href="https://studylms.website" target="_blank">Study Learning Management 
-          System & <br>
-          School Management System</a>
-          <a href="https://studylms.website" target="_blank">Medical Tech <br> Hospital Management 
-            System</a>
-      </div>
-    </div>
-    <div>
- 
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 Sprinkle</span>
-    <span>Built with CSS Grid</span>
-  </div>
-</footer>
 
-</body>
-</html>
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

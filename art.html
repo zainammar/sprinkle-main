@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<div class="row-4 content-grid">
+  <div class="grid-item-1 tool-card">
+
+    <div class="image-icon">🎨</div>
+    <a class="" href="artboard.html">
+       
+        <h3>Artboard</h3>
+        <p>A simple freehand drawing canvas for quick sketches and doodles.</p>
+      </a>
+
+    </div>
+  
+      <div class="grid-item-1 tool-card">
+
+        <a class="" href="html-to-png.html">
+            <div class="tool-icon">🖼️</div>
+              <!-- <div class="tool-icon"> </div> -->
+              <h3>Upload HTML → Get PNG</h3>
+              <p>Convert HTML to PNG online </p>
+            </a>
+
+      </div>
+      <div class="grid-item-1 tool-card">
+        <a href="image-converter.html">
+            <div class="tool-icon">🖼️</div>
+            <h3>Image Size Converter</h3>
+        
+          </a>
+    
+      </div>
+      <div class="grid-item-1 tool-card">
+
+        <a class="" href="qr-code.html">
+            <div class="tool-icon">🔳</div>
+            <h3>QR Code Generator</h3>
+            <p>Turn any text or link into a scannable QR code in seconds.</p>
+          </a>
+      
+      
+      </div>
+  </div>
+
+
+
+        
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

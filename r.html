@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rich Text Editor</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 30px 16px;
+  }
+  .editor-wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+    background: #fafafa;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+  }
+  .toolbar button, .toolbar select {
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+  }
+  .toolbar button:hover, .toolbar select:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+  }
+  .toolbar button.active {
+    background: #e0e7ff;
+    border-color: #6366f1;
+    color: #4338ca;
+  }
+  .toolbar .sep {
+    width: 1px;
+    background: #e5e7eb;
+    margin: 4px 4px;
+  }
+  input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 2px;
+    cursor: pointer;
+    background: none;
+  }
+  #editor {
+    min-height: 320px;
+    padding: 24px;
+    outline: none;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #111827;
+  }
+  #editor:empty:before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+  }
+  #editor img { max-width: 100%; }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #fafafa;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .footer button {
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .footer button:hover { background: #4338ca; }
+</style>
+
+<!-- Library for exporting to PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="editor-wrap">
+  <div class="toolbar" id="toolbar">
+    <select id="blockFormat">
+      <option value="p">Paragraph</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="blockquote">Quote</option>
+    </select>
+
+    <div class="sep"></div>
+
+    <button data-cmd="bold" title="Bold"><b>B</b></button>
+    <button data-cmd="italic" title="Italic"><i>I</i></button>
+    <button data-cmd="underline" title="Underline"><u>U</u></button>
+    <button data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+
+    <div class="sep"></div>
+
+    <button data-cmd="justifyLeft" title="Align Left">⯇</button>
+    <button data-cmd="justifyCenter" title="Align Center">≡</button>
+    <button data-cmd="justifyRight" title="Align Right">⯈</button>
+
+    <div class="sep"></div>
+
+    <button data-cmd="insertUnorderedList" title="Bullet List">• List</button>
+    <button data-cmd="insertOrderedList" title="Numbered List">1. List</button>
+    <button data-cmd="outdent" title="Outdent">⇤</button>
+    <button data-cmd="indent" title="Indent">⇥</button>
+
+    <div class="sep"></div>
+
+    <button id="linkBtn" title="Insert Link">🔗</button>
+    <button data-cmd="removeFormat" title="Clear Formatting">Tx</button>
+
+    <div class="sep"></div>
+
+    <input type="color" id="textColor" title="Text Color" value="#111827">
+    <input type="color" id="bgColor" title="Highlight Color" value="#fff59d">
+
+    <div class="sep"></div>
+
+    <button data-cmd="undo" title="Undo">↺</button>
+    <button data-cmd="redo" title="Redo">↻</button>
+  </div>
+
+  <div id="editor" contenteditable="true" data-placeholder="Yahan likhna shuru karein..."></div>
+
+  <div class="footer">
+    <span id="wordCount">0 words</span>
+    <div style="display:flex; gap:8px;">
+      <button id="downloadDocxBtn">⬇ Word (.doc)</button>
+      <button id="downloadPdfBtn">⬇ PDF</button>
+      <button id="getHtmlBtn">Get HTML</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const editor = document.getElementById('editor');
+const toolbar = document.getElementById('toolbar');
+const blockFormat = document.getElementById('blockFormat');
+const wordCount = document.getElementById('wordCount');
+
+// Simple command buttons (bold, italic, lists, alignment, etc.)
+toolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    editor.focus();
+    document.execCommand(btn.dataset.cmd, false, null);
+    updateToolbarState();
+  });
+});
+
+// Block format dropdown (paragraph / headings / quote)
+blockFormat.addEventListener('change', () => {
+  editor.focus();
+  document.execCommand('formatBlock', false, blockFormat.value);
+});
+
+// Text color
+document.getElementById('textColor').addEventListener('input', (e) => {
+  editor.focus();
+  document.execCommand('foreColor', false, e.target.value);
+});
+
+// Highlight / background color
+document.getElementById('bgColor').addEventListener('input', (e) => {
+  editor.focus();
+  document.execCommand('hiliteColor', false, e.target.value);
+});
+
+// Link insertion
+document.getElementById('linkBtn').addEventListener('click', () => {
+  const url = prompt('Link URL daalein:', 'https://');
+  if (url) {
+    editor.focus();
+    document.execCommand('createLink', false, url);
+  }
+});
+
+// Highlight active formatting buttons (bold/italic/underline etc.) based on cursor position
+function updateToolbarState() {
+  ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList']
+    .forEach(cmd => {
+      const btn = toolbar.querySelector('button[data-cmd="' + cmd + '"]');
+      if (btn) btn.classList.toggle('active', document.queryCommandState(cmd));
+    });
+}
+
+editor.addEventListener('keyup', () => { updateToolbarState(); updateWordCount(); });
+editor.addEventListener('mouseup', updateToolbarState);
+editor.addEventListener('input', updateWordCount);
+
+function updateWordCount() {
+  const text = editor.innerText.trim();
+  const words = text.length ? text.split(/\s+/).length : 0;
+  wordCount.textContent = words + ' words';
+}
+
+// Export the editor's HTML content (e.g. to send to a backend)
+document.getElementById('getHtmlBtn').addEventListener('click', () => {
+  const html = editor.innerHTML;
+  console.log(html);
+  alert('HTML console mein print ho gaya hai (F12 se dekhein).\n\nPreview:\n' + html.slice(0, 300));
+});
+
+// Wrap editor content in a Word-compatible HTML shell.
+// This is the standard, reliable way to export formatted content that Word opens natively -
+// far more dependable than third-party HTML-to-docx conversion libraries.
+function getWordHtml() {
+  var parts = [];
+  parts.push('<html xmlns:o="urn:schemas-microsoft-com:office:office" ');
+  parts.push('xmlns:w="urn:schemas-microsoft-com:office:word" ');
+  parts.push('xmlns="http://www.w3.org/TR/REC-html40">');
+  parts.push('<head><meta charset="utf-8"><title>Document</title></head>');
+  parts.push('<body>');
+  parts.push(editor.innerHTML);
+  parts.push('</body></html>');
+  return parts.join('');
+}
+
+// Download as Word (.doc) — opens directly in Microsoft Word / LibreOffice / Google Docs with formatting intact
+document.getElementById('downloadDocxBtn').addEventListener('click', () => {
+  if (!editor.innerText.trim()) { alert('Pehle kuch likhein.'); return; }
+  const html = getWordHtml();
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'document.doc';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+});
+
+// Download as PDF
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+  if (!editor.innerText.trim()) { alert('Pehle kuch likhein.'); return; }
+  const opt = {
+    margin: 0.6,
+    filename: 'document.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(editor).save();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+     
+
+
+   
+  
+  
+
+
+  
+        
+    
+
+
+
+        <div class="row-4 content-grid">
+          
+              
+                <div class="grid-item-1  tool-card">
+          
+                   
+
+
+                </div>
+
+               
+              
+        
+                      <div class="grid-item-1 tool-card">
+                        <a  href="case-change.html">
+                            <div class="tool-icon">🔤</div>
+                            <h3>Case Changer</h3>
+                            <p>Instantly convert text to UPPERCASE, lowercase, Title Case and more.</p>
+                          </a>
+                      
+                      </div>
+
+                      <div class="grid-item-1  tool-card">
+          
+                      
+                        <a href="time.html">
+                            <div class="tool-icon">⏰</div>
+                            <h3>Time</h3>
+                            <p>A clean live clock and time utility for keeping track of the moment.</p>
+                          </a>
+     
+     
+                     </div>
+
+                     <div class="grid-item-1  tool-card">
+      
+                        <a href="format-checker.html">
+                            <div class="tool-icon">🧪</div>
+                            <h3> File Format Detector </h3>
+                            <p>Detect the real format of uploaded files using signatures and content analysis.</p>
+                          </a>
+                      
+                    </div>
+            </div>
+
+
+
+            <div class="row-4 content-grid">
+                <div class="grid-item-1  tool-card">
+
+                    <a class="" href="qr-code.html">
+                        <div class="tool-icon">🔳</div>
+                        <h3>QR Code Generator</h3>
+                        <p>Turn any text or link into a scannable QR code in seconds.</p>
+                      </a>
+                  
+
+                </div>
+                <div class="grid-item-1  tool-card">
+
+
+                </div>
+                <div class="grid-item-1  tool-card">
+
+
+                </div>
+                <div class="grid-item-1  tool-card">
+
+
+                </div>
+            </div>
+
+        
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
