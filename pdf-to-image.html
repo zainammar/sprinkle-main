@@ -1,0 +1,276 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+<title>PDF to Image Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+ 
+  p.sub {
+    text-align: center;
+    color: #94a3b8;
+    margin-top: 0;
+    margin-bottom: 25px;
+  }
+  .drop-zone {
+    border: 2px dashed #475569;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: #1e293b;
+  }
+  .drop-zone.dragover {
+    border-color: #38bdf8;
+    background: #1e3a5f;
+  }
+  .drop-zone input { display: none; }
+  .drop-zone .icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .controls label {
+    font-size: 0.9rem;
+    color: #000000;
+  }
+  select, button {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  button.primary {
+    background: #0284c7;
+    border-color: #0284c7;
+    font-weight: 600;
+  }
+  button.primary:hover { background: #0369a1; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #status {
+    text-align: center;
+    color: #94a3b8;
+    margin: 10px 0;
+    min-height: 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .page-card {
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #334155;
+  }
+  .page-card img {
+    width: 100%;
+    display: block;
+    border-bottom: 1px solid #334155;
+  }
+  .page-card .info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  .page-card a {
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  #downloadAllBtn { display: none; }
+</style>
+
+<div class="container">
+  <h1 class="text-9">PDF → Image Converter</h1>
+  <p class="text-3">Upload a PDF to extract every page as an image.</p>
+
+  <div class="drop-zone" id="dropZone">
+    
+    <div class="icon">📁</div>
+    <div><p class="text-4">Drag or click here to select</p> </div>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="controls">
+    <label>Quality/Scale:
+      <select id="scaleSelect">
+        <option value="1">1x (Fast)</option>
+        <option value="2" selected>2x (Recommended)</option>
+        <option value="3">3x (High Quality)</option>
+      </select>
+    </label>
+    <label>Format:
+      <select id="formatSelect">
+        <option value="image/png">PNG</option>
+        <option value="image/jpeg">JPEG</option>
+      </select>
+    </label>
+    <button class="primary" id="convertBtn" disabled>Convert</button>
+    <button id="downloadAllBtn">⬇ Download All (ZIP)</button>
+  </div>
+
+  <div id="status"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const convertBtn = document.getElementById('convertBtn');
+const downloadAllBtn = document.getElementById('downloadAllBtn');
+const status = document.getElementById('status');
+const grid = document.getElementById('grid');
+const scaleSelect = document.getElementById('scaleSelect');
+const formatSelect = document.getElementById('formatSelect');
+
+let selectedFile = null;
+let generatedImages = []; // {name, blob}
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  if (file.type !== 'application/pdf') {
+    status.textContent = '⚠️ Sirf PDF file select karein.';
+    return;
+  }
+  selectedFile = file;
+  dropZone.querySelector('div:nth-child(2)').textContent = `Selected: ${file.name}`;
+  convertBtn.disabled = false;
+  status.textContent = '';
+  grid.innerHTML = '';
+  downloadAllBtn.style.display = 'none';
+}
+
+convertBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  convertBtn.disabled = true;
+  grid.innerHTML = '';
+  generatedImages = [];
+  status.textContent = 'PDF load ho rahi hai...';
+
+  try {
+    const arrayBuffer = await selectedFile.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const scale = parseFloat(scaleSelect.value);
+    const format = formatSelect.value;
+    const ext = format === 'image/png' ? 'png' : 'jpg';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      status.textContent = `Page ${pageNum} / ${pdf.numPages} convert ho raha hai...`;
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, format, 0.92));
+      const fileName = `${selectedFile.name.replace(/\.pdf$/i, '')}-page-${pageNum}.${ext}`;
+      generatedImages.push({ name: fileName, blob });
+
+      const url = URL.createObjectURL(blob);
+      const card = document.createElement('div');
+      card.className = 'page-card';
+      card.innerHTML = `
+        <img src="${url}" alt="Page ${pageNum}">
+        <div class="info">
+          <span>Page ${pageNum}</span>
+          <a href="${url}" download="${fileName}">Download</a>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    status.textContent = `✅ Done! ${pdf.numPages} pages convert ho gaye.`;
+    downloadAllBtn.style.display = 'inline-block';
+  } catch (err) {
+    console.error(err);
+    status.textContent = '❌ Error: ' + err.message;
+  } finally {
+    convertBtn.disabled = false;
+  }
+});
+
+downloadAllBtn.addEventListener('click', async () => {
+  if (!generatedImages.length) return;
+  downloadAllBtn.disabled = true;
+  downloadAllBtn.textContent = 'ZIP ban raha hai...';
+  const zip = new JSZip();
+  generatedImages.forEach(img => zip.file(img.name, img.blob));
+  const content = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(content);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (selectedFile ? selectedFile.name.replace(/\.pdf$/i, '') : 'pdf-images') + '-images.zip';
+  a.click();
+  URL.revokeObjectURL(url);
+  downloadAllBtn.disabled = false;
+  downloadAllBtn.textContent = '⬇ Sab Download Karein (ZIP)';
+});
+</script>
+
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

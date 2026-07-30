@@ -1313,6 +1313,7 @@ line-height: 1.5;
     color:rgb(255, 252, 252);
     padding: 10px;
     margin: 10px;
+    
   
 }
 
@@ -1320,6 +1321,7 @@ line-height: 1.5;
   font-style:italic;
   background-color: #7C7A54;
   transition: transform .25s ease, box-shadow .25s ease;
+
 }
 
 
@@ -1331,8 +1333,8 @@ line-height: 1.5;
     border: 2px solid black;
     padding: 3px 5px;
     border-radius: 5px;
-    background-color:#D9A441;
-    color:rgb(0, 0, 0);
+    background-color:#7C7A54;
+    color:rgb(255, 255, 255);
     padding: 10px;
     margin: 10px;
   

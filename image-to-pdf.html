@@ -1,0 +1,311 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+<title>Image to PDF Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  p.sub { text-align: center; color: #94a3b8; margin-top: 0; margin-bottom: 25px; }
+  .drop-zone {
+    border: 2px dashed #475569;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: #1e293b;
+  }
+  .drop-zone.dragover { border-color: #38bdf8; background: #1e3a5f; }
+  .drop-zone input { display: none; }
+  .drop-zone .icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .controls label { font-size: 0.9rem; color: #000000; }
+  select, button {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  button.primary { background: #0284c7; border-color: #0284c7; font-weight: 600; }
+  button.primary:hover { background: #0369a1; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #status { text-align: center; color: #94a3b8; margin: 10px 0; min-height: 20px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+  .img-card {
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #334155;
+    position: relative;
+  }
+  .img-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+  .img-card .num {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: #0284c7;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .img-card .remove {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .img-card .name {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    padding: 5px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hint { text-align: center; color: #ffffff; font-size: 0.8rem; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 class="text-9">Image → PDF Converter</h1>
+  <p class="text-3">Upload multiple images and convert them into one PDF.</p>
+
+  <div class="drop-zone" id="dropZone">
+    <div class="icon">📁</div>
+    <div><p class="text-4"> Drag and drop images here, or click to select multiple images. </p></div>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+  </div>
+
+  <div class="controls">
+    <label>Page Size:
+      <select id="pageSizeSelect">
+        <option value="a4" selected>A4</option>
+        <option value="letter">Letter</option>
+        <option value="fit">Image Size (Fit)</option>
+      </select>
+    </label>
+    <label>Orientation:
+      <select id="orientSelect">
+        <option value="p" selected>Portrait</option>
+        <option value="l">Landscape</option>
+      </select>
+    </label>
+    <label>Margin:
+      <select id="marginSelect">
+        <option value="0">None</option>
+        <option value="10" selected>Small</option>
+        <option value="20">Large</option>
+      </select>
+    </label>
+    <button class="primary" id="convertBtn" disabled>PDF </button>
+  </div>
+
+  <div id="status"></div>
+  <div class="grid" id="grid"></div>
+  <p class="hint" id="hint" style="display:none;">Drag and drop images to change their order (click ❌ to remove an image).</p>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const convertBtn = document.getElementById('convertBtn');
+const status = document.getElementById('status');
+const grid = document.getElementById('grid');
+const hint = document.getElementById('hint');
+const pageSizeSelect = document.getElementById('pageSizeSelect');
+const orientSelect = document.getElementById('orientSelect');
+const marginSelect = document.getElementById('marginSelect');
+
+let images = []; // {file, url, id}
+let dragSrcIndex = null;
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) addFiles(e.target.files);
+  fileInput.value = '';
+});
+
+function addFiles(fileList) {
+  const arr = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  arr.forEach(file => {
+    images.push({ file, url: URL.createObjectURL(file), id: Math.random().toString(36).slice(2) });
+  });
+  renderGrid();
+  convertBtn.disabled = images.length === 0;
+  hint.style.display = images.length > 1 ? 'block' : 'none';
+  status.textContent = '';
+}
+
+function renderGrid() {
+  grid.innerHTML = '';
+  images.forEach((img, i) => {
+    const card = document.createElement('div');
+    card.className = 'img-card';
+    card.draggable = true;
+    card.dataset.index = i;
+    card.innerHTML = `
+      <div class="num">${i + 1}</div>
+      <button class="remove" data-id="${img.id}">✕</button>
+      <img src="${img.url}" alt="${img.file.name}">
+      <div class="name">${img.file.name}</div>
+    `;
+    card.addEventListener('dragstart', () => dragSrcIndex = i);
+    card.addEventListener('dragover', e => e.preventDefault());
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const targetIndex = i;
+      if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
+      const moved = images.splice(dragSrcIndex, 1)[0];
+      images.splice(targetIndex, 0, moved);
+      dragSrcIndex = null;
+      renderGrid();
+    });
+    card.querySelector('.remove').addEventListener('click', () => {
+      images = images.filter(im => im.id !== img.id);
+      renderGrid();
+      convertBtn.disabled = images.length === 0;
+      hint.style.display = images.length > 1 ? 'block' : 'none';
+    });
+    grid.appendChild(card);
+  });
+}
+
+function loadImageDims(url) {
+  return new Promise(resolve => {
+    const im = new Image();
+    im.onload = () => resolve({ w: im.naturalWidth, h: im.naturalHeight });
+    im.src = url;
+  });
+}
+
+convertBtn.addEventListener('click', async () => {
+  if (!images.length) return;
+  convertBtn.disabled = true;
+  status.textContent = 'PDF ban raha hai...';
+
+  try {
+    const pageSizeMode = pageSizeSelect.value;
+    const orientation = orientSelect.value;
+    const margin = parseFloat(marginSelect.value);
+
+    let doc;
+
+    for (let i = 0; i < images.length; i++) {
+      status.textContent = `Image ${i + 1} / ${images.length} process ho rahi hai...`;
+      const { url, file } = images[i];
+      const dims = await loadImageDims(url);
+      const isPng = file.type.includes('png');
+      const format = isPng ? 'PNG' : 'JPEG';
+
+      const dataUrl = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+
+      if (pageSizeMode === 'fit') {
+        const pdfOrient = dims.w > dims.h ? 'l' : 'p';
+        if (i === 0) {
+          doc = new jsPDF({ orientation: pdfOrient, unit: 'px', format: [dims.w, dims.h] });
+        } else {
+          doc.addPage([dims.w, dims.h], pdfOrient);
+        }
+        doc.addImage(dataUrl, format, 0, 0, dims.w, dims.h);
+      } else {
+        if (i === 0) {
+          doc = new jsPDF({ orientation, unit: 'mm', format: pageSizeMode });
+        } else {
+          doc.addPage(pageSizeMode, orientation);
+        }
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const availW = pageW - margin * 2;
+        const availH = pageH - margin * 2;
+        const ratio = Math.min(availW / dims.w, availH / dims.h);
+        const drawW = dims.w * ratio;
+        const drawH = dims.h * ratio;
+        const x = (pageW - drawW) / 2;
+        const y = (pageH - drawH) / 2;
+        doc.addImage(dataUrl, format, x, y, drawW, drawH);
+      }
+    }
+
+    doc.save('images-to-pdf.pdf');
+    status.textContent = `✅ Done! ${images.length} images se PDF ban gayi.`;
+  } catch (err) {
+    console.error(err);
+    status.textContent = '❌ Error: ' + err.message;
+  } finally {
+    convertBtn.disabled = false;
+  }
+});
+</script>
+
+
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
