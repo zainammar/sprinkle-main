@@ -27,47 +27,81 @@
       </div>
 
 
-<div class="controls">
-  <label>Text: <input id="textInput" type="text" value="Write on this path!" style="width:360px"></label>
-  <label>Font size: <input id="fontSize" type="number" min="8" max="200" value="36" style="width:90px"></label>
-  <label>Font: 
-    <select id="fontFamily">
-      <option>Arial</option><option>Georgia</option><option>Impact</option><option>"Times New Roman"</option><option>Verdana</option>
-    </select>
-  </label>
-  <label>Direction:
-    <select id="direction"><option value="ltr" selected>left → right</option><option value="rtl">right → left</option></select>
-  </label>
+      <div class="row-3 content-grid">
+        <div class="grid-item-1">
+      
+      
+        </div>
+      
+        <div class="grid-item-1">
+      
+          <div class="controls">
+            <label>Text: <input id="textInput" type="text" value="Write on this path!" style="width:360px"></label>
+            <label>Font size: <input id="fontSize" type="number" min="8" max="200" value="36" style="width:90px"></label>
+            <label>Font: 
+              <select id="fontFamily">
+                <option>Arial</option><option>Georgia</option><option>Impact</option><option>"Times New Roman"</option><option>Verdana</option>
+              </select>
+            </label>
+            <label>Direction:
+              <select id="direction"><option value="ltr" selected>left → right</option><option value="rtl">right → left</option></select>
+            </label>
+          
+            <label>startOffset:
+              <input id="startOffset" type="range" min="0" max="100" value="0" style="width:160px">
+            </label>
+          
+            <button id="swapPath">➕ Change Path</button>
+            <button id="exportBtn">💾 Export PNG</button>
+          </div>
+          
+          <div id="svgwrap">
+            <svg id="svg" viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <defs></defs>
+          
+              <!-- sample path (id=mainPath) and visible stroke for editing -->
+              <g id="pathGroup" transform="translate(0,0)" style="cursor:grab">
+                <path id="mainPath" d="M40 200 Q 225 20 410 200 Q 595 380 780 200" fill="none" stroke="rgba(20,120,255,0.18)" stroke-width="4" />
+              </g>
+          
+              <!-- text block anchored to path -->
+              <text id="textOnPath" font-size="36" font-family="Arial" fill="#111">
+                <textPath id="tp" xlink:href="#mainPath" startOffset="0%">
+                  Write on this path!
+                </textPath>
+              </text>
+          
+              <!-- small helper: visible handle circle at path center (optional) -->
+            </svg>
+          </div>
+        </div>
+        <div class="grid-item-1">
+      
+      
+        </div>
+      </div>
 
-  <label>startOffset:
-    <input id="startOffset" type="range" min="0" max="100" value="0" style="width:160px">
-  </label>
+      <div class="row-6 content-grid">
+        <div class="grid-item-1">
+      
+      
+        </div>
+      
+        <div class="grid-item-1">
+      
+      <h2 class="text-3">
+        Tip: Drag the path to move it. Use the <b>startOffset</b> slider to move text along the path. Change text/font/size in controls. Click <b>Export PNG</b> to download.
+      </h2>
+        </div>
+      
+        <div class="grid-item-1">
+      
+      
+        </div>
+      
+      </div>
 
-  <button id="swapPath">➕ Change Path</button>
-  <button id="exportBtn">💾 Export PNG</button>
-</div>
-
-<div id="svgwrap">
-  <svg id="svg" viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs></defs>
-
-    <!-- sample path (id=mainPath) and visible stroke for editing -->
-    <g id="pathGroup" transform="translate(0,0)" style="cursor:grab">
-      <path id="mainPath" d="M40 200 Q 225 20 410 200 Q 595 380 780 200" fill="none" stroke="rgba(20,120,255,0.18)" stroke-width="4" />
-    </g>
-
-    <!-- text block anchored to path -->
-    <text id="textOnPath" font-size="36" font-family="Arial" fill="#111">
-      <textPath id="tp" xlink:href="#mainPath" startOffset="0%">
-        Write on this path!
-      </textPath>
-    </text>
-
-    <!-- small helper: visible handle circle at path center (optional) -->
-  </svg>
-</div>
-
-<div class="hint">Tip: Drag the path to move it. Use the <b>startOffset</b> slider to move text along the path. Change text/font/size in controls. Click <b>Export PNG</b> to download.</div>
+<div class="hint"></div>
 
 <script>
 (() => {
