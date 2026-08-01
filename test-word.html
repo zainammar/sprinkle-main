@@ -2,11 +2,7 @@
 
 <div id="content1" class="content-box">Loading first file...</div>
       
-
 <title>Rich Text Editor</title>
-
-
-
 <style>
   * { box-sizing: border-box; }
   body {
@@ -159,7 +155,7 @@
     <div style="display:flex; gap:8px;">
       <button id="downloadDocxBtn">⬇ Word (.doc)</button>
       <button id="downloadPdfBtn">⬇ PDF</button>
-      <!-- <button id="getHtmlBtn">Get HTML</button> -->
+      <button id="getHtmlBtn">Get HTML</button>
     </div>
   </div>
 </div>
@@ -167,7 +163,6 @@
 
 <button id="findBtn" title="Find">🔍 Find</button>
 <button id="replaceBtn" title="Replace">🔄 Replace</button>
-<button id="insertTableBtn">📋 Table</button>
 <script>
 const editor = document.getElementById('editor');
 const toolbar = document.getElementById('toolbar');
@@ -282,10 +277,6 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
   html2pdf().set(opt).from(editor).save();
 });
 </script>
-
-
-
-
 <script>
     // ==============================
 // Find Text
@@ -336,21 +327,6 @@ editor.innerHTML = editor.innerHTML.replace(regex, replaceText);
 </script>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <div id="content2" class="content-box">Loading second file...</div>
 <!-- Header Fotter -->
 <script>
@@ -377,3 +353,4 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
