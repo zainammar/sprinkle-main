@@ -1309,8 +1309,8 @@ line-height: 1.5;
     border: 2px solid black;
     padding: 3px 5px;
     border-radius: 5px;
-    background-color: #000000;
-    color:rgb(255, 252, 252);
+    box-shadow: inset -1px 26px 60px rgba(255,174,0,0.20);
+    color:rgb(0, 0, 0);
     padding: 10px;
     margin: 10px;
     
@@ -1333,8 +1333,8 @@ line-height: 1.5;
     border: 2px solid black;
     padding: 3px 5px;
     border-radius: 5px;
-    background-color:#7C7A54;
-    color:rgb(255, 255, 255);
+    box-shadow: inset -1px 26px 60px rgba(133,255,231,0.20);
+    color:rgb(0, 0, 0);
     padding: 10px;
     margin: 10px;
   

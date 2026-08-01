@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF to MP4 Converter</title>
+
+    <!-- FFmpeg -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>GIF to MP4 Converter</title>
+    
+    <!-- FFmpeg -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    </head>
+    
+    <body>
+    
+    <div class="container">
+    
+        <h1>GIF to MP4 Converter</h1>
+    
+        <p class="subtitle">
+            Convert animated GIF files into MP4 videos directly in your browser.
+        </p>
+    
+        <div id="dropArea" class="drop-area">
+    
+            <input
+                type="file"
+                id="gifInput"
+                accept=".gif,image/gif"
+                hidden
+            >
+    
+            <div class="drop-content">
+    
+                <div class="upload-icon">
+                    📁
+                </div>
+    
+                <h2>Drop GIF Here</h2>
+    
+                <p>or</p>
+    
+                <button id="browseBtn">
+                    Choose GIF
+                </button>
+    
+            </div>
+    
+        </div>
+    
+        <div class="infoGrid">
+    
+            <div class="card">
+    
+                <h3>GIF Preview</h3>
+    
+                <img id="gifPreview">
+    
+            </div>
+    
+            <div class="card">
+    
+                <h3>File Information</h3>
+    
+                <table>
+    
+                    <tr>
+                        <td>Name</td>
+                        <td id="fileName">-</td>
+                    </tr>
+    
+                    <tr>
+                        <td>Size</td>
+                        <td id="fileSize">-</td>
+                    </tr>
+    
+                    <tr>
+                        <td>Resolution</td>
+                        <td id="resolution">-</td>
+                    </tr>
+    
+                    <tr>
+                        <td>Frames</td>
+                        <td id="frames">-</td>
+                    </tr>
+    
+                </table>
+    
+            </div>
+    
+        </div>
+    
+        <div class="buttons">
+    
+            <button
+                id="convertBtn"
+                disabled>
+    
+                Convert to MP4
+    
+            </button>
+    
+            <button
+                id="resetBtn">
+    
+                Reset
+    
+            </button>
+    
+        </div>
+    
+        <div class="progressBox">
+    
+            <div class="progressBar">
+    
+                <div id="progressFill"></div>
+    
+            </div>
+    
+            <span id="progressText">
+    
+                0%
+    
+            </span>
+    
+        </div>
+    
+        <div class="videoCard">
+    
+            <h3>MP4 Preview</h3>
+    
+            <video
+                id="videoPreview"
+                controls>
+            </video>
+    
+        </div>
+    
+        <a
+            id="downloadBtn"
+            download="converted.mp4">
+    
+            Download MP4
+    
+        </a>
+    
+        <div id="status">
+    
+            Ready
+    
+        </div>
+    
+    </div>
+    
+    <script src="script.js"></script>
+    
+    </body>
+    </html>
+<script>
+    const browseBtn = document.getElementById("browseBtn");
+const gifInput = document.getElementById("gifInput");
+const gifPreview = document.getElementById("gifPreview");
+
+browseBtn.addEventListener("click", () => {
+    gifInput.click();
+});
+
+gifInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    gifPreview.src = url;
+
+    document.getElementById("fileName").textContent = file.name;
+    document.getElementById("fileSize").textContent =
+        (file.size / 1024 / 1024).toFixed(2) + " MB";
+
+    const img = new Image();
+    img.onload = () => {
+        document.getElementById("fileResolution").textContent =
+            img.width + " × " + img.height;
+    };
+    img.src = url;
+
+    document.getElementById("convertBtn").disabled = false;
+});
+</script>
+
+</body>
+</html>

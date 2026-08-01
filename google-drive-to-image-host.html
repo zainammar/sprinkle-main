@@ -45,11 +45,26 @@ textarea{
 </head>
 <body>
 
+    <div class="row-6 content-grid">
+
+        <div class="grid-item-1">
+  
+  
+        </div>
+          <div class="grid-item-1">
+              <h2 class="text-9">Google Drive Thumbnail Generator</h2>
+              <p class="text-6">Generate thumbnail and direct image URLs for files stored in Google Drive. Simply paste your Google Drive links below to get started.</p>
+          </div>
+  
+        <div class="grid-item-1">
+  
+  
+        </div>
+      </div>
+
+
 <div class="container">
 
-<h2>Google Drive Thumbnail Generator</h2>
-
-<p>Google Drive ke share links paste karein (ek line me ek link).</p>
 
 <textarea id="links" placeholder="https://drive.google.com/file/d/..."></textarea>
 
@@ -146,30 +161,63 @@ function copyText(text, btn) {
 </script>
 
 
-<div id="content2" class="content-box">Loading second file...</div>
-<!-- Header Fotter -->
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  // You can change the file names here
-  const filesToLoad = {
-    content1: 'page1.html',
-    content2: 'page2.html'
-  };
 
-  // Loop through and load each file into its matching div
-  for (const [divId, filename] of Object.entries(filesToLoad)) {
-    fetch(filename)
-      .then(response => {
-        if (!response.ok) throw new Error(`File not found: ${filename}`);
-        return response.text();
-      })
-      .then(data => {
-        document.getElementById(divId).innerHTML = data;
-      })
-      .catch(error => {
-        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
-      });
-  }
-});
-</script>
+<div class="row-2 content-grid">
 
+    <div class="grid-item-1">
+        <P class="text-6">  📤 Upload images directly to Google Drivee</P>
+        <P class="text-6">   🖼️ Get ready-to-use HTML <img> code</P>
+        <P class="text-6">  🔗 Generate a direct image URL</P>
+        <P class="text-6"> 📱 Works on desktop, tablet, and mobile devices</P>
+
+    </div>
+      <div class="grid-item-1">
+       
+    
+  
+ 
+    <P class="text-6">  🌍 Use images on any website or web application</P>
+     
+        <P class="text-6"> ⚡ Fast and simple image hosting</P>
+   
+        <P class="text-6"> 🔒 Images remain stored safely in your Google Drive</P>
+   
+        <P class="text-6"> 📋 One-click copy for URLs and HTML code</P>
+
+      </div>
+
+    <div class="grid-item-1">
+
+
+    </div>
+  </div>
+
+
+
+  <div id="content2" class="content-box">Loading second file...</div>
+  <!-- Header Fotter -->
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // You can change the file names here
+    const filesToLoad = {
+      content1: 'page1.html',
+      content2: 'page2.html'
+    };
+  
+    // Loop through and load each file into its matching div
+    for (const [divId, filename] of Object.entries(filesToLoad)) {
+      fetch(filename)
+        .then(response => {
+          if (!response.ok) throw new Error(`File not found: ${filename}`);
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById(divId).innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+        });
+    }
+  });
+  </script>
+  
