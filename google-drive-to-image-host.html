@@ -1,0 +1,175 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<title>Google Drive Thumbnail Generator</title>
+
+<style>
+
+
+.container{
+    max-width:1000px;
+    margin:auto;
+ 
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
+
+textarea{
+    width:100%;
+    height:180px;
+    padding:10px;
+    font-size:15px;
+    resize:vertical;
+}
+
+
+.card{
+    margin-top:20px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:15px;
+}
+
+.card img{
+    width:220px;
+    border-radius:8px;
+    display:block;
+    margin-bottom:10px;
+}
+
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>Google Drive Thumbnail Generator</h2>
+
+<p>Google Drive ke share links paste karein (ek line me ek link).</p>
+
+<textarea id="links" placeholder="https://drive.google.com/file/d/..."></textarea>
+
+<button onclick="generate()">Generate</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+function getFileId(url){
+
+    let m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+
+    if(m) return m[1];
+
+    m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+
+    if(m) return m[1];
+
+    return "";
+}
+
+function generate(){
+
+    let lines=document.getElementById("links").value.trim().split("\n");
+
+    let html="";
+
+    lines.forEach((link,index)=>{
+
+        link=link.trim();
+
+        if(link==="") return;
+
+        let id=getFileId(link);
+
+        if(!id){
+
+            html+="<p style='color:red'>Invalid Link : "+link+"</p>";
+
+            return;
+        }
+
+        let thumb="https://drive.google.com/thumbnail?id="+id+"&sz=w1200";
+
+        let direct="https://drive.google.com/uc?export=view&id="+id;
+
+        html += `
+<div class="card">
+
+    <h3>File ${index + 1}</h3>
+
+    <img src="${thumb}" loading="lazy">
+
+    <label>Thumbnail URL</label>
+    <div style="display:flex;gap:10px;">
+        <input value="${thumb}" readonly>
+        <button onclick="copyText('${thumb}', this)">Copy</button>
+    </div>
+
+    <label>Direct Image URL</label>
+    <div style="display:flex;gap:10px;">
+        <input value="${direct}" readonly>
+        <button onclick="copyText('${direct}', this)">Copy</button>
+    </div>
+
+    <label>HTML Code</label>
+    <div style="display:flex;gap:10px;">
+        <input value='<img src="${thumb}">' readonly>
+        <button onclick="copyText('<img src=&quot;${thumb}&quot;>', this)">Copy</button>
+    </div>
+
+</div>
+`;
+
+    });
+
+    document.getElementById("result").innerHTML=html;
+
+}
+
+function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        const old = btn.innerText;
+        btn.innerText = "✅ Copied";
+        setTimeout(() => {
+            btn.innerText = old;
+        }, 1500);
+    });
+}
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

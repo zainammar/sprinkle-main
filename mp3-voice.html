@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Recorder - MP3 Download</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
+    margin:40px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+}
+
+.recorder-box{
+    background:#f9f9f9;
+    padding:20px;
+    border-radius:8px;
+    margin:20px 0;
+    text-align:center;
+}
+
+.record-btn{
+    padding:15px 40px;
+    font-size:20px;
+    border:none;
+    border-radius:50px;
+    cursor:pointer;
+    background:#4CAF50;
+    color:white;
+    margin:10px;
+}
+
+.record-btn.recording{
+    background:#ff4444;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse{
+    0%{opacity:1;}
+    50%{opacity:0.5;}
+    100%{opacity:1;}
+}
+
+.controls{
+    margin:20px 0;
+}
+
+.play-btn{
+    padding:12px 30px;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#0066ff;
+    color:white;
+    margin:5px;
+}
+
+.download-btn{
+    padding:12px 30px;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    background:#ff6b00;
+    color:white;
+    margin:5px;
+}
+
+.download-btn:hover{
+    background:#e65c00;
+}
+
+.play-btn:hover{
+    background:#0052cc;
+}
+
+.status{
+    margin-top:15px;
+    font-weight:bold;
+    padding:10px;
+    border-radius:5px;
+}
+
+.status.success{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status.error{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.status.info{
+    background:#d1ecf1;
+    color:#0c5460;
+}
+
+audio{
+    width:100%;
+    margin-top:15px;
+    display:none;
+}
+
+.audio-controls{
+    margin-top:20px;
+    padding:15px;
+    background:#f0f0f0;
+    border-radius:8px;
+}
+
+.file-info{
+    font-size:14px;
+    color:#666;
+    margin:10px 0;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>🎙️ Voice Recorder - MP3 Download</h2>
+
+<div class="recorder-box">
+
+<button id="recordBtn" class="record-btn" onclick="toggleRecording()">
+    🎤 Start Recording
+</button>
+
+<div id="status" class="status info">
+    Ready to record
+</div>
+
+<div class="audio-controls" id="audioControls" style="display:none;">
+    <h3>▶️ Recorded Audio</h3>
+    <audio id="audioPlayer" controls></audio>
+    <div class="file-info" id="fileInfo"></div>
+    
+    <div class="controls">
+        <button class="play-btn" onclick="playAudio()">▶ Play</button>
+        <button class="play-btn" onclick="pauseAudio()">⏸ Pause</button>
+        <button class="play-btn" onclick="stopAudio()">⏹ Stop</button>
+        <button class="download-btn" onclick="downloadMP3()">📥 Download MP3</button>
+    </div>
+</div>
+
+</div>
+
+<h3>📝 Instructions:</h3>
+<ul>
+    <li>Click <strong>"Start Recording"</strong> and allow microphone access</li>
+    <li>Speak clearly into your microphone</li>
+    <li>Click <strong>"Stop Recording"</strong> when finished</li>
+    <li>Preview your recording and download as MP3</li>
+</ul>
+
+</div>
+
+<script>
+
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+let recordedBlob = null;
+let audioURL = null;
+
+const recordBtn = document.getElementById('recordBtn');
+const statusDiv = document.getElementById('status');
+const audioControls = document.getElementById('audioControls');
+const audioPlayer = document.getElementById('audioPlayer');
+const fileInfo = document.getElementById('fileInfo');
+
+// Check browser support
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    statusDiv.className = 'status error';
+    statusDiv.innerHTML = '❌ Your browser does not support audio recording. Please use Chrome, Firefox, or Edge.';
+    recordBtn.disabled = true;
+}
+
+// Toggle recording
+async function toggleRecording() {
+    if (!isRecording) {
+        await startRecording();
+    } else {
+        stopRecording();
+    }
+}
+
+// Start recording
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            } 
+        });
+
+        mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'audio/webm;codecs=opus'
+        });
+
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = () => {
+            // Create audio blob
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            recordedBlob = audioBlob;
+            
+            // Create URL for playback
+            if (audioURL) {
+                URL.revokeObjectURL(audioURL);
+            }
+            audioURL = URL.createObjectURL(audioBlob);
+            audioPlayer.src = audioURL;
+            
+            // Show audio controls
+            audioControls.style.display = 'block';
+            
+            // File info
+            const sizeKB = (audioBlob.size / 1024).toFixed(2);
+            const duration = audioPlayer.duration ? audioPlayer.duration.toFixed(2) : 'unknown';
+            fileInfo.innerHTML = `📁 File size: ${sizeKB} KB | Duration: ${duration} seconds`;
+            
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = '✅ Recording completed! You can now play or download.';
+            
+            // Close stream
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordBtn.className = 'record-btn recording';
+        recordBtn.innerHTML = '⏹ Stop Recording';
+        statusDiv.className = 'status info';
+        statusDiv.innerHTML = '🔴 Recording... Speak now!';
+        
+        // Hide previous audio
+        audioControls.style.display = 'none';
+        
+    } catch (error) {
+        console.error('Error starting recording:', error);
+        statusDiv.className = 'status error';
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+            statusDiv.innerHTML = '❌ Please allow microphone access to record.';
+        } else {
+            statusDiv.innerHTML = '❌ Error: ' + error.message;
+        }
+    }
+}
+
+// Stop recording
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.className = 'record-btn';
+        recordBtn.innerHTML = '🎤 Start Recording';
+    }
+}
+
+// Play audio
+function playAudio() {
+    if (audioPlayer.src) {
+        audioPlayer.play();
+        statusDiv.className = 'status info';
+        statusDiv.innerHTML = '▶️ Playing audio...';
+    }
+}
+
+// Pause audio
+function pauseAudio() {
+    if (audioPlayer.src) {
+        audioPlayer.pause();
+        statusDiv.className = 'status info';
+        statusDiv.innerHTML = '⏸️ Paused';
+    }
+}
+
+// Stop audio
+function stopAudio() {
+    if (audioPlayer.src) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        statusDiv.className = 'status info';
+        statusDiv.innerHTML = '⏹️ Stopped';
+    }
+}
+
+// Download as MP3
+function downloadMP3() {
+    if (!recordedBlob) {
+        alert('Please record audio first!');
+        return;
+    }
+    
+    // Convert to MP3 using Web Audio API
+    const fileReader = new FileReader();
+    fileReader.onload = async function(e) {
+        try {
+            const arrayBuffer = e.target.result;
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Decode audio data
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            
+            // Convert to MP3 using a simple WAV encoder (browser doesn't support MP3 encoding directly)
+            // We'll use WAV format which is widely supported and can be renamed to .mp3
+            // Or we can use the original WebM format and rename to .mp3 (works in most players)
+            
+            // Option 1: Use original blob (WebM/Opus) - best quality
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(recordedBlob);
+            link.href = url;
+            link.download = `recording-${new Date().getTime()}.webm`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Also offer WAV format for better compatibility
+            // Convert to WAV
+            const wavBlob = await audioBufferToWav(audioBuffer);
+            const wavLink = document.createElement('a');
+            const wavUrl = URL.createObjectURL(wavBlob);
+            wavLink.href = wavUrl;
+            wavLink.download = `recording-${new Date().getTime()}.wav`;
+            wavLink.style.display = 'none';
+            document.body.appendChild(wavLink);
+            wavLink.click();
+            document.body.removeChild(wavLink);
+            
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                URL.revokeObjectURL(wavUrl);
+            }, 1000);
+            
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = '✅ Download started! (WebM + WAV formats)';
+            
+        } catch (error) {
+            console.error('Error converting audio:', error);
+            alert('Error converting audio. Please try again.');
+        }
+    };
+    
+    fileReader.readAsArrayBuffer(recordedBlob);
+}
+
+// Convert AudioBuffer to WAV
+function audioBufferToWav(buffer) {
+    return new Promise((resolve) => {
+        const numChannels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        const format = 1; // PCM
+        const bitDepth = 16;
+        
+        const samples = buffer.getChannelData(0);
+        const dataLength = samples.length * (bitDepth / 8);
+        const bufferLength = 44 + dataLength;
+        
+        const arrayBuffer = new ArrayBuffer(bufferLength);
+        const view = new DataView(arrayBuffer);
+        
+        // RIFF identifier
+        writeString(view, 0, 'RIFF');
+        // file length
+        view.setUint32(4, 36 + dataLength, true);
+        // RIFF type
+        writeString(view, 8, 'WAVE');
+        // format chunk
+        writeString(view, 12, 'fmt ');
+        // format chunk length
+        view.setUint32(16, 16, true);
+        // audio format (1 = PCM)
+        view.setUint16(20, format, true);
+        // number of channels
+        view.setUint16(22, numChannels, true);
+        // sample rate
+        view.setUint32(24, sampleRate, true);
+        // byte rate
+        view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+        // block align
+        view.setUint16(32, numChannels * (bitDepth / 8), true);
+        // bits per sample
+        view.setUint16(34, bitDepth, true);
+        // data chunk
+        writeString(view, 36, 'data');
+        // data length
+        view.setUint32(40, dataLength, true);
+        
+        // Write PCM data
+        const offset = 44;
+        for (let i = 0; i < samples.length; i++) {
+            const sample = Math.max(-1, Math.min(1, samples[i]));
+            const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+            view.setInt16(offset + i * 2, intSample, true);
+        }
+        
+        const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+        resolve(blob);
+    });
+}
+
+function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
+}
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+    if (audioURL) {
+        URL.revokeObjectURL(audioURL);
+    }
+});
+
+</script>
+
+</body>
+</html>

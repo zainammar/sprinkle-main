@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>JavaScript Beautifier</title>
+<style>body{font-family:Arial;margin:20px;background:#f4f4f4}textarea{width:100%;height:220px}button,select{margin:5px;padding:8px}#out{background:#fff}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.4/beautify.min.js"></script>
+</head><body>
+<h2>JavaScript Beautifier</h2>
+<select id="indent"><option>2</option><option selected>4</option><option>8</option></select>
+<button onclick="fmt()">Beautify</button>
+<button onclick="copyOut()">Copy</button>
+<button onclick="downloadJS()">Download</button><br>
+<textarea id="inp" placeholder="Paste JS here"></textarea>
+<textarea id="out" placeholder="Beautified code"></textarea>
+<script>
+function fmt(){out.value=js_beautify(inp.value,{indent_size:+indent.value});}
+function copyOut(){out.select();document.execCommand('copy');}
+function downloadJS(){let b=new Blob([out.value],{type:'text/javascript'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='beautified.js';a.click();}
+</script></body></html>
