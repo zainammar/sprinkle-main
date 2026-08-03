@@ -1,0 +1,104 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+    <title>ZIP Toolkit</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>body{font-family:Arial;margin:20px}section{border:1px solid #d0c9c9;padding:15px;margin:15px 0}</style>
+
+    <div class="row-1 content-grid">
+        <div class="grid-item-1">
+      
+      
+            <h2 class="text-9">ZIP Toolkit</h2>
+          
+          </div>
+        
+          
+        </div>
+        <div class="row-6 content-grid">
+            <div class="grid-item-1">
+                    
+            </div>
+                
+            <div class="grid-item-1">
+          
+          
+                <p class="text-3">Compress, extract, and manage ZIP archives online with ease. Quickly create ZIP files, unpack archives, and organize your files—all from your browser.</p>
+              </div>
+            
+              <div class="grid-item-1">
+                    
+              </div>
+            </div>
+        <div class="row-2 content-grid">
+            <div class="grid-item-1">
+          
+                <section>
+                    
+                    <h3 class="text-8">ZIP Extractor</h3>
+                    
+                    <input type=file id=z accept=".zip"><ul id=list></ul></section>
+                
+             
+              </div>
+              <div class="grid-item-1">
+          
+                <section>
+                    
+                    <h3 class="text-8">ZIP Creator</h3>
+                    
+                    <input type=file id=f multiple><button id=make>Create ZIP</button></section>
+             
+              </div>
+            
+              
+            </div>
+  
+    <script>
+    z.onchange=async e=>{
+     let file=e.target.files[0]; if(!file)return;
+     let zip=await JSZip.loadAsync(file); list.innerHTML='';
+     Object.keys(zip.files).forEach(n=>{let li=document.createElement('li');li.textContent=n;
+     if(!zip.files[n].dir){let b=document.createElement('button');b.textContent='Download';
+     b.onclick=async()=>saveAs(await zip.files[n].async('blob'),n);li.appendChild(b);}
+     list.appendChild(li);});
+    };
+    make.onclick=async()=>{
+     let zip=new JSZip();
+     [...f.files].forEach(x=>zip.file(x.name,x));
+     let blob=await zip.generateAsync({type:'blob'});
+     saveAs(blob,'archive.zip');
+    };
+    </script>
+
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
