@@ -1,15 +1,10 @@
 
-
-
+<link rel="stylesheet" href="css/drawing.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Poppins&family=Inter&display=swap" rel="stylesheet">
 <title>Rich Text Editor</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f3f4f6;
-    margin: 0;
-    padding: 30px 16px;
-  }
+
   .editor-wrap {
     max-width: 820px;
     margin: 0 auto;
@@ -94,13 +89,44 @@
     font-size: 13px;
   }
   .footer button:hover { background: #4338ca; }
+
+  .roboto{
+    font-family:'Roboto',sans-serif;
+}
+
+.poppins{
+    font-family:'Poppins',sans-serif;
+}
 </style>
 
 <!-- Library for exporting to PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-
+  <div class="row-4 content-grid">
+    <div class="grid-item-1">
+  
+      <button class="button-2">
+        <a href="index.html">Home</a>
+      </button>
+   
+      </div>
+    
+        <div class="grid-item-1">
+  
+  
+        </div>
+        <div class="grid-item-1">
+  
+  
+        </div>
+        <div class="grid-item-1">
+          <img src="images-dash/logo-main4.jpg" style="width:200px; height:auto;padding:10px;border-radius: 20px;">
+  
+        </div>
+    </div>
+ 
+ 
 <div class="editor-wrap">
   <div class="toolbar" id="toolbar">
     <select id="blockFormat">
@@ -110,7 +136,32 @@
       <option value="h3">Heading 3</option>
       <option value="blockquote">Quote</option>
     </select>
-
+    <select id="fontFamily">
+      <option value="Arial">Arial</option>
+      <option value="Roboto">Roboto</option>
+      <option value="Open Sans">Open Sans</option>
+      <option value="Poppins">Poppins</option>
+      <option value="Inter">Inter</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
+  </select>
+  <select id="fontSize">
+    <option value="1">8</option>
+    <option value="2">10</option>
+    <option value="3" selected>12</option>
+    <option value="4">14</option>
+    <option value="5">18</option>
+    <option value="6">24</option>
+    <option value="7">36</option>
+</select>
+<select id="lineHeight">
+  <option value="1">1.0</option>
+  <option value="1.15">1.15</option>
+  <option value="1.5" selected>1.5</option>
+  <option value="2">2.0</option>
+  <option value="2.5">2.5</option>
+  <option value="3">3.0</option>
+</select>
     <div class="sep"></div>
 
     <button data-cmd="bold" title="Bold"><b>B</b></button>
@@ -147,7 +198,7 @@
     <button data-cmd="redo" title="Redo">↻</button>
   </div>
 
-  <div id="editor" contenteditable="true" data-placeholder="Yahan likhna shuru karein..."></div>
+  <div id="editor" contenteditable="true" data-placeholder="Start writing here...."></div>
 
   <div class="footer">
     <span id="wordCount">0 words</span>
@@ -158,6 +209,7 @@
     </div>
   </div>
 </div>
+
 <div class="sep"></div>
 
 <button id="findBtn" title="Find">🔍 Find</button>
@@ -322,5 +374,43 @@ const regex = new RegExp(
 
 editor.innerHTML = editor.innerHTML.replace(regex, replaceText);
 
+});
+
+document.getElementById("fontSize").addEventListener("change", function () {
+    document.execCommand("fontSize", false, this.value);
+});
+
+
+document.getElementById("fontFamily").addEventListener("change", function () {
+    document.execCommand("fontName", false, this.value);
+});
+
+const lineHeight = document.getElementById("lineHeight");
+
+lineHeight.addEventListener("change", () => {
+    const sel = window.getSelection();
+
+    if (!sel.rangeCount) return;
+
+    const range = sel.getRangeAt(0);
+
+    // Agar text select hai
+    if (!range.collapsed) {
+        const span = document.createElement("span");
+        span.style.lineHeight = lineHeight.value;
+        span.style.display = "inline-block";
+        range.surroundContents(span);
+    } else {
+        // Agar cursor sirf ek paragraph me hai
+        let node = sel.anchorNode;
+
+        while (node && node.nodeType !== 1) {
+            node = node.parentNode;
+        }
+
+        if (node) {
+            node.style.lineHeight = lineHeight.value;
+        }
+    }
 });
 </script>

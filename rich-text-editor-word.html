@@ -233,18 +233,19 @@ document.getElementById('getHtmlBtn').addEventListener('click', () => {
 });
 
 // Wrap editor content in a Word-compatible HTML shell.
-// This is the standard, reliable way to export formatted content that Word opens natively -
-// far more dependable than third-party HTML-to-docx conversion libraries.
+// This is the standard, reliable way to export formatted content that Word opens natively.
+// Far more dependable than third-party HTML-to-docx conversion libraries.
+
 function getWordHtml() {
-  var parts = [];
-  parts.push('<html xmlns:o="urn:schemas-microsoft-com:office:office" ');
-  parts.push('xmlns:w="urn:schemas-microsoft-com:office:word" ');
-  parts.push('xmlns="http://www.w3.org/TR/REC-html40">');
-  parts.push('<head><meta charset="utf-8"><title>Document</title></head>');
-  parts.push('<body>');
-  parts.push(editor.innerHTML);
-  parts.push('</body></html>');
-  return parts.join('');
+    var parts = [];
+    parts.push('<html xmlns:o="urn:schemas-microsoft-com:office:office" ');
+    parts.push('xmlns:w="urn:schemas-microsoft-com:office:word" ');
+    parts.push('xmlns="http://www.w3.org/TR/REC-html40">');
+    parts.push('<head><meta charset="utf-8"><title>Document</title></head>');
+    parts.push('<body>');
+    parts.push(editor.innerHTML);
+    parts.push('</body></html>');
+    return parts.join('');
 }
 
 // Download as Word (.doc) — opens directly in Microsoft Word / LibreOffice / Google Docs with formatting intact

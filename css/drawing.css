@@ -221,6 +221,35 @@ body{
     border: 2px solid #008CBA;
   }
   
+
+
+  .button-2{
+    background-color:#3a3226;
+    border: none;
+    color: white;
+    width:50%;
+    height:auto;
+    padding: 6px 10px;
+    /* padding-top: 10px;
+    padding-left:10px;
+    padding-right:10px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size:20px;
+    margin: 2px 1px;
+    /* margin-bottom: 10px;
+    margin-left: 10px; */
+    transition-duration: 0.4s;
+    cursor: pointer;
+  }
+  
+  .button-2:hover{
+    background-color: white; 
+    color: black; 
+    border: 2px solid #008CBA;
+  }
+  
   ::file-selector-button {
     font-size: 10px;
     border: 2px solid black;
