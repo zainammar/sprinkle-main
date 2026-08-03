@@ -1,0 +1,166 @@
+<link rel="stylesheet" href="css/drawing.css">
+  <title>Image Crop & Download</title>
+  
+<div id="content1" class="content-box">Loading first file...</div>
+      
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    canvas {
+      
+      background-color: aliceblue;
+      border: 1px solid #000000;
+      margin-top: 10px;
+      cursor: crosshair;
+    }
+    #preview {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  
+<div class="row-6 content-grid">
+  <div class="grid-item-1">
+
+
+ 
+    </div>
+  
+      <div class="grid-item-1">
+
+        <h1 class="text-8">Image Crop and Download</h1>
+      </div>
+      <div class="grid-item-1">
+
+
+      </div>
+  
+  </div>
+
+
+  <input type="file" id="upload" accept="image/*"><br>
+  <canvas id="mainCanvas"></canvas><br>
+  <button id="downloadBtn" style="display:none;">Download Cropped Image</button>
+  <h3>Cropped Preview:</h3>
+  <canvas id="preview1"></canvas>
+<br>
+  <script>
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const previewCanvas = document.getElementById('preview1');
+    const previewCtx = previewCanvas.getContext('2d');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let image = new Image();
+    let startX, startY, endX, endY, isDrawing = false;
+
+    upload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        image.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+    };
+
+    canvas.addEventListener('mousedown', (e) => {
+      startX = e.offsetX;
+      startY = e.offsetY;
+      isDrawing = true;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      endX = e.offsetX;
+      endY = e.offsetY;
+      drawSelection();
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      endX = e.offsetX;
+      endY = e.offsetY;
+      isDrawing = false;
+      drawSelection();
+      cropImage(); // capture clean image (without stroke)
+    });
+
+    function drawSelection() {
+      ctx.drawImage(image, 0, 0); // redraw clean image
+      const width = endX - startX;
+      const height = endY - startY;
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(startX, startY, width, height);
+    }
+
+    function cropImage() {
+      const cropWidth = endX - startX;
+      const cropHeight = endY - startY;
+
+      // Create an offscreen canvas to avoid including stroke
+      const offscreenCanvas = document.createElement('canvas');
+      offscreenCanvas.width = cropWidth;
+      offscreenCanvas.height = cropHeight;
+      const offscreenCtx = offscreenCanvas.getContext('2d');
+      offscreenCtx.drawImage(
+        image,
+        startX, startY, cropWidth, cropHeight,
+        0, 0, cropWidth, cropHeight
+      );
+
+      previewCanvas.width = cropWidth;
+      previewCanvas.height = cropHeight;
+      previewCtx.clearRect(0, 0, cropWidth, cropHeight);
+      previewCtx.drawImage(offscreenCanvas, 0, 0);
+
+      downloadBtn.style.display = 'inline-block';
+    }
+
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'cropped-image.png';
+      link.href = previewCanvas.toDataURL();
+      link.click();
+    });
+  </script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
