@@ -94,6 +94,9 @@ body{
   
     }
   
+    .bg-g5{
+      background-color: #ffffff;
+    }
   /* OLD Updates */
   
       /* Single View RID */
@@ -695,8 +698,8 @@ body{
   #bgdark13{
     width:100%;
     height:auto; 
-    padding: 0px;
-    margin: 0px;
+    padding: 10px;
+    margin: 10px;
     display:grid;
   
   }
@@ -744,7 +747,7 @@ body{
   }
   
   #bgdark19{
-    width:90%;
+    width:100%;
     height:auto; 
     padding: 10px;
     margin: 10px;
