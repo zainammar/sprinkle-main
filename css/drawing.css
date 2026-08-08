@@ -898,7 +898,14 @@ body{
   }
    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
    
-  
+  #textTransform{
+    font-family: 'Times New Roman', Times, serif;
+    font-size: medium;
+    color: #1d4ed8;
+    background-color: bisque;
+    padding: 5px;
+    margin: 5px;
+  }
   /* Move Div */
   
   

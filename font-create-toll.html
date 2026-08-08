@@ -1,0 +1,251 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+ 
+ <title>JavaScript Font Tool</title>
+  
+ <div class="row-1 content-grid">
+  <div class="grid-item-1">
+
+<div class="font-tool">
+  <h1>🔤 Font Tool</h1>
+  <div class="subhead">Live preview · size, weight, family, color &amp; more</div>
+
+  <!-- Preview -->
+  <div class="preview-box">
+    <p id="previewText">The quick brown fox jumps over the lazy dog</p>
+  </div>
+
+  <!-- Controls -->
+  <div class="control-grid">
+    <!-- Font Family -->
+    <div class="control-group">
+      <label class="text-3">Font Family <span id="familyLabel">Inter</span></label>
+      <select id="fontFamily">
+        <option value="'Segoe UI', Roboto, sans-serif">Segoe UI</option>
+        <option value="'Inter', system-ui, sans-serif" selected>Inter</option>
+        <option value="'Georgia', serif">Georgia</option>
+        <option value="'Courier New', monospace">Courier New</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="'Arial Black', sans-serif">Arial Black</option>
+        <option value="'Lucida Console', monospace">Lucida Console</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+      </select>
+    </div>
+
+    <!-- Font Size -->
+    <div class="control-group">
+      <label class="text-3">Size <span id="sizeLabel">2.4rem</span></label>
+      <input type="range" id="fontSize" min="0.8" max="4.5" step="0.1" value="2.4">
+    </div>
+
+    <!-- Font Weight -->
+    <div class="control-group">
+      <label class="text-3">Weight <span id="weightLabel">400</span></label>
+      <input type="range" id="fontWeight" min="100" max="900" step="100" value="400">
+    </div>
+
+    <!-- Letter Spacing -->
+    <div class="control-group">
+      <label class="text-3">Letter Spacing <span id="spacingLabel">0.01em</span></label>
+      <input type="range" id="letterSpacing" min="-0.05" max="0.25" step="0.01" value="0.01">
+    </div>
+
+    <!-- Line Height -->
+    <div class="control-group">
+      <label class="text-3">Line Height <span id="lineHeightLabel">1.3</span></label>
+      <input type="range" id="lineHeight" min="0.9" max="2.2" step="0.05" value="1.3">
+    </div>
+
+    <!-- Text Transform + Color picker (inline row) -->
+    <div class="control-group" style="grid-column: span 1;">
+      <label class="text-3">Transform</label>
+      <select id="textTransform">
+        <option value="none">None</option>
+        <option value="uppercase">UPPERCASE</option>
+        <option value="lowercase">lowercase</option>
+        <option value="capitalize">Capitalize</option>
+      </select>
+    </div>
+
+    <!-- Color picker -->
+    <div class="control-group" style="grid-column: span 1;">
+      <label class="text-3">Color</label>
+      <div class="color-picker-wrapper">
+        <input type="color" id="fontColor" value="#0b1a2f">
+        <span class="color-hex" id="colorHexDisplay">#0b1a2f</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="font-actions">
+    <button class="btn reset-btn" id="resetDefaults">↺ Reset defaults</button>
+    <button class="btn btn-primary" id="copyStyles">📋 Copy CSS</button>
+  </div>
+</div>
+</div>  </div>
+<script>
+  (function() {
+    // --- DOM refs ---
+    const preview = document.getElementById('previewText');
+    const familySelect = document.getElementById('fontFamily');
+    const sizeRange = document.getElementById('fontSize');
+    const weightRange = document.getElementById('fontWeight');
+    const spacingRange = document.getElementById('letterSpacing');
+    const lineHeightRange = document.getElementById('lineHeight');
+    const transformSelect = document.getElementById('textTransform');
+    const colorPicker = document.getElementById('fontColor');
+
+    // label spans
+    const familyLabel = document.getElementById('familyLabel');
+    const sizeLabel = document.getElementById('sizeLabel');
+    const weightLabel = document.getElementById('weightLabel');
+    const spacingLabel = document.getElementById('spacingLabel');
+    const lineHeightLabel = document.getElementById('lineHeightLabel');
+    const colorHexDisplay = document.getElementById('colorHexDisplay');
+
+    // --- Helper: update preview & labels ---
+    function updatePreview() {
+      const family = familySelect.value;
+      const size = sizeRange.value;
+      const weight = weightRange.value;
+      const spacing = spacingRange.value;
+      const lineHeight = lineHeightRange.value;
+      const transform = transformSelect.value;
+      const color = colorPicker.value;
+
+      // apply to preview
+      preview.style.fontFamily = family;
+      preview.style.fontSize = size + 'rem';
+      preview.style.fontWeight = weight;
+      preview.style.letterSpacing = spacing + 'em';
+      preview.style.lineHeight = lineHeight;
+      preview.style.textTransform = transform;
+      preview.style.color = color;
+
+      // update labels
+      const familyName = familySelect.options[familySelect.selectedIndex]?.text || family;
+      familyLabel.textContent = familyName;
+      sizeLabel.textContent = size + 'rem';
+      weightLabel.textContent = weight;
+      spacingLabel.textContent = spacing + 'em';
+      lineHeightLabel.textContent = lineHeight;
+      colorHexDisplay.textContent = color.toUpperCase();
+    }
+
+    // --- attach events ---
+    familySelect.addEventListener('input', updatePreview);
+    sizeRange.addEventListener('input', updatePreview);
+    weightRange.addEventListener('input', updatePreview);
+    spacingRange.addEventListener('input', updatePreview);
+    lineHeightRange.addEventListener('input', updatePreview);
+    transformSelect.addEventListener('input', updatePreview);
+    colorPicker.addEventListener('input', updatePreview);
+
+    // --- Reset to defaults (explicit) ---
+    function resetToDefaults() {
+      familySelect.value = "'Inter', system-ui, sans-serif";
+      sizeRange.value = '2.4';
+      weightRange.value = '400';
+      spacingRange.value = '0.01';
+      lineHeightRange.value = '1.3';
+      transformSelect.value = 'none';
+      colorPicker.value = '#0b1a2f';
+      updatePreview();
+    }
+
+    document.getElementById('resetDefaults').addEventListener('click', resetToDefaults);
+
+    // --- Copy CSS styles (with a clean format) ---
+    document.getElementById('copyStyles').addEventListener('click', function() {
+      const family = familySelect.value;
+      const size = sizeRange.value;
+      const weight = weightRange.value;
+      const spacing = spacingRange.value;
+      const lineHeight = lineHeightRange.value;
+      const transform = transformSelect.value;
+      const color = colorPicker.value;
+
+      const cssString = `font-family: ${family};\nfont-size: ${size}rem;\nfont-weight: ${weight};\nletter-spacing: ${spacing}em;\nline-height: ${lineHeight};\ntext-transform: ${transform};\ncolor: ${color};`;
+
+      // Use clipboard API if available, with fallback
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cssString).then(() => {
+          // brief visual feedback
+          const btn = document.getElementById('copyStyles');
+          const original = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          setTimeout(() => { btn.textContent = original; }, 1600);
+        }).catch(() => {
+          fallbackCopy(cssString);
+        });
+      } else {
+        fallbackCopy(cssString);
+      }
+    });
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        const btn = document.getElementById('copyStyles');
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1600);
+      } catch (err) {
+        alert('Could not copy. Please manually copy the CSS.');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    // --- init preview ---
+    updatePreview();
+
+    // extra: handle if color hex display uses # + value
+    // also reflect color picker change on hex display via updatePreview
+
+    // small polish: sync color hex display on manual color change
+    colorPicker.addEventListener('input', function() {
+      colorHexDisplay.textContent = this.value.toUpperCase();
+    });
+  })();
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

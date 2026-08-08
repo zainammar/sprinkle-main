@@ -1,0 +1,60 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+    
+    <title>Urdu Keyboard PDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Naskh+Arabic&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>body{font-family:Arial;padding:20px}
+    .box{max-width:900px;margin:auto;padding:20px;border-radius:10px}
+    textarea{width:100%;height:300px;direction:rtl;font-family:'Noto Nastaliq Urdu';font-size:30px;line-height:2}button,select,input{margin:5px;padding:8px}</style></head>
+
+        
+        <div class="box"><h2>Urdu Phonetic Keyboard</h2>
+
+    <select id=f><option value="'Noto Nastaliq Urdu'">Noto Nastaliq Urdu</option>
+        <option value="'Noto Naskh Arabic'">Noto Naskh Arabic</option><option>Arial</option></select>
+    <input id=s type=range min=18 max=60 value=30>
+    <textarea id=t></textarea><br>
+    <button onclick="copyText()">Copy</button>
+    <button onclick="t.value=''">Clear</button>
+    <button onclick="downloadPDF()">Download PDF</button></div>
+    <script>
+    const map={a:'ا',b:'ب',c:'چ',d:'د',e:'ے',f:'ف',g:'گ',h:'ح',i:'ی',j:'ج',k:'ک',l:'ل',m:'م',n:'ن',o:'و',p:'پ',q:'ق',r:'ر',s:'س',t:'ت',u:'ؤ',v:'و',w:'و',x:'ش',y:'ی',z:'ز',T:'ٹ',D:'ڈ',R:'ڑ',Z:'ژ',W:'ط',X:'ظ',B:'رضي الله عنه',M:'محمد صَلَّى ٱللَّٰهُ عَلَيْهِ وَسَلَّمَ',' ':' '};
+    t.oninput=e=>{let out='';for(let ch of e.target.value)out+=map[ch]||map[ch.toLowerCase()]||ch;e.target.value=out;}
+    f.onchange=()=>t.style.fontFamily=f.value;
+    s.oninput=()=>t.style.fontSize=s.value+'px';
+    function copyText(){t.select();document.execCommand('copy');alert('Copied');}
+    function downloadPDF(){html2pdf().set({margin:10,filename:'urdu-text.pdf',html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4'}}).from(t).save();}
+    </script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
