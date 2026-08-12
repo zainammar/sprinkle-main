@@ -1,0 +1,367 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+<title>Bubble Text Generator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.app {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+}
+
+.panel {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.08);
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 15px 0 7px;
+}
+
+textarea,
+input,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.range-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-row input {
+    padding: 0;
+}
+
+.value {
+    min-width: 45px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.color-row {
+    display: flex;
+    gap: 10px;
+}
+
+.color-row input {
+    height: 45px;
+    padding: 3px;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    border: 0;
+    border-radius: 9px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #000;
+}
+
+#downloadBtn {
+    background: #2563eb;
+}
+
+#downloadBtn:hover {
+    background: #1d4ed8;
+}
+
+/* Canvas area */
+.preview {
+    min-height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:
+        linear-gradient(45deg, #ddd 25%, transparent 25%),
+        linear-gradient(-45deg, #ddd 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ddd 75%),
+        linear-gradient(-45deg, transparent 75%, #ddd 75%);
+    background-size: 30px 30px;
+    background-position: 0 0, 0 15px, 15px -15px, -15px 0;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (max-width: 800px) {
+    .app {
+        grid-template-columns: 1fr;
+    }
+
+    .preview {
+        min-height: 400px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🫧 Bubble Text Generator</h1>
+<h2>Create fun bubble text with customizable options!</h2>
+<div class="app">
+
+<!-- Controls -->
+<div class="panel">
+
+    <label>Text</label>
+    <textarea id="text">Bubble Text</textarea>
+
+    <label>Font</label>
+    <select id="font">
+        <option value="Arial Black">Arial Black</option>
+        <option value="Arial">Arial</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Impact">Impact</option>
+        <option value="Trebuchet MS">Trebuchet MS</option>
+        <option value="Comic Sans MS">Comic Sans MS</option>
+    </select>
+
+    <label>Font Size</label>
+    <div class="range-row">
+        <input type="range" id="fontSize" min="30" max="250" value="110">
+        <span class="value" id="fontSizeValue">110</span>
+    </div>
+
+    <label>Text Color</label>
+    <div class="color-row">
+        <input type="color" id="textColor" value="#ff69b4">
+    </div>
+
+    <label>Outline Color</label>
+    <div class="color-row">
+        <input type="color" id="outlineColor" value="#ffffff">
+    </div>
+
+    <label>Outline Width</label>
+    <div class="range-row">
+        <input type="range" id="outlineWidth" min="0" max="30" value="10">
+        <span class="value" id="outlineWidthValue">10</span>
+    </div>
+
+    <label>Shadow</label>
+    <div class="range-row">
+        <input type="range" id="shadow" min="0" max="30" value="8">
+        <span class="value" id="shadowValue">8</span>
+    </div>
+
+    <label>Canvas Background</label>
+    <div class="color-row">
+        <input type="color" id="bgColor" value="#ffffff">
+    </div>
+
+    <button id="downloadBtn">⬇ Download PNG</button>
+
+</div>
+
+<!-- Preview -->
+<div class="preview">
+    <canvas id="canvas" width="900" height="500"></canvas>
+</div>
+
+</div>
+</div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const textInput = document.getElementById("text");
+const fontInput = document.getElementById("font");
+const fontSizeInput = document.getElementById("fontSize");
+const textColorInput = document.getElementById("textColor");
+const outlineColorInput = document.getElementById("outlineColor");
+const outlineWidthInput = document.getElementById("outlineWidth");
+const shadowInput = document.getElementById("shadow");
+const bgColorInput = document.getElementById("bgColor");
+
+const fontSizeValue = document.getElementById("fontSizeValue");
+const outlineWidthValue = document.getElementById("outlineWidthValue");
+const shadowValue = document.getElementById("shadowValue");
+
+function drawBubbleText() {
+
+    const text = textInput.value || "Bubble Text";
+    const font = fontInput.value;
+
+    const size = parseInt(fontSizeInput.value);
+    const outline = parseInt(outlineWidthInput.value);
+    const shadow = parseInt(shadowInput.value);
+
+    const textColor = textColorInput.value;
+    const outlineColor = outlineColorInput.value;
+    const bgColor = bgColorInput.value;
+
+    fontSizeValue.textContent = size;
+    outlineWidthValue.textContent = outline;
+    shadowValue.textContent = shadow;
+
+    /* Background */
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    /* Bubble style */
+    ctx.font = `900 ${size}px "${font}"`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const x = canvas.width / 2;
+    const y = canvas.height / 2;
+
+    /* Shadow */
+    if (shadow > 0) {
+        ctx.shadowColor = "rgba(0,0,0,0.35)";
+        ctx.shadowBlur = shadow;
+        ctx.shadowOffsetX = shadow / 2;
+        ctx.shadowOffsetY = shadow / 2;
+    } else {
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+    }
+
+    /* Outer bubble outline */
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.lineWidth = outline + 10;
+    ctx.strokeStyle = outlineColor;
+    ctx.strokeText(text, x, y);
+
+    /* Main outline */
+    ctx.lineWidth = outline;
+    ctx.strokeStyle = outlineColor;
+    ctx.strokeText(text, x, y);
+
+    /* Text */
+    ctx.fillStyle = textColor;
+    ctx.fillText(text, x, y);
+
+    /* Highlight */
+    ctx.shadowColor = "transparent";
+
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#ffffff";
+
+    const highlightSize = Math.max(2, size * 0.025);
+
+    ctx.beginPath();
+    ctx.arc(
+        x - size * 0.28,
+        y - size * 0.25,
+        highlightSize,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+}
+
+/* Update */
+[
+    textInput,
+    fontInput,
+    fontSizeInput,
+    textColorInput,
+    outlineColorInput,
+    outlineWidthInput,
+    shadowInput,
+    bgColorInput
+].forEach(element => {
+    element.addEventListener("input", drawBubbleText);
+    element.addEventListener("change", drawBubbleText);
+});
+
+/* Download */
+document.getElementById("downloadBtn").addEventListener("click", () => {
+
+    const link = document.createElement("a");
+
+    link.download = "bubble-text.png";
+    link.href = canvas.toDataURL("image/png");
+
+    link.click();
+});
+
+/* Initial */
+drawBubbleText();
+
+</script>
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

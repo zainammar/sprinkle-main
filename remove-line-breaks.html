@@ -1,0 +1,392 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+<title>Remove Line Breaks</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.editor-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+textarea {
+    width: 100%;
+    min-height: 320px;
+    resize: vertical;
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.6;
+    outline: none;
+}
+
+textarea:focus {
+    border-color: #4f46e5;
+}
+
+.options {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 18px 0;
+}
+
+.options label {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+
+.remove-btn {
+    background: #4f46e5;
+    color: white;
+}
+
+.copy-btn {
+    background: #16a34a;
+    color: white;
+}
+
+.clear-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.download-btn {
+    background: #0284c7;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.stats {
+    display: flex;
+    gap: 25px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    color: #555;
+    font-size: 14px;
+}
+
+.message {
+    margin-top: 12px;
+    color: #16a34a;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+@media (max-width: 600px) {
+    .container {
+        margin: 15px auto;
+        padding: 10px;
+    }
+
+    .editor-box {
+        padding: 15px;
+    }
+
+    textarea {
+        min-height: 260px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Remove Line Breaks</h1>
+    <div class="subtitle">
+        Remove line breaks and convert your text into a clean paragraph.
+    </div>
+
+    <div class="editor-box">
+
+        <textarea id="textInput"
+            placeholder="Paste your text here..."></textarea>
+
+        <div class="options">
+
+            <label>
+                <input type="checkbox" id="cleanSpaces" checked>
+                Remove extra spaces
+            </label>
+
+            <label>
+                <input type="checkbox" id="preserveParagraphs">
+                Preserve paragraphs
+            </label>
+
+        </div>
+
+        <div class="buttons">
+
+            <button class="remove-btn" onclick="removeLineBreaks()">
+                Remove Line Breaks
+            </button>
+
+            <button class="copy-btn" onclick="copyText()">
+                Copy Text
+            </button>
+
+            <button class="download-btn" onclick="downloadText()">
+                Download TXT
+            </button>
+
+            <button class="clear-btn" onclick="clearText()">
+                Clear
+            </button>
+
+        </div>
+
+        <div class="stats">
+            <span id="wordCount">Words: 0</span>
+            <span id="charCount">Characters: 0</span>
+            <span id="lineCount">Lines: 0</span>
+        </div>
+
+        <div class="message" id="message"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+const textInput = document.getElementById("textInput");
+const cleanSpaces = document.getElementById("cleanSpaces");
+const preserveParagraphs = document.getElementById("preserveParagraphs");
+const message = document.getElementById("message");
+
+
+// Remove Line Breaks
+function removeLineBreaks() {
+
+    let text = textInput.value;
+
+    if (!text.trim()) {
+        showMessage("Please enter some text.");
+        return;
+    }
+
+    if (preserveParagraphs.checked) {
+
+        // Preserve blank lines as paragraphs
+        text = text.replace(/\r\n/g, "\n");
+
+        text = text
+            .split(/\n\s*\n/)
+            .map(paragraph => {
+
+                paragraph = paragraph.replace(/\n/g, " ");
+
+                if (cleanSpaces.checked) {
+                    paragraph = paragraph.replace(/[ \t]+/g, " ");
+                }
+
+                return paragraph.trim();
+
+            })
+            .join("\n\n");
+
+    } else {
+
+        // Remove all line breaks
+        text = text.replace(/\r\n|\r|\n/g, " ");
+
+        if (cleanSpaces.checked) {
+            text = text.replace(/[ \t]+/g, " ");
+        }
+
+        text = text.trim();
+    }
+
+    textInput.value = text;
+
+    updateStats();
+
+    showMessage("Line breaks removed successfully!");
+}
+
+
+// Copy text
+async function copyText() {
+
+    const text = textInput.value;
+
+    if (!text.trim()) {
+        showMessage("Nothing to copy.");
+        return;
+    }
+
+    try {
+
+        await navigator.clipboard.writeText(text);
+
+        showMessage("Text copied to clipboard!");
+
+    } catch (error) {
+
+        textInput.select();
+        document.execCommand("copy");
+
+        showMessage("Text copied!");
+
+    }
+}
+
+
+// Download TXT
+function downloadText() {
+
+    const text = textInput.value;
+
+    if (!text.trim()) {
+        showMessage("Nothing to download.");
+        return;
+    }
+
+    const blob = new Blob([text], {
+        type: "text/plain;charset=utf-8"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "clean-text.txt";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    showMessage("Text downloaded!");
+}
+
+
+// Clear
+function clearText() {
+
+    textInput.value = "";
+
+    updateStats();
+
+    message.textContent = "";
+
+    textInput.focus();
+}
+
+
+// Statistics
+function updateStats() {
+
+    const text = textInput.value;
+
+    const words = text.trim()
+        ? text.trim().split(/\s+/).length
+        : 0;
+
+    const characters = text.length;
+
+    const lines = text
+        ? text.split(/\r\n|\r|\n/).length
+        : 0;
+
+    document.getElementById("wordCount").textContent =
+        "Words: " + words;
+
+    document.getElementById("charCount").textContent =
+        "Characters: " + characters;
+
+    document.getElementById("lineCount").textContent =
+        "Lines: " + lines;
+}
+
+
+// Message
+function showMessage(text) {
+
+    message.textContent = text;
+
+    setTimeout(() => {
+        message.textContent = "";
+    }, 2500);
+}
+
+
+// Live statistics
+textInput.addEventListener("input", updateStats);
+
+updateStats();
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

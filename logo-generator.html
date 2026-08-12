@@ -1,0 +1,2002 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+<title>Professional Logo Generator</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+
+
+.app{
+    display:flex;
+    min-height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    width:360px;
+    border-right:1px solid #ddd;
+    padding:20px;
+    overflow-y:auto;
+    height:100vh;
+}
+
+.logo-title{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.section{
+    padding-bottom:20px;
+    margin-bottom:20px;
+    border-bottom:1px solid #eee;
+}
+
+.section h3{
+    margin:0 0 12px;
+    font-size:15px;
+}
+
+label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+input[type="text"],
+input[type="number"],
+select{
+    width:100%;
+    height:40px;
+    border:1px solid #ccc;
+    border-radius:7px;
+    padding:0 10px;
+    outline:none;
+    margin-bottom:12px;
+}
+
+input[type="color"]{
+    width:55px;
+    height:38px;
+    border:0;
+    padding:0;
+    cursor:pointer;
+}
+
+.color-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.range-row{
+    margin-bottom:15px;
+}
+
+.range-top{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    margin-bottom:6px;
+}
+
+input[type="range"]{
+    width:100%;
+}
+
+.check-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:9px 0;
+}
+
+.check-row label{
+    margin:0;
+}
+
+button{
+    background-color: #000000;
+    color: #f5f5f5;
+    border:0;
+    border-radius:7px;
+    padding:11px 14px;
+    cursor:pointer;
+    font-weight:600;
+
+}
+
+.btn{
+    width:100%;
+    margin-top:7px;
+}
+
+.btn-primary{
+    background:#5b5bf7;
+    color:white;
+}
+
+.btn-dark{
+    background:#222;
+    color:white;
+}
+
+.btn-light{
+    background:#eee;
+    color:#222;
+}
+
+.btn-danger{
+    background:#e74c3c;
+    color:white;
+}
+
+.category-btn active{
+    background:#5b5bf7;
+    color:white;
+}
+
+.icon-search{
+    position:relative;
+    margin-bottom:10px;
+}
+
+.icon-search i{
+    position:absolute;
+    left:12px;
+    top:12px;
+    color:#888;
+}
+
+.icon-search input{
+    padding-left:35px;
+    margin:0;
+}
+
+.category-list{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    padding-bottom:8px;
+    margin-bottom:10px;
+}
+
+.category-btn{
+    white-space:nowrap;
+    background:#070000;
+    padding:7px 10px;
+    font-size:11px;
+}
+
+.category-btn.active{
+    background:#5b5bf7;
+    color:white;
+}
+
+.icon-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:6px;
+    max-height:280px;
+    overflow-y:auto;
+    padding:2px;
+}
+
+.icon-item{
+    height:45px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#f5f5f5;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:19px;
+    color:#333;
+}
+
+.icon-item:hover{
+    background:#5b5bf7;
+    color:white;
+    transform:scale(1.05);
+}
+
+.icon-item.selected{
+    background:#5b5bf7;
+    color:white;
+}
+.btn btn-light{
+    background:#5b5bf7;
+    color:white;
+}
+/* ================= WORKSPACE ================= */
+
+.workspace{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.topbar{
+    height:65px;
+    background:#000000;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 22px;
+    color:wheat;
+}
+
+.topbar h2{
+    margin:0;
+    font-size:19px;
+}
+
+.top-actions{
+    display:flex;
+    gap:8px;
+}
+
+.canvas-area{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:35px;
+    overflow:auto;
+}
+
+/* ================= CANVAS ================= */
+
+#logoCanvas{
+    position:relative;
+    width:700px;
+    height:500px;
+    background:#fff;
+    overflow:hidden;
+    box-shadow:0 8px 35px rgba(0,0,0,.12);
+    user-select:none;
+}
+
+.transparent{
+    background-color:#fff!important;
+    background-image:
+        linear-gradient(45deg,#ddd 25%,transparent 25%),
+        linear-gradient(-45deg,#ddd 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#ddd 75%),
+        linear-gradient(-45deg,transparent 75%,#ddd 75%);
+    background-size:20px 20px;
+    background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0;
+}
+
+.logo-element{
+    position:absolute;
+    cursor:move;
+    user-select:none;
+}
+
+#logoText{
+    left:50%;
+    top:58%;
+    transform:translate(-50%,-50%);
+    white-space:nowrap;
+    font-size:72px;
+    font-weight:700;
+    color:#111;
+}
+
+#logoIcon{
+    left:50%;
+    top:35%;
+    transform:translate(-50%,-50%);
+    width:110px;
+    height:110px;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    font-size:110px;
+}
+
+/* ================= DOWNLOAD ================= */
+
+.download-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:6px;
+}
+
+.download-row button{
+    font-size:12px;
+    padding:10px 5px;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+    .app{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        height:auto;
+        max-height:60vh;
+        border-right:0;
+        border-bottom:1px solid #ddd;
+    }
+
+    .canvas-area{
+        padding:20px;
+    }
+
+    #logoCanvas{
+        width:90vw;
+        height:64vw;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+<div class="logo-title">
+    🎨 Logo Generator
+
+</div>
+<p>From Idea to Icon | Your Vision, Your Logo. </p>
+
+<!-- ================= TEXT ================= -->
+
+<div class="section">
+
+<h3>Logo Text</h3>
+
+<label>Business / Logo Name</label>
+
+<input
+type="text"
+id="textInput"
+value="My Logo"
+>
+
+
+<label>Font</label>
+
+<select id="fontSelect">
+
+<option>Arial</option>
+<option>Verdana</option>
+<option>Tahoma</option>
+<option>Georgia</option>
+<option>Times New Roman</option>
+<option>Trebuchet MS</option>
+<option>Courier New</option>
+<option>Impact</option>
+<option>Comic Sans MS</option>
+<option>Lucida Console</option>
+
+</select>
+
+
+<div class="range-row">
+
+<div class="range-top">
+<span>Font Size</span>
+<span id="fontSizeValue">72px</span>
+</div>
+
+<input
+type="range"
+id="fontSize"
+min="15"
+max="180"
+value="72"
+>
+
+</div>
+
+
+<div class="range-row">
+
+<div class="range-top">
+<span>Letter Spacing</span>
+<span id="letterValue">0px</span>
+</div>
+
+<input
+type="range"
+id="letterSpacing"
+min="-10"
+max="30"
+value="0"
+>
+
+</div>
+
+</div>
+
+
+<!-- ================= TEXT COLOR ================= -->
+
+<div class="section">
+
+<h3>Text Color</h3>
+
+<div class="color-row">
+
+<input
+type="color"
+id="textColor"
+value="#111111"
+>
+
+<span id="textColorCode">
+#111111
+</span>
+
+</div>
+
+
+<div class="check-row">
+
+<input
+type="checkbox"
+id="gradientCheck"
+>
+
+<label>
+Gradient Text
+</label>
+
+</div>
+
+
+<div id="gradientControls" style="display:none">
+
+<label>Gradient Color 1</label>
+
+<input
+type="color"
+id="gradient1"
+value="#5b5bf7"
+>
+
+
+<label>Gradient Color 2</label>
+
+<input
+type="color"
+id="gradient2"
+value="#e84393"
+>
+
+</div>
+
+</div>
+
+
+<!-- ================= TEXT STYLE ================= -->
+
+<div class="section">
+
+<h3>Text Style</h3>
+
+<div class="check-row">
+
+<input
+type="checkbox"
+id="boldCheck"
+checked
+>
+
+<label>Bold</label>
+
+</div>
+
+
+<div class="check-row">
+
+<input
+type="checkbox"
+id="italicCheck"
+>
+
+<label>Italic</label>
+
+</div>
+
+
+<div class="range-row">
+
+<div class="range-top">
+
+<span>Rotation</span>
+
+<span id="rotationValue">
+0°
+</span>
+
+</div>
+
+<input
+type="range"
+id="rotation"
+min="-180"
+max="180"
+value="0"
+>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     ICON LIBRARY
+===================================================== -->
+
+<div class="section">
+
+<h3>Icon Library</h3>
+
+
+<div class="icon-search">
+
+<i class="fa-solid fa-magnifying-glass"></i>
+
+<input
+type="text"
+id="iconSearch"
+placeholder="Search icons..."
+>
+
+</div>
+
+
+<div class="category-list">
+
+<button
+class="category-btn active"
+data-category="all">
+All
+</button>
+
+<button
+class="category-btn"
+data-category="business">
+Business
+</button>
+
+<button
+class="category-btn"
+data-category="tech">
+Tech
+</button>
+
+<button
+class="category-btn"
+data-category="people">
+People
+</button>
+
+<button
+class="category-btn"
+data-category="nature">
+Nature
+</button>
+
+<button
+class="category-btn"
+data-category="food">
+Food
+</button>
+
+<button
+class="category-btn"
+data-category="travel">
+Travel
+</button>
+
+<button
+class="category-btn"
+data-category="social">
+Social
+</button>
+
+</div>
+
+
+<div
+class="icon-grid"
+id="iconGrid">
+</div>
+
+
+<button
+class="btn btn-danger"
+id="removeIcon">
+
+Remove Icon
+
+</button>
+
+</div>
+
+
+<!-- ================= ICON COLOR ================= -->
+
+<div class="section">
+
+<h3>Icon Settings</h3>
+
+<label>Icon Color</label>
+
+<div class="color-row">
+
+<input
+type="color"
+id="iconColor"
+value="#5b5bf7"
+>
+
+<span id="iconColorCode">
+#5B5BF7
+</span>
+
+</div>
+
+
+<div class="range-row">
+
+<div class="range-top">
+
+<span>Icon Size</span>
+
+<span id="iconSizeValue">
+110px
+</span>
+
+</div>
+
+<input
+type="range"
+id="iconSize"
+min="20"
+max="250"
+value="110"
+>
+
+</div>
+
+
+<div class="range-row">
+
+<div class="range-top">
+
+<span>Icon Rotation</span>
+
+<span id="iconRotationValue">
+0°
+</span>
+
+</div>
+
+<input
+type="range"
+id="iconRotation"
+min="-180"
+max="180"
+value="0"
+>
+
+</div>
+
+</div>
+
+
+<!-- ================= SHADOW ================= -->
+
+<div class="section">
+
+<h3>Text Shadow</h3>
+
+<div class="check-row">
+
+<input
+type="checkbox"
+id="shadowCheck"
+>
+
+<label>
+Enable Shadow
+</label>
+
+</div>
+
+
+<div class="range-row">
+
+<div class="range-top">
+
+<span>Blur</span>
+
+<span id="shadowBlurValue">
+10px
+</span>
+
+</div>
+
+<input
+type="range"
+id="shadowBlur"
+min="0"
+max="40"
+value="10"
+>
+
+</div>
+
+</div>
+
+
+<!-- ================= BACKGROUND ================= -->
+
+<div class="section">
+
+<h3>Background</h3>
+
+<div class="color-row">
+
+<input
+type="color"
+id="backgroundColor"
+value="#ffffff"
+>
+
+<span id="backgroundCode">
+#FFFFFF
+</span>
+
+</div>
+
+
+<div class="check-row">
+
+<input
+type="checkbox"
+id="transparentCheck"
+>
+
+<label>
+Transparent Background
+</label>
+
+</div>
+
+</div>
+
+
+<!-- ================= DOWNLOAD ================= -->
+
+<div class="section">
+
+<h3>Download</h3>
+
+<div class="download-row">
+
+<button
+class="btn-primary"
+id="downloadPNG">
+PNG
+</button>
+
+<button
+class="btn-dark"
+id="downloadJPG">
+JPG
+</button>
+
+<!-- <button
+class="btn-light"
+id="downloadSVG">
+SVG
+</button> -->
+
+</div>
+
+</div>
+
+
+</aside>
+
+
+<!-- =====================================================
+     WORKSPACE
+===================================================== -->
+
+<main class="workspace">
+
+<div class="topbar">
+
+<h2>
+Logo Preview
+</h2>
+
+</div>
+
+
+<div class="canvas-area">
+
+<div id="logoCanvas">
+
+<div
+id="logoIcon"
+class="logo-element">
+</div>
+
+
+<div
+id="logoText"
+class="logo-element">
+
+My Logo
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+
+<!-- =====================================================
+     HTML2CANVAS
+===================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
+<script>
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const canvas =
+document.getElementById("logoCanvas");
+
+const logoText =
+document.getElementById("logoText");
+
+const logoIcon =
+document.getElementById("logoIcon");
+
+const textInput =
+document.getElementById("textInput");
+
+const fontSelect =
+document.getElementById("fontSelect");
+
+const fontSize =
+document.getElementById("fontSize");
+
+const letterSpacing =
+document.getElementById("letterSpacing");
+
+const textColor =
+document.getElementById("textColor");
+
+const backgroundColor =
+document.getElementById("backgroundColor");
+
+const gradientCheck =
+document.getElementById("gradientCheck");
+
+const gradient1 =
+document.getElementById("gradient1");
+
+const gradient2 =
+document.getElementById("gradient2");
+
+const boldCheck =
+document.getElementById("boldCheck");
+
+const italicCheck =
+document.getElementById("italicCheck");
+
+const rotation =
+document.getElementById("rotation");
+
+const shadowCheck =
+document.getElementById("shadowCheck");
+
+const shadowBlur =
+document.getElementById("shadowBlur");
+
+const iconColor =
+document.getElementById("iconColor");
+
+const iconSize =
+document.getElementById("iconSize");
+
+const iconRotation =
+document.getElementById("iconRotation");
+
+const transparentCheck =
+document.getElementById("transparentCheck");
+
+
+/* =====================================================
+   200+ ICON LIBRARY
+===================================================== */
+
+const icons = [
+
+/* BUSINESS */
+
+["fa-building","business"],
+["fa-briefcase","business"],
+["fa-chart-line","business"],
+["fa-chart-column","business"],
+["fa-chart-pie","business"],
+["fa-money-bill","business"],
+["fa-money-bill-wave","business"],
+["fa-coins","business"],
+["fa-credit-card","business"],
+["fa-wallet","business"],
+["fa-calculator","business"],
+["fa-file-invoice","business"],
+["fa-file-invoice-dollar","business"],
+["fa-handshake","business"],
+["fa-bullseye","business"],
+["fa-bullhorn","business"],
+["fa-lightbulb","business"],
+["fa-ranking-star","business"],
+["fa-trophy","business"],
+["fa-award","business"],
+["fa-medal","business"],
+["fa-crown","business"],
+["fa-gem","business"],
+["fa-shop","business"],
+["fa-store","business"],
+["fa-cart-shopping","business"],
+["fa-bag-shopping","business"],
+["fa-tags","business"],
+["fa-tag","business"],
+["fa-box","business"],
+["fa-boxes-stacked","business"],
+["fa-truck","business"],
+["fa-users","business"],
+["fa-user-tie","business"],
+["fa-landmark","business"],
+["fa-scale-balanced","business"],
+["fa-sack-dollar","business"],
+["fa-piggy-bank","business"],
+["fa-percent","business"],
+["fa-receipt","business"],
+["fa-calendar-days","business"],
+
+/* TECH */
+
+["fa-laptop","tech"],
+["fa-desktop","tech"],
+["fa-computer","tech"],
+["fa-mobile-screen","tech"],
+["fa-tablet-screen-button","tech"],
+["fa-keyboard","tech"],
+["fa-mouse","tech"],
+["fa-server","tech"],
+["fa-database","tech"],
+["fa-microchip","tech"],
+["fa-memory","tech"],
+["fa-hard-drive","tech"],
+["fa-cloud","tech"],
+["fa-cloud-arrow-up","tech"],
+["fa-cloud-arrow-down","tech"],
+["fa-wifi","tech"],
+["fa-bluetooth","tech"],
+["fa-code","tech"],
+["fa-code-branch","tech"],
+["fa-terminal","tech"],
+["fa-bug","tech"],
+["fa-shield-halved","tech"],
+["fa-lock","tech"],
+["fa-unlock","tech"],
+["fa-key","tech"],
+["fa-fingerprint","tech"],
+["fa-gear","tech"],
+["fa-gears","tech"],
+["fa-screwdriver-wrench","tech"],
+["fa-robot","tech"],
+["fa-rocket","tech"],
+["fa-satellite","tech"],
+["fa-satellite-dish","tech"],
+["fa-network-wired","tech"],
+["fa-globe","tech"],
+["fa-link","tech"],
+["fa-qrcode","tech"],
+["fa-wand-magic-sparkles","tech"],
+
+/* PEOPLE */
+
+["fa-user","people"],
+["fa-users","people"],
+["fa-user-group","people"],
+["fa-user-plus","people"],
+["fa-user-check","people"],
+["fa-user-tie","people"],
+["fa-user-graduate","people"],
+["fa-user-doctor","people"],
+["fa-user-nurse","people"],
+["fa-person","people"],
+["fa-person-running","people"],
+["fa-person-walking","people"],
+["fa-child","people"],
+["fa-children","people"],
+["fa-people-group","people"],
+["fa-people-roof","people"],
+["fa-hands-holding-child","people"],
+["fa-hand-holding-heart","people"],
+["fa-hands-clapping","people"],
+["fa-hands","people"],
+["fa-heart","people"],
+["fa-heart-pulse","people"],
+["fa-face-smile","people"],
+["fa-face-laugh","people"],
+["fa-face-grin-hearts","people"],
+["fa-face-surprise","people"],
+["fa-comments","people"],
+["fa-comment","people"],
+["fa-message","people"],
+["fa-phone","people"],
+
+/* NATURE */
+
+["fa-leaf","nature"],
+["fa-tree","nature"],
+["fa-seedling","nature"],
+["fa-spa","nature"],
+["fa-sun","nature"],
+["fa-moon","nature"],
+["fa-star","nature"],
+["fa-cloud-sun","nature"],
+["fa-cloud-moon","nature"],
+["fa-rainbow","nature"],
+["fa-snowflake","nature"],
+["fa-water","nature"],
+["fa-droplet","nature"],
+["fa-fire","nature"],
+["fa-mountain","nature"],
+["fa-volcano","nature"],
+["fa-wind","nature"],
+["fa-feather","nature"],
+["fa-fish","nature"],
+["fa-dove","nature"],
+["fa-crow","nature"],
+["fa-bird","nature"],
+["fa-cat","nature"],
+["fa-dog","nature"],
+["fa-horse","nature"],
+["fa-paw","nature"],
+["fa-bug","nature"],
+["fa-spider","nature"],
+["fa-butterfly","nature"],
+["fa-apple-whole","nature"],
+
+/* FOOD */
+
+["fa-utensils","food"],
+["fa-spoon","food"],
+["fa-kitchen-set","food"],
+["fa-burger","food"],
+["fa-pizza-slice","food"],
+["fa-hotdog","food"],
+["fa-ice-cream","food"],
+["fa-cake-candles","food"],
+["fa-cookie","food"],
+["fa-candy-cane","food"],
+["fa-bowl-food","food"],
+["fa-bowl-rice","food"],
+["fa-mug-hot","food"],
+["fa-mug-saucer","food"],
+["fa-wine-glass","food"],
+["fa-champagne-glasses","food"],
+["fa-beer-mug-empty","food"],
+["fa-bottle-water","food"],
+["fa-lemon","food"],
+["fa-carrot","food"],
+["fa-pepper-hot","food"],
+["fa-cheese","food"],
+
+/* TRAVEL */
+
+["fa-plane","travel"],
+["fa-plane-departure","travel"],
+["fa-plane-arrival","travel"],
+["fa-car","travel"],
+["fa-taxi","travel"],
+["fa-bus","travel"],
+["fa-train","travel"],
+["fa-train-subway","travel"],
+["fa-ship","travel"],
+["fa-sailboat","travel"],
+["fa-motorcycle","travel"],
+["fa-bicycle","travel"],
+["fa-route","travel"],
+["fa-map","travel"],
+["fa-map-location-dot","travel"],
+["fa-location-dot","travel"],
+["fa-compass","travel"],
+["fa-hotel","travel"],
+["fa-passport","travel"],
+["fa-suitcase","travel"],
+["fa-ticket","travel"],
+["fa-camera","travel"],
+["fa-binoculars","travel"],
+["fa-road","travel"],
+
+/* SOCIAL */
+
+["fa-facebook","social"],
+["fa-facebook-f","social"],
+["fa-instagram","social"],
+["fa-twitter","social"],
+["fa-x-twitter","social"],
+["fa-youtube","social"],
+["fa-tiktok","social"],
+["fa-linkedin","social"],
+["fa-linkedin-in","social"],
+["fa-pinterest","social"],
+["fa-pinterest-p","social"],
+["fa-whatsapp","social"],
+["fa-telegram","social"],
+["fa-discord","social"],
+["fa-github","social"],
+["fa-gitlab","social"],
+["fa-google","social"],
+["fa-apple","social"],
+["fa-android","social"],
+["fa-wordpress","social"],
+["fa-shopify","social"],
+["fa-react","social"],
+["fa-vuejs","social"],
+["fa-node-js","social"],
+["fa-npm","social"],
+["fa-html5","social"],
+["fa-css3-alt","social"],
+["fa-js","social"],
+["fa-python","social"],
+["fa-php","social"],
+["fa-java","social"],
+
+/* GENERAL */
+
+["fa-house","all"],
+["fa-envelope","all"],
+["fa-paper-plane","all"],
+["fa-bell","all"],
+["fa-book","all"],
+["fa-book-open","all"],
+["fa-graduation-cap","all"],
+["fa-school","all"],
+["fa-pencil","all"],
+["fa-pen","all"],
+["fa-palette","all"],
+["fa-image","all"],
+["fa-video","all"],
+["fa-music","all"],
+["fa-microphone","all"],
+["fa-headphones","all"],
+["fa-volume-high","all"],
+["fa-play","all"],
+["fa-pause","all"],
+["fa-check","all"],
+["fa-xmark","all"],
+["fa-plus","all"],
+["fa-minus","all"],
+["fa-star-half-stroke","all"],
+["fa-circle","all"],
+["fa-square","all"],
+["fa-diamond","all"],
+["fa-heart","all"],
+["fa-bolt","all"],
+["fa-magnifying-glass","all"],
+["fa-filter","all"],
+["fa-bars","all"],
+["fa-ellipsis","all"],
+["fa-arrow-right","all"],
+["fa-arrow-left","all"],
+["fa-arrow-up","all"],
+["fa-arrow-down","all"],
+["fa-check-circle","all"],
+["fa-circle-check","all"],
+["fa-circle-xmark","all"],
+["fa-circle-info","all"],
+["fa-circle-question","all"],
+["fa-triangle-exclamation","all"]
+
+];
+
+
+/* =====================================================
+   ICON GRID
+===================================================== */
+
+const iconGrid =
+document.getElementById("iconGrid");
+
+let currentCategory = "all";
+
+
+function renderIcons(){
+
+    iconGrid.innerHTML = "";
+
+    const search =
+        document
+        .getElementById("iconSearch")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    icons
+    .filter(icon => {
+
+        const name = icon[0]
+            .replace("fa-","")
+            .replaceAll("-"," ");
+
+        const category = icon[1];
+
+        const categoryMatch =
+            currentCategory === "all" ||
+            category === currentCategory;
+
+        const searchMatch =
+            !search ||
+            name.includes(search);
+
+        return categoryMatch && searchMatch;
+
+    })
+    .forEach(icon => {
+
+        const item =
+            document.createElement("div");
+
+        item.className = "icon-item";
+
+        item.title =
+            icon[0].replace("fa-","");
+
+        item.innerHTML =
+            `<i class="fa-solid ${icon[0]}"></i>`;
+
+        item.addEventListener("click", () => {
+
+            selectIcon(icon[0]);
+
+        });
+
+        iconGrid.appendChild(item);
+
+    });
+
+}
+
+
+renderIcons();
+
+
+/* =====================================================
+   CATEGORY
+===================================================== */
+
+document
+.querySelectorAll(".category-btn")
+.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        document
+        .querySelectorAll(".category-btn")
+        .forEach(btn =>
+            btn.classList.remove("active")
+        );
+
+        button.classList.add("active");
+
+        currentCategory =
+            button.dataset.category;
+
+        renderIcons();
+
+    });
+
+});
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+document
+.getElementById("iconSearch")
+.addEventListener("input", renderIcons);
+
+
+/* =====================================================
+   SELECT ICON
+===================================================== */
+
+function selectIcon(iconClass){
+
+    logoIcon.className =
+        `logo-element fa-solid ${iconClass}`;
+
+    logoIcon.style.display =
+        "flex";
+
+    logoIcon.style.color =
+        iconColor.value;
+
+    logoIcon.style.fontSize =
+        iconSize.value + "px";
+
+    logoIcon.style.width =
+        iconSize.value + "px";
+
+    logoIcon.style.height =
+        iconSize.value + "px";
+
+    logoIcon.style.transform =
+        `translate(-50%,-50%) rotate(${iconRotation.value}deg)`;
+
+}
+
+
+/* =====================================================
+   TEXT UPDATE
+===================================================== */
+
+function updateText(){
+
+    logoText.textContent =
+        textInput.value || "My Logo";
+
+    logoText.style.fontFamily =
+        fontSelect.value;
+
+    logoText.style.fontSize =
+        fontSize.value + "px";
+
+    logoText.style.letterSpacing =
+        letterSpacing.value + "px";
+
+    logoText.style.fontWeight =
+        boldCheck.checked ? "700" : "400";
+
+    logoText.style.fontStyle =
+        italicCheck.checked ? "italic" : "normal";
+
+    updateTextColor();
+
+    updateRotation();
+
+    updateShadow();
+
+}
+
+
+/* =====================================================
+   TEXT COLOR
+===================================================== */
+
+function updateTextColor(){
+
+    document
+    .getElementById("textColorCode")
+    .textContent =
+        textColor.value.toUpperCase();
+
+
+    if(gradientCheck.checked){
+
+        logoText.style.background =
+            `linear-gradient(
+                90deg,
+                ${gradient1.value},
+                ${gradient2.value}
+            )`;
+
+        logoText.style.webkitBackgroundClip =
+            "text";
+
+        logoText.style.backgroundClip =
+            "text";
+
+        logoText.style.webkitTextFillColor =
+            "transparent";
+
+    }else{
+
+        logoText.style.background =
+            "none";
+
+        logoText.style.webkitTextFillColor =
+            textColor.value;
+
+        logoText.style.color =
+            textColor.value;
+
+    }
+
+}
+
+
+/* =====================================================
+   ROTATION
+===================================================== */
+
+function updateRotation(){
+
+    logoText.style.transform =
+        `translate(-50%,-50%)
+         rotate(${rotation.value}deg)`;
+
+    document
+    .getElementById("rotationValue")
+    .textContent =
+        rotation.value + "°";
+
+}
+
+
+/* =====================================================
+   SHADOW
+===================================================== */
+
+function updateShadow(){
+
+    document
+    .getElementById("shadowBlurValue")
+    .textContent =
+        shadowBlur.value + "px";
+
+
+    if(shadowCheck.checked){
+
+        logoText.style.textShadow =
+            `5px 5px
+             ${shadowBlur.value}px
+             rgba(0,0,0,.35)`;
+
+    }else{
+
+        logoText.style.textShadow =
+            "none";
+
+    }
+
+}
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+textInput.addEventListener(
+    "input",
+    updateText
+);
+
+fontSelect.addEventListener(
+    "change",
+    updateText
+);
+
+
+fontSize.addEventListener(
+    "input",
+    () => {
+
+        document
+        .getElementById("fontSizeValue")
+        .textContent =
+            fontSize.value + "px";
+
+        updateText();
+
+    }
+);
+
+
+letterSpacing.addEventListener(
+    "input",
+    () => {
+
+        document
+        .getElementById("letterValue")
+        .textContent =
+            letterSpacing.value + "px";
+
+        updateText();
+
+    }
+);
+
+
+textColor.addEventListener(
+    "input",
+    updateTextColor
+);
+
+
+gradientCheck.addEventListener(
+    "change",
+    () => {
+
+        document
+        .getElementById("gradientControls")
+        .style.display =
+            gradientCheck.checked
+            ? "block"
+            : "none";
+
+        updateTextColor();
+
+    }
+);
+
+
+gradient1.addEventListener(
+    "input",
+    updateTextColor
+);
+
+gradient2.addEventListener(
+    "input",
+    updateTextColor
+);
+
+
+boldCheck.addEventListener(
+    "change",
+    updateText
+);
+
+italicCheck.addEventListener(
+    "change",
+    updateText
+);
+
+
+rotation.addEventListener(
+    "input",
+    updateRotation
+);
+
+
+shadowCheck.addEventListener(
+    "change",
+    updateShadow
+);
+
+
+shadowBlur.addEventListener(
+    "input",
+    updateShadow
+);
+
+
+/* =====================================================
+   ICON COLOR
+===================================================== */
+
+iconColor.addEventListener(
+    "input",
+    () => {
+
+        logoIcon.style.color =
+            iconColor.value;
+
+        document
+        .getElementById("iconColorCode")
+        .textContent =
+            iconColor.value.toUpperCase();
+
+    }
+);
+
+
+/* =====================================================
+   ICON SIZE
+===================================================== */
+
+iconSize.addEventListener(
+    "input",
+    () => {
+
+        logoIcon.style.fontSize =
+            iconSize.value + "px";
+
+        logoIcon.style.width =
+            iconSize.value + "px";
+
+        logoIcon.style.height =
+            iconSize.value + "px";
+
+        document
+        .getElementById("iconSizeValue")
+        .textContent =
+            iconSize.value + "px";
+
+    }
+);
+
+
+/* =====================================================
+   ICON ROTATION
+===================================================== */
+
+iconRotation.addEventListener(
+    "input",
+    () => {
+
+        logoIcon.style.transform =
+            `translate(-50%,-50%)
+             rotate(${iconRotation.value}deg)`;
+
+        document
+        .getElementById("iconRotationValue")
+        .textContent =
+            iconRotation.value + "°";
+
+    }
+);
+
+
+/* =====================================================
+   REMOVE ICON
+===================================================== */
+
+document
+.getElementById("removeIcon")
+.addEventListener("click", () => {
+
+    logoIcon.style.display =
+        "none";
+
+});
+
+
+/* =====================================================
+   BACKGROUND
+===================================================== */
+
+backgroundColor.addEventListener(
+    "input",
+    () => {
+
+        canvas.style.backgroundColor =
+            backgroundColor.value;
+
+        document
+        .getElementById("backgroundCode")
+        .textContent =
+            backgroundColor.value.toUpperCase();
+
+    }
+);
+
+
+transparentCheck.addEventListener(
+    "change",
+    () => {
+
+        if(transparentCheck.checked){
+
+            canvas.classList.add(
+                "transparent"
+            );
+
+        }else{
+
+            canvas.classList.remove(
+                "transparent"
+            );
+
+            canvas.style.backgroundColor =
+                backgroundColor.value;
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   DRAG SYSTEM
+===================================================== */
+
+function makeDraggable(element){
+
+    let dragging = false;
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+
+    element.addEventListener(
+        "mousedown",
+        function(e){
+
+            dragging = true;
+
+            const rect =
+                element.getBoundingClientRect();
+
+            offsetX =
+                e.clientX - rect.left;
+
+            offsetY =
+                e.clientY - rect.top;
+
+            e.preventDefault();
+
+        }
+    );
+
+
+    document.addEventListener(
+        "mousemove",
+        function(e){
+
+            if(!dragging)
+                return;
+
+
+            const rect =
+                canvas.getBoundingClientRect();
+
+
+            let x =
+                e.clientX -
+                rect.left -
+                offsetX +
+                element.offsetWidth / 2;
+
+
+            let y =
+                e.clientY -
+                rect.top -
+                offsetY +
+                element.offsetHeight / 2;
+
+
+            element.style.left =
+                x + "px";
+
+            element.style.top =
+                y + "px";
+
+
+            if(element === logoText){
+
+                element.style.transform =
+                    `translate(-50%,-50%)
+                     rotate(${rotation.value}deg)`;
+
+            }else{
+
+                element.style.transform =
+                    `translate(-50%,-50%)
+                     rotate(${iconRotation.value}deg)`;
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "mouseup",
+        () => {
+
+            dragging = false;
+
+        }
+    );
+
+}
+
+
+makeDraggable(logoText);
+makeDraggable(logoIcon);
+
+
+/* =====================================================
+   CENTER
+===================================================== */
+
+document
+.getElementById("centerText")
+.addEventListener("click", () => {
+
+    logoText.style.left =
+        "50%";
+
+    logoText.style.top =
+        "58%";
+
+});
+
+
+document
+.getElementById("centerIcon")
+.addEventListener("click", () => {
+
+    logoIcon.style.left =
+        "50%";
+
+    logoIcon.style.top =
+        "35%";
+
+});
+
+
+/* =====================================================
+   PNG DOWNLOAD
+===================================================== */
+
+document
+.getElementById("downloadPNG")
+.addEventListener("click", async () => {
+
+    const oldShadow =
+        canvas.style.boxShadow;
+
+    canvas.style.boxShadow =
+        "none";
+
+
+    const image =
+        await html2canvas(
+            canvas,
+            {
+                backgroundColor:
+                    transparentCheck.checked
+                    ? null
+                    : backgroundColor.value,
+
+                scale:3,
+
+                useCORS:true
+            }
+        );
+
+
+    canvas.style.boxShadow =
+        oldShadow;
+
+
+    const link =
+        document.createElement("a");
+
+    link.download =
+        "my-logo.png";
+
+    link.href =
+        image.toDataURL(
+            "image/png"
+        );
+
+    link.click();
+
+});
+
+
+/* =====================================================
+   JPG DOWNLOAD
+===================================================== */
+
+document
+.getElementById("downloadJPG")
+.addEventListener("click", async () => {
+
+    const image =
+        await html2canvas(
+            canvas,
+            {
+                backgroundColor:
+                    backgroundColor.value,
+
+                scale:3,
+
+                useCORS:true
+            }
+        );
+
+
+    const link =
+        document.createElement("a");
+
+    link.download =
+        "my-logo.jpg";
+
+    link.href =
+        image.toDataURL(
+            "image/jpeg",
+            .95
+        );
+
+    link.click();
+
+});
+
+
+</script>
+
+<br>
+<br>
+<div id="content1" class="content-box">Loading first file...</div>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>

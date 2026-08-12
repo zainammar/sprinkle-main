@@ -1,0 +1,173 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+<title>JavaScript Beautifier</title>
+
+<!-- js-beautify Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+.toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+textarea{
+    width:100%;
+    height:500px;
+    padding:15px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-family:Consolas, monospace;
+    font-size:14px;
+    resize:vertical;
+}
+.dark{
+    background:#1e1e1e;
+    color:#fff;
+}
+.dark .container{
+    background:#2d2d2d;
+}
+.dark textarea{
+    background:#111;
+    color:#fff;
+    border:1px solid #555;
+}
+</style>
+
+
+<div class="container">
+    <h1>JavaScript Beautifier</h1>
+
+    <div class="toolbar">
+        <select id="indentSize">
+            <option value="2">2 Spaces</option>
+            <option value="4" selected>4 Spaces</option>
+        </select>
+
+        <button onclick="beautifyCode()">Beautify</button>
+        <button onclick="minifyCode()">Minify</button>
+        <button onclick="copyCode()">Copy</button>
+        <button onclick="clearCode()">Clear</button>
+        <button onclick="downloadCode()">Download</button>
+        <button onclick="toggleDark()">Dark Mode</button>
+
+        <input type="file" id="fileInput" accept=".js">
+    </div>
+
+    <textarea id="code" placeholder="Paste JavaScript code here..."></textarea>
+</div>
+<br>
+<script>
+const textarea = document.getElementById("code");
+
+function beautifyCode(){
+    let code = textarea.value;
+    let indent = parseInt(document.getElementById("indentSize").value);
+
+    let result = js_beautify(code,{
+        indent_size: indent,
+        space_in_empty_paren: true
+    });
+
+    textarea.value = result;
+}
+
+function minifyCode(){
+    let code = textarea.value;
+
+    code = code
+        .replace(/\/\*[\s\S]*?\*\//g,'')
+        .replace(/\/\/.*$/gm,'')
+        .replace(/\s+/g,' ')
+        .replace(/\s*([{};,:=()+\-*/<>])\s*/g,'$1');
+
+    textarea.value = code;
+}
+
+function copyCode(){
+    navigator.clipboard.writeText(textarea.value);
+    alert("Copied!");
+}
+
+function clearCode(){
+    textarea.value = "";
+}
+
+function downloadCode(){
+    let blob = new Blob([textarea.value], {type:"text/javascript"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "beautified.js";
+    a.click();
+}
+
+document.getElementById("fileInput").addEventListener("change",function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event){
+        textarea.value = event.target.result;
+    };
+    reader.readAsText(file);
+});
+
+function toggleDark(){
+    document.body.classList.toggle("dark");
+}
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
