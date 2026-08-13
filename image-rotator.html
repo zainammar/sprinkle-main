@@ -1,0 +1,910 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+<title>Image Rotator</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+
+    .container {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .app {
+  
+        border-radius: 18px;
+        padding: 25px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+
+    h1 {
+        text-align: center;
+        margin: 0 0 8px;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #000000;
+        margin-bottom: 25px;
+    }
+
+    /* Upload */
+    .upload-box {
+        border: 2px dashed #aaa;
+        border-radius: 14px;
+        padding: 35px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: .2s;
+        background: #fafafa;
+    }
+
+    .upload-box:hover,
+    .upload-box.dragover {
+        border-color: #2563eb;
+        background: #eff6ff;
+    }
+
+    .upload-icon {
+        font-size: 45px;
+        margin-bottom: 10px;
+    }
+
+    .upload-box p {
+        margin: 8px 0;
+        color: #666;
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    .choose-btn {
+        display: inline-block;
+        background: #2563eb;
+        color: white;
+        padding: 11px 22px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    /* Editor */
+    .editor {
+        display: none;
+        margin-top: 25px;
+    }
+
+    .workspace {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 20px;
+    }
+
+    .preview-area {
+        min-height: 500px;
+        background:
+            linear-gradient(45deg, #ddd 25%, transparent 25%),
+            linear-gradient(-45deg, #ddd 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #ddd 75%),
+            linear-gradient(-45deg, transparent 75%, #ddd 75%);
+        background-size: 30px 30px;
+        background-position: 0 0, 0 15px, 15px -15px, -15px 0;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        padding: 25px;
+    }
+
+    #canvas {
+        max-width: 100%;
+        max-height: 460px;
+        box-shadow: 0 4px 15px rgba(0,0,0,.2);
+        background: white;
+    }
+
+    .controls {
+        background: #f8f9fa;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    .controls h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .control-group {
+        margin-bottom: 18px;
+    }
+
+    .control-group label {
+        display: block;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 7px;
+    }
+
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    button {
+        border: 0;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        background: #e5e7eb;
+        transition: .2s;
+    }
+
+    button:hover {
+        transform: translateY(-1px);
+        background: #d1d5db;
+    }
+
+    .primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .primary:hover {
+        background: #1d4ed8;
+    }
+
+    .success {
+        background: #16a34a;
+        color: white;
+    }
+
+    .success:hover {
+        background: #15803d;
+    }
+
+    .danger {
+        background: #dc2626;
+        color: white;
+    }
+
+    .danger:hover {
+        background: #b91c1c;
+    }
+
+    input[type="range"] {
+        width: 100%;
+    }
+
+    .angle-value {
+        font-weight: bold;
+        color: #2563eb;
+    }
+
+    .file-info {
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 15px;
+        word-break: break-word;
+    }
+
+    /* Navigation */
+    .navigation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-top: 18px;
+    }
+
+    .counter {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .reset-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 800px) {
+        .workspace {
+            grid-template-columns: 1fr;
+        }
+
+        .preview-area {
+            min-height: 400px;
+        }
+
+        #canvas {
+            max-height: 350px;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .container {
+            padding: 10px;
+            margin: 10px auto;
+        }
+
+        .app {
+            padding: 15px;
+        }
+
+        .preview-area {
+            min-height: 300px;
+        }
+
+        #canvas {
+            max-height: 270px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="app">
+
+        <h1>🖼️ Image Rotator</h1>
+        <div class="subtitle">
+            Rotate, flip, zoom and download your images
+        </div>
+
+        <!-- Upload -->
+        <div class="upload-box" id="uploadBox">
+
+            <div class="upload-icon">📁</div>
+
+            <strong>Drag & Drop your images here</strong>
+
+            <p>or select images from your computer</p>
+
+            <label for="fileInput" class="choose-btn">
+                Choose Images
+            </label>
+
+            <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                multiple
+            >
+
+        </div>
+
+        <!-- Editor -->
+        <div class="editor" id="editor">
+
+            <div class="workspace">
+
+                <!-- Preview -->
+                <div>
+
+                    <div class="preview-area">
+                        <canvas id="canvas"></canvas>
+                    </div>
+
+                    <div class="navigation">
+
+                        <button id="prevBtn">
+                            ◀ Previous
+                        </button>
+
+                        <span class="counter" id="counter">
+                            1 / 1
+                        </span>
+
+                        <button id="nextBtn">
+                            Next ▶
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+
+                    <h3>Controls</h3>
+
+                    <div class="file-info" id="fileInfo">
+                        No image
+                    </div>
+
+                    <!-- Rotation -->
+                    <div class="control-group">
+
+                        <label>Rotate</label>
+
+                        <div class="button-row">
+
+                            <button id="rotateLeft">
+                                ↶ Left 90°
+                            </button>
+
+                            <button id="rotateRight">
+                                ↷ Right 90°
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Custom Angle -->
+                    <div class="control-group">
+
+                        <label>
+                            Custom Angle:
+                            <span class="angle-value" id="angleValue">
+                                0°
+                            </span>
+                        </label>
+
+                        <input
+                            type="range"
+                            id="angleSlider"
+                            min="-180"
+                            max="180"
+                            value="0"
+                        >
+
+                    </div>
+
+                    <!-- Zoom -->
+                    <div class="control-group">
+
+                        <label>
+                            Zoom:
+                            <span id="zoomValue">100%</span>
+                        </label>
+
+                        <input
+                            type="range"
+                            id="zoomSlider"
+                            min="25"
+                            max="200"
+                            value="100"
+                        >
+
+                    </div>
+
+                    <!-- Flip -->
+                    <div class="control-group">
+
+                        <label>Flip</label>
+
+                        <div class="button-row">
+
+                            <button id="flipH">
+                                ↔ Horizontal
+                            </button>
+
+                            <button id="flipV">
+                                ↕ Vertical
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="actions">
+
+                        <button
+                            class="primary"
+                            id="downloadBtn">
+                            ⬇ Download
+                        </button>
+
+                        <button
+                            class="danger"
+                            id="removeBtn">
+                            🗑 Remove
+                        </button>
+
+                    </div>
+
+                    <button
+                        class="reset-btn"
+                        id="resetBtn">
+                        🔄 Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+const fileInput = document.getElementById("fileInput");
+const uploadBox = document.getElementById("uploadBox");
+const editor = document.getElementById("editor");
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const rotateLeft = document.getElementById("rotateLeft");
+const rotateRight = document.getElementById("rotateRight");
+
+const angleSlider = document.getElementById("angleSlider");
+const angleValue = document.getElementById("angleValue");
+
+const zoomSlider = document.getElementById("zoomSlider");
+const zoomValue = document.getElementById("zoomValue");
+
+const flipH = document.getElementById("flipH");
+const flipV = document.getElementById("flipV");
+
+const resetBtn = document.getElementById("resetBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const removeBtn = document.getElementById("removeBtn");
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+const counter = document.getElementById("counter");
+const fileInfo = document.getElementById("fileInfo");
+
+let images = [];
+let currentIndex = 0;
+
+let rotation = 0;
+let zoom = 1;
+let flipHorizontal = false;
+let flipVertical = false;
+
+
+/* =========================
+   Upload
+========================= */
+
+fileInput.addEventListener("change", function () {
+
+    handleFiles(this.files);
+
+});
+
+
+uploadBox.addEventListener("dragover", function (e) {
+
+    e.preventDefault();
+
+    uploadBox.classList.add("dragover");
+
+});
+
+
+uploadBox.addEventListener("dragleave", function () {
+
+    uploadBox.classList.remove("dragover");
+
+});
+
+
+uploadBox.addEventListener("drop", function (e) {
+
+    e.preventDefault();
+
+    uploadBox.classList.remove("dragover");
+
+    handleFiles(e.dataTransfer.files);
+
+});
+
+
+function handleFiles(files) {
+
+    const selected = Array.from(files).filter(file =>
+        file.type.startsWith("image/")
+    );
+
+    if (!selected.length) {
+        alert("Please select image files.");
+        return;
+    }
+
+    selected.forEach(file => {
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+
+            const img = new Image();
+
+            img.onload = function () {
+
+                images.push({
+                    file: file,
+                    image: img
+                });
+
+                if (images.length === 1) {
+                    currentIndex = 0;
+                    editor.style.display = "block";
+                    resetSettings();
+                    render();
+                } else {
+                    render();
+                }
+
+            };
+
+            img.src = e.target.result;
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
+
+
+/* =========================
+   Render Image
+========================= */
+
+function render() {
+
+    if (!images.length) return;
+
+    const item = images[currentIndex];
+    const img = item.image;
+
+    const angle = rotation * Math.PI / 180;
+
+    const scaledWidth = img.width * zoom;
+    const scaledHeight = img.height * zoom;
+
+    const sin = Math.abs(Math.sin(angle));
+    const cos = Math.abs(Math.cos(angle));
+
+    const newWidth =
+        Math.ceil(scaledWidth * cos + scaledHeight * sin);
+
+    const newHeight =
+        Math.ceil(scaledWidth * sin + scaledHeight * cos);
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+
+    ctx.translate(
+        canvas.width / 2,
+        canvas.height / 2
+    );
+
+    ctx.rotate(angle);
+
+    ctx.scale(
+        flipHorizontal ? -1 : 1,
+        flipVertical ? -1 : 1
+    );
+
+    ctx.drawImage(
+        img,
+        -scaledWidth / 2,
+        -scaledHeight / 2,
+        scaledWidth,
+        scaledHeight
+    );
+
+    ctx.restore();
+
+    updateUI();
+
+}
+
+
+/* =========================
+   UI
+========================= */
+
+function updateUI() {
+
+    const item = images[currentIndex];
+
+    counter.textContent =
+        `${currentIndex + 1} / ${images.length}`;
+
+    fileInfo.innerHTML =
+        `<strong>${escapeHTML(item.file.name)}</strong><br>
+         ${item.image.width} × ${item.image.height}px`;
+
+    angleValue.textContent =
+        rotation + "°";
+
+    angleSlider.value = rotation;
+
+    zoomValue.textContent =
+        Math.round(zoom * 100) + "%";
+
+}
+
+
+/* =========================
+   Rotate
+========================= */
+
+rotateLeft.addEventListener("click", function () {
+
+    rotation -= 90;
+
+    if (rotation < -180) {
+        rotation += 360;
+    }
+
+    angleSlider.value = rotation;
+
+    render();
+
+});
+
+
+rotateRight.addEventListener("click", function () {
+
+    rotation += 90;
+
+    if (rotation > 180) {
+        rotation -= 360;
+    }
+
+    angleSlider.value = rotation;
+
+    render();
+
+});
+
+
+angleSlider.addEventListener("input", function () {
+
+    rotation = Number(this.value);
+
+    render();
+
+});
+
+
+/* =========================
+   Zoom
+========================= */
+
+zoomSlider.addEventListener("input", function () {
+
+    zoom = Number(this.value) / 100;
+
+    render();
+
+});
+
+
+/* =========================
+   Flip
+========================= */
+
+flipH.addEventListener("click", function () {
+
+    flipHorizontal = !flipHorizontal;
+
+    render();
+
+});
+
+
+flipV.addEventListener("click", function () {
+
+    flipVertical = !flipVertical;
+
+    render();
+
+});
+
+
+/* =========================
+   Reset
+========================= */
+
+function resetSettings() {
+
+    rotation = 0;
+    zoom = 1;
+    flipHorizontal = false;
+    flipVertical = false;
+
+    angleSlider.value = 0;
+    zoomSlider.value = 100;
+
+}
+
+
+resetBtn.addEventListener("click", function () {
+
+    resetSettings();
+    render();
+
+});
+
+
+/* =========================
+   Previous
+========================= */
+
+prevBtn.addEventListener("click", function () {
+
+    if (!images.length) return;
+
+    currentIndex--;
+
+    if (currentIndex < 0) {
+        currentIndex = images.length - 1;
+    }
+
+    resetSettings();
+    render();
+
+});
+
+
+/* =========================
+   Next
+========================= */
+
+nextBtn.addEventListener("click", function () {
+
+    if (!images.length) return;
+
+    currentIndex++;
+
+    if (currentIndex >= images.length) {
+        currentIndex = 0;
+    }
+
+    resetSettings();
+    render();
+
+});
+
+
+/* =========================
+   Remove
+========================= */
+
+removeBtn.addEventListener("click", function () {
+
+    if (!images.length) return;
+
+    images.splice(currentIndex, 1);
+
+    if (images.length === 0) {
+
+        editor.style.display = "none";
+        fileInput.value = "";
+        return;
+
+    }
+
+    if (currentIndex >= images.length) {
+        currentIndex = images.length - 1;
+    }
+
+    resetSettings();
+    render();
+
+});
+
+
+/* =========================
+   Download
+========================= */
+
+downloadBtn.addEventListener("click", function () {
+
+    if (!images.length) return;
+
+    canvas.toBlob(function (blob) {
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+
+        const originalName =
+            images[currentIndex].file.name
+                .replace(/\.[^/.]+$/, "");
+
+        a.href = url;
+
+        a.download =
+            originalName + "-rotated.png";
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+
+    }, "image/png");
+
+});
+
+
+/* =========================
+   Escape HTML
+========================= */
+
+function escapeHTML(text) {
+
+    const div = document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

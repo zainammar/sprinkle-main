@@ -1,0 +1,195 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+<title>Photo Background Remover</title>
+<style>
+  * { box-sizing: border-box; }
+
+
+  button:disabled { background: #555; cursor: not-allowed; }
+  .canvases {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .panel {
+    background:
+      linear-gradient(45deg,#3a3a3a 25%,transparent 25%),
+      linear-gradient(-45deg,#3a3a3a 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#3a3a3a 75%),
+      linear-gradient(-45deg,transparent 75%,#3a3a3a 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-color: #2a2a2a;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .panel h3 { margin: 0 0 8px; font-size: 12px; color: #ccc; font-weight: 500; }
+  canvas { max-width: 100%; border-radius: 6px; cursor: crosshair; }
+  .hint { text-align: center; font-size: 12px; color: #888; margin-top: 10px; }
+  .empty { color: #777; padding: 60px 0; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Photo Background Remover</h1>
+  <p class="sub">Upload it, click on the background color, done.</p>
+
+  <div class="controls">
+    <label>Image: <input type="file" id="fileInput" accept="image/*"></label>
+    <label>Tolerance
+      <input type="range" id="tolerance" min="5" max="150" value="40">
+      <span id="tolVal">40</span>
+    </label>
+    <label>Feather
+      <input type="range" id="feather" min="0" max="10" value="2">
+      <span id="featherVal">2</span>
+    </label>
+    <button id="resetBtn" disabled>Reset</button>
+    <button id="downloadBtn" disabled>Download PNG</button>
+  </div>
+
+  <div class="canvases">
+    <div class="panel">
+      <h3>ORIGINAL — click background color</h3>
+      <div id="origWrap"><span class="empty">Koi image upload nahi hui</span></div>
+    </div>
+    <div class="panel">
+      <h3>RESULT</h3>
+      <div id="resultWrap"><span class="empty">Yahan result nazar aayega</span></div>
+    </div>
+  </div>
+  <p class="hint">Tip: solid/plain background wali photo pe best kaam karta hai. Click multiple times to remove more shades.</p>
+</div>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const toleranceInput = document.getElementById('tolerance');
+const featherInput = document.getElementById('feather');
+const tolVal = document.getElementById('tolVal');
+const featherVal = document.getElementById('featherVal');
+const origWrap = document.getElementById('origWrap');
+const resultWrap = document.getElementById('resultWrap');
+const resetBtn = document.getElementById('resetBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let origCanvas, origCtx, resultCanvas, resultCtx;
+let originalImageData = null;
+let workingImageData = null;
+
+toleranceInput.oninput = () => tolVal.textContent = toleranceInput.value;
+featherInput.oninput = () => featherVal.textContent = featherInput.value;
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    setupCanvases(img);
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+function setupCanvases(img) {
+  const maxW = 420;
+  const scale = Math.min(1, maxW / img.width);
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+
+  origWrap.innerHTML = '';
+  resultWrap.innerHTML = '';
+
+  origCanvas = document.createElement('canvas');
+  origCanvas.width = w; origCanvas.height = h;
+  origCtx = origCanvas.getContext('2d');
+  origCtx.drawImage(img, 0, 0, w, h);
+  origWrap.appendChild(origCanvas);
+
+  resultCanvas = document.createElement('canvas');
+  resultCanvas.width = w; resultCanvas.height = h;
+  resultCtx = resultCanvas.getContext('2d');
+  resultCtx.drawImage(img, 0, 0, w, h);
+  resultWrap.appendChild(resultCanvas);
+
+  originalImageData = resultCtx.getImageData(0, 0, w, h);
+  workingImageData = resultCtx.getImageData(0, 0, w, h);
+
+  origCanvas.addEventListener('click', handlePick);
+  resetBtn.disabled = false;
+  downloadBtn.disabled = false;
+}
+
+function handlePick(e) {
+  const rect = origCanvas.getBoundingClientRect();
+  const scaleX = origCanvas.width / rect.width;
+  const scaleY = origCanvas.height / rect.height;
+  const x = Math.floor((e.clientX - rect.left) * scaleX);
+  const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+  const px = origCtx.getImageData(x, y, 1, 1).data;
+  removeColor(px[0], px[1], px[2]);
+}
+
+function removeColor(tr, tg, tb) {
+  const tol = parseInt(toleranceInput.value, 10);
+  const feather = parseInt(featherInput.value, 10);
+  const w = resultCanvas.width, h = resultCanvas.height;
+  const data = workingImageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i+1], b = data[i+2];
+    const dist = Math.sqrt((r-tr)**2 + (g-tg)**2 + (b-tb)**2);
+    if (dist < tol) {
+      const alphaFactor = feather > 0 ? Math.min(1, dist / tol) : 0;
+      data[i+3] = feather > 0 ? Math.round(255 * alphaFactor) : 0;
+    }
+  }
+  resultCtx.putImageData(workingImageData, 0, 0);
+}
+
+resetBtn.addEventListener('click', () => {
+  if (!originalImageData) return;
+  workingImageData = new ImageData(
+    new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height
+  );
+  resultCtx.putImageData(workingImageData, 0, 0);
+});
+
+downloadBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'no-background.png';
+  link.href = resultCanvas.toDataURL('image/png');
+  link.click();
+});
+</script>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
