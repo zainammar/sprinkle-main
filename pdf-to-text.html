@@ -1,0 +1,792 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+
+<title>PDF → Text Converter</title>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+ 
+
+    .container {
+        width: min(1100px, 94%);
+        margin: 40px auto;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+    }
+
+    .header p {
+        margin: 0;
+        color: #6b7280;
+    }
+
+  
+
+    .upload-box {
+        border: 2px dashed #9ca3af;
+        border-radius: 14px;
+        padding: 45px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: .2s;
+        background: #fafafa;
+    }
+
+    .upload-box:hover,
+    .upload-box.dragover {
+        border-color: #2563eb;
+        background: #eff6ff;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    .upload-box h3 {
+        margin: 8px 0;
+    }
+
+    .upload-box p {
+        color: #6b7280;
+        margin: 8px 0 18px;
+    }
+
+    #fileInput {
+        display: none;
+    }
+
+    
+
+
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+        align-items: center;
+    }
+
+    .file-info {
+        margin-top: 18px;
+        padding: 12px 15px;
+        background: #f3f4f6;
+        border-radius: 8px;
+        display: none;
+        font-size: 14px;
+    }
+
+    .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .stat {
+        flex: 1;
+        min-width: 150px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .stat strong {
+        display: block;
+        font-size: 22px;
+        margin-top: 5px;
+    }
+
+    .editor-wrapper {
+        margin-top: 25px;
+    }
+
+    .editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .editor-header h3 {
+        margin: 0;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 500px;
+        resize: vertical;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 18px;
+        font-family: Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        outline: none;
+    }
+
+    textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    }
+
+    .progress-area {
+        display: none;
+        margin-top: 20px;
+    }
+
+    .progress-bar {
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #2563eb;
+        transition: width .2s;
+    }
+
+    .progress-text {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .status {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        display: none;
+        font-size: 14px;
+    }
+
+    .status.success {
+        display: block;
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status.error {
+        display: block;
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status.info {
+        display: block;
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            margin: 20px auto;
+        }
+
+        .card {
+            padding: 16px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+        }
+
+        textarea {
+            min-height: 400px;
+        }
+
+        .editor-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>📄 PDF → Text</h1>
+        <p>Extract text from your PDF directly in your browser</p>
+    </div>
+
+    <div class="card">
+
+        <!-- Upload -->
+        <div class="upload-box" id="uploadBox">
+            <div class="upload-icon">📄</div>
+
+            <h3>Drop your PDF here</h3>
+
+            <p>or click the button below to select a PDF file</p>
+
+            <button class="btn btn-primary" type="button"
+                    onclick="document.getElementById('fileInput').click()">
+                Choose PDF
+            </button>
+
+            <input type="file" id="fileInput" accept=".pdf,application/pdf">
+        </div>
+
+        <!-- File Info -->
+        <div class="file-info" id="fileInfo"></div>
+
+        <!-- Progress -->
+        <div class="progress-area" id="progressArea">
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="progress-text" id="progressText">
+                Preparing PDF...
+            </div>
+
+        </div>
+
+        <!-- Status -->
+        <div class="status" id="status"></div>
+
+        <!-- Statistics -->
+        <div class="stats">
+
+            <div class="stat">
+                Pages
+                <strong id="pageCount">0</strong>
+            </div>
+
+            <div class="stat">
+                Characters
+                <strong id="charCount">0</strong>
+            </div>
+
+            <div class="stat">
+                Words
+                <strong id="wordCount">0</strong>
+            </div>
+
+        </div>
+
+        <!-- Editor -->
+        <div class="editor-wrapper">
+
+            <div class="editor-header">
+
+                <h3>Extracted Text</h3>
+
+                <div class="toolbar">
+
+                    <button class="btn btn-success"
+                            id="copyBtn">
+                        📋 Copy
+                    </button>
+
+                    <button class="btn btn-primary"
+                            id="downloadBtn">
+                        💾 Download TXT
+                    </button>
+
+                    <button class="btn btn-danger"
+                            id="clearBtn">
+                        🗑 Clear
+                    </button>
+
+                </div>
+
+            </div>
+
+            <textarea id="textOutput"
+                      placeholder="Extracted PDF text will appear here..."></textarea>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        PDF files are processed locally in your browser.
+    </div>
+
+</div>
+
+
+<script>
+
+    // PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+
+    const fileInput = document.getElementById("fileInput");
+    const uploadBox = document.getElementById("uploadBox");
+
+    const textOutput = document.getElementById("textOutput");
+
+    const fileInfo = document.getElementById("fileInfo");
+
+    const progressArea = document.getElementById("progressArea");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+
+    const status = document.getElementById("status");
+
+    const pageCount = document.getElementById("pageCount");
+    const charCount = document.getElementById("charCount");
+    const wordCount = document.getElementById("wordCount");
+
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const clearBtn = document.getElementById("clearBtn");
+
+
+    // File selection
+    fileInput.addEventListener("change", function() {
+
+        if (this.files.length > 0) {
+            processPDF(this.files[0]);
+        }
+
+    });
+
+
+    // Drag & Drop
+    uploadBox.addEventListener("dragover", function(e) {
+
+        e.preventDefault();
+
+        uploadBox.classList.add("dragover");
+
+    });
+
+
+    uploadBox.addEventListener("dragleave", function() {
+
+        uploadBox.classList.remove("dragover");
+
+    });
+
+
+    uploadBox.addEventListener("drop", function(e) {
+
+        e.preventDefault();
+
+        uploadBox.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+
+        if (file) {
+
+            if (
+                file.type === "application/pdf" ||
+                file.name.toLowerCase().endsWith(".pdf")
+            ) {
+
+                processPDF(file);
+
+            } else {
+
+                showStatus("Please select a PDF file.", "error");
+
+            }
+
+        }
+
+    });
+
+
+    // Process PDF
+    async function processPDF(file) {
+
+        if (
+            file.type !== "application/pdf" &&
+            !file.name.toLowerCase().endsWith(".pdf")
+        ) {
+
+            showStatus("Please select a valid PDF file.", "error");
+
+            return;
+
+        }
+
+
+        resetOutput();
+
+        fileInfo.style.display = "block";
+
+        fileInfo.innerHTML =
+            "📄 <strong>" +
+            escapeHTML(file.name) +
+            "</strong> &nbsp; | &nbsp; " +
+            formatBytes(file.size);
+
+
+        progressArea.style.display = "block";
+
+        progressFill.style.width = "0%";
+
+        progressText.textContent = "Loading PDF...";
+
+        showStatus("Reading PDF file...", "info");
+
+
+        try {
+
+            const arrayBuffer = await file.arrayBuffer();
+
+            const pdf = await pdfjsLib.getDocument({
+                data: arrayBuffer
+            }).promise;
+
+
+            const totalPages = pdf.numPages;
+
+            pageCount.textContent = totalPages;
+
+            let allText = "";
+
+
+            for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+
+                progressText.textContent =
+                    `Extracting page ${pageNum} of ${totalPages}...`;
+
+
+                const page = await pdf.getPage(pageNum);
+
+                const textContent = await page.getTextContent();
+
+
+                let pageText = "";
+
+                let lastY = null;
+
+
+                textContent.items.forEach(function(item) {
+
+                    const currentY =
+                        item.transform ? item.transform[5] : null;
+
+
+                    if (
+                        lastY !== null &&
+                        currentY !== null &&
+                        Math.abs(currentY - lastY) > 5
+                    ) {
+
+                        pageText += "\n";
+
+                    }
+
+
+                    pageText += item.str + " ";
+
+                    lastY = currentY;
+
+                });
+
+
+                pageText = pageText
+                    .replace(/[ \t]+/g, " ")
+                    .replace(/\n +/g, "\n")
+                    .trim();
+
+
+                allText +=
+                    `\n--- Page ${pageNum} ---\n\n` +
+                    pageText +
+                    "\n";
+
+
+                const progress =
+                    Math.round((pageNum / totalPages) * 100);
+
+
+                progressFill.style.width = progress + "%";
+
+            }
+
+
+            allText = allText.trim();
+
+            textOutput.value = allText;
+
+            updateStats();
+
+            progressFill.style.width = "100%";
+
+            progressText.textContent =
+                "Extraction completed successfully.";
+
+            showStatus(
+                `Success! Text extracted from ${totalPages} page(s).`,
+                "success"
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            showStatus(
+                "Unable to read this PDF. The file may be damaged or unsupported.",
+                "error"
+            );
+
+            progressText.textContent = "Extraction failed.";
+
+        }
+
+    }
+
+
+    // Update statistics
+    function updateStats() {
+
+        const text = textOutput.value;
+
+        charCount.textContent = text.length.toLocaleString();
+
+
+        const words = text
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+
+        wordCount.textContent =
+            text.trim() === ""
+                ? "0"
+                : words.length.toLocaleString();
+
+    }
+
+
+    // Copy
+    copyBtn.addEventListener("click", async function() {
+
+        const text = textOutput.value.trim();
+
+        if (!text) {
+
+            showStatus("There is no text to copy.", "error");
+
+            return;
+
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            showStatus("Text copied to clipboard!", "success");
+
+        } catch (error) {
+
+            textOutput.select();
+
+            document.execCommand("copy");
+
+            showStatus("Text copied to clipboard!", "success");
+
+        }
+
+    });
+
+
+    // Download TXT
+    downloadBtn.addEventListener("click", function() {
+
+        const text = textOutput.value;
+
+        if (!text.trim()) {
+
+            showStatus("There is no text to download.", "error");
+
+            return;
+
+        }
+
+
+        const blob = new Blob(
+            [text],
+            {
+                type: "text/plain;charset=utf-8"
+            }
+        );
+
+
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+
+        a.href = url;
+
+        a.download = "extracted-text.txt";
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+
+        showStatus("TXT file downloaded successfully.", "success");
+
+    });
+
+
+    // Clear
+    clearBtn.addEventListener("click", function() {
+
+        resetOutput();
+
+        fileInput.value = "";
+
+        fileInfo.style.display = "none";
+
+        progressArea.style.display = "none";
+
+        status.style.display = "none";
+
+    });
+
+
+    // Textarea statistics
+    textOutput.addEventListener("input", updateStats);
+
+
+    // Reset
+    function resetOutput() {
+
+        textOutput.value = "";
+
+        pageCount.textContent = "0";
+
+        charCount.textContent = "0";
+
+        wordCount.textContent = "0";
+
+        progressFill.style.width = "0%";
+
+    }
+
+
+    // Status
+    function showStatus(message, type) {
+
+        status.textContent = message;
+
+        status.className = "status " + type;
+
+    }
+
+
+    // Format file size
+    function formatBytes(bytes) {
+
+        if (bytes === 0) return "0 Bytes";
+
+        const sizes = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        const i =
+            Math.floor(Math.log(bytes) / Math.log(1024));
+
+
+        return (
+            parseFloat(
+                (bytes / Math.pow(1024, i)).toFixed(2)
+            ) +
+            " " +
+            sizes[i]
+        );
+
+    }
+
+
+    // Prevent HTML injection in filename
+    function escapeHTML(str) {
+
+        return str.replace(/[&<>"']/g, function(match) {
+
+            const map = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            };
+
+            return map[match];
+
+        });
+
+    }
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
