@@ -1,0 +1,115 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+<div class="row-6 content-grid">
+  <div class="grid-item-1">
+
+
+  </div>
+  <div class="grid-item-1 bg-5">
+    <h2 class="text-9">Hash Generator Tool </h2>
+    
+      </div>
+      <div class="grid-item-1">
+
+        
+          </div>
+</div>
+<div class="row-4 content-grid">
+  <div class="grid-item-1 tool-card">
+
+    <div class="image-icon">🔐</div>
+    <a class="" href="md5-generator.html">
+       
+        <h3>MD5 Hash Generator</h3>
+        <p>Generate an MD5 hash from your text instantly. </p>
+      </a>
+
+    </div>
+  
+      <div class="grid-item-1 tool-card">
+
+        <a href="sha-1.html">
+            <div class="tool-icon">🔐</div>
+            <h3>SHA-1 Hash Generator</h3>
+            <p>Generate a SHA-1 hash from your text instantly</p>
+          </a>
+      </div>
+
+      <div class="grid-item-1 tool-card">
+         <a href="sha-256.html">
+            <div class="tool-icon">🔐</div>
+            <h3>Hash Generator Tools</h3>
+            <p>Hash symbol (great for SHA/MD5 tools) | Cryptographic keys and security</p>
+          </a>
+     
+    
+      </div>
+      <div class="grid-item-1 tool-card">
+        <a class="" href="sha-384.html">
+          <div class="tool-icon">🔐</div>
+          <h3>SHA-384 Hash Generator</h3>
+          <p>TGenerate a SHA-384 hash from your text instantly./p>
+        </a>
+      
+      
+      </div>
+  </div>
+
+  <div class="row-4 content-grid">
+    <div class="grid-item-1 tool-card2">
+  
+      <div class="image-icon">🔐</div>
+      <a class="" href="sha-512.html">
+         
+          <h3>SHA-512 Hash Generator</h3>
+          <p>Generate a SHA-512 hash from your text instantly. </p>
+        </a>
+  
+      </div>
+    
+        <div class="grid-item-1 ">
+  
+         
+        </div>
+  
+        <div class="grid-item-1 ">
+        
+      
+        </div>
+        <div class="grid-item-1 ">
+      
+        
+        </div>
+    </div>
+  
+
+  <div id="content2" class="content-box">Loading second file...</div>
+  <!-- Header Fotter -->
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // You can change the file names here
+    const filesToLoad = {
+      content1: 'page1.html',
+      content2: 'page2.html'
+    };
+  
+    // Loop through and load each file into its matching div
+    for (const [divId, filename] of Object.entries(filesToLoad)) {
+      fetch(filename)
+        .then(response => {
+          if (!response.ok) throw new Error(`File not found: ${filename}`);
+          return response.text();
+        })
+        .then(data => {
+          document.getElementById(divId).innerHTML = data;
+        })
+        .catch(error => {
+          document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+        });
+    }
+  });
+  </script>
+  
+  

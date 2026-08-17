@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Text Image Mask Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #12141a;
+    color: #eee;
+    display: flex;
+    min-height: 100vh;
+  }
+  #panel {
+    width: 300px;
+    padding: 20px;
+    background: #1b1e27;
+    border-right: 1px solid #2a2e3a;
+    flex-shrink: 0;
+  }
+  #panel h2 {
+    font-size: 16px;
+    margin: 0 0 16px;
+    color: #fff;
+  }
+  #panel label {
+    display: block;
+    font-size: 13px;
+    color: #aab;
+    margin: 14px 0 6px;
+  }
+  #panel input[type="text"],
+  #panel input[type="number"],
+  #panel select,
+  #panel input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #333947;
+    background: #12141a;
+    color: #eee;
+    font-size: 13px;
+  }
+  .btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-primary { background: #4f7cff; color: #fff; }
+  .btn-primary:hover { background: #3d68ee; }
+  .btn-download { background: #22c55e; color: #06210f; }
+  .btn-download:hover { background: #16a34a; }
+  .hint {
+    font-size: 11.5px;
+    color: #778;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  #stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    overflow: auto;
+  }
+  canvas {
+    background-image:
+      linear-gradient(45deg, #2a2e3a 25%, transparent 25%),
+      linear-gradient(-45deg, #2a2e3a 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2a2e3a 75%),
+      linear-gradient(-45deg, transparent 75%, #2a2e3a 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    cursor: grab;
+    max-width: 100%;
+    height: auto;
+  }
+  canvas.dragging { cursor: grabbing; }
+</style>
+</head>
+<body>
+
+<div id="panel">
+  <h2>🖼️ Text Mask (image inside text)</h2>
+
+  <label>Text
+    <input type="text" id="textInput" value="HELLO WORLD">
+  </label>
+
+  <label>Font Size
+    <input type="number" id="fontSize" value="120" min="10" max="600">
+  </label>
+
+  <label>Font Family
+    <select id="fontFamily">
+      <option value="Impact">Impact</option>
+      <option value="Arial Black">Arial Black</option>
+      <option value="Poppins">Poppins</option>
+      <option value="Oswald">Oswald</option>
+      <option value="Georgia">Georgia</option>
+    </select>
+  </label>
+
+  <label>Upload Image
+    <input type="file" id="imageInput" accept="image/*">
+  </label>
+
+  <button id="applyBtn" class="btn btn-primary">➕ Apply Text Mask</button>
+  <button id="downloadBtn" class="btn btn-download">⬇️ Download PNG</button>
+
+  <div class="hint">
+    Drag the text on the canvas to reposition it. The download button
+    exports the exact canvas pixels — no CSS clipping involved — so the
+    mask is always baked correctly into the file.
+  </div>
+</div>
+
+<div id="stage">
+  <canvas id="canvas" width="900" height="560"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const textInput = document.getElementById('textInput');
+const fontSize = document.getElementById('fontSize');
+const fontFamily = document.getElementById('fontFamily');
+const imageInput = document.getElementById('imageInput');
+const applyBtn = document.getElementById('applyBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let img = null;          // uploaded Image object
+let imgLoaded = false;
+let textX = canvas.width / 2;
+let textY = canvas.height / 2;
+let dragging = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+
+// --- image upload ---
+imageInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const image = new Image();
+    image.onload = () => {
+      img = image;
+      imgLoaded = true;
+      render();
+    };
+    image.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+applyBtn.addEventListener('click', render);
+[textInput, fontSize, fontFamily].forEach(el => el.addEventListener('input', render));
+
+// --- core render: this is EXACTLY what gets exported ---
+function drawMask(targetCtx, targetCanvas) {
+  targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+  const text = textInput.value || '';
+  const size = parseInt(fontSize.value, 10) || 100;
+  const family = fontFamily.value;
+
+  // 1. draw the text as a solid shape (this becomes the mask)
+  targetCtx.font = `900 ${size}px "${family}", sans-serif`;
+  targetCtx.textAlign = 'center';
+  targetCtx.textBaseline = 'middle';
+  targetCtx.fillStyle = '#000';
+  targetCtx.fillText(text, textX, textY);
+
+  // 2. keep only the image pixels that fall inside the text shape
+  if (imgLoaded) {
+    targetCtx.globalCompositeOperation = 'source-in';
+
+    // cover-fit the image into the canvas
+    const scale = Math.max(
+      targetCanvas.width / img.width,
+      targetCanvas.height / img.height
+    );
+    const dw = img.width * scale;
+    const dh = img.height * scale;
+    const dx = (targetCanvas.width - dw) / 2;
+    const dy = (targetCanvas.height - dh) / 2;
+
+    targetCtx.drawImage(img, dx, dy, dw, dh);
+    targetCtx.globalCompositeOperation = 'source-over'; // reset
+  }
+}
+
+function render() {
+  drawMask(ctx, canvas);
+}
+
+// --- dragging the text to reposition ---
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+canvas.addEventListener('mousedown', (e) => {
+  const p = getPos(e);
+  dragging = true;
+  dragOffsetX = p.x - textX;
+  dragOffsetY = p.y - textY;
+  canvas.classList.add('dragging');
+});
+window.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const p = getPos(e);
+  textX = p.x - dragOffsetX;
+  textY = p.y - dragOffsetY;
+  render();
+});
+window.addEventListener('mouseup', () => {
+  dragging = false;
+  canvas.classList.remove('dragging');
+});
+
+// touch support
+canvas.addEventListener('touchstart', (e) => {
+  const p = getPos(e);
+  dragging = true;
+  dragOffsetX = p.x - textX;
+  dragOffsetY = p.y - textY;
+});
+window.addEventListener('touchmove', (e) => {
+  if (!dragging) return;
+  const p = getPos(e);
+  textX = p.x - dragOffsetX;
+  textY = p.y - dragOffsetY;
+  render();
+});
+window.addEventListener('touchend', () => dragging = false);
+
+// --- download: re-render on an offscreen canvas at full quality, then export ---
+downloadBtn.addEventListener('click', () => {
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = canvas.width;
+  exportCanvas.height = canvas.height;
+  const exportCtx = exportCanvas.getContext('2d');
+
+  drawMask(exportCtx, exportCanvas);
+
+  exportCanvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'text-mask.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+});
+
+render();
+</script>
+</body>
+</html>

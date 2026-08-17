@@ -231,20 +231,24 @@
               </select>
           
               <input type="number" id="fontSize" min="10" max="120" value="15" />
-          
+              <br>
               <!-- Bold / Italic Buttons -->
               <button id="boldBtn" class="toggle-btn">B</button>
+              <br>
               <button id="italicBtn" class="toggle-btn"><i>I</i></button>
-          
+              <br>
               <button id="addTextBtn">Add Text</button>
+              <br>
               <button id="deleteBtn">🗑️ Delete Selected</button>
+              <br>
             </div>
           </p>
           </div>
       </div>
   
       <div>
-          <button class="collapsible"> Shapes & Upload Images</button>
+       
+          <button class="collapsible"> Shapes,Brush & Upload Images</button>
   <div class="content">
     <p>
       <div id="toolbar">
@@ -260,14 +264,28 @@
         <!-- <button onclick="addText()">Text</button> -->
         <br>
     
-     
+        <!-- Brush Tools -->
+        <label>Brush:</label>
+        <select id="brushType" onchange="changeBrush(this.value)"> <br>
+          <option value="none">None</option> <br>
+          <option value="pencil">Pencil</option> <br>
+          <option value="spray">Spray</option> <br>
+          <option value="pattern">Pattern</option> <br>
+          <option value="eraser">Eraser</option> <br>
+        </select>
+    <br>
+        <label>Brush Size:</label>
+        <input type="number" id="brushSize" value="10" min="1" max="100" style="width:60px;">
+        <br>
+    
         <!-- Upload + Delete -->
         <input type="file" id="upload" multiple accept="image/*">
         <button id="delete">🗑️ Delete</button>
         <br>
     
         <!-- Color + Stroke Controls -->
-   
+        <label>Fill:</label>
+        <input type="color" id="fillColor" value="#00aaff"><br>
         <label>Gradient:</label>
         <input type="color" id="gradientColor" value="#ff9900"><br>
         <label>Stroke:</label>
@@ -397,38 +415,10 @@
         
         
         </div>
-        
         <div>
-          <button class="collapsible"> 
-            <br>
-            Brush / Pen Tool Brush </button>
-          <div class="content">
-          
-        
-  <div id="controls">
-    <!-- Brush Tools -->
-    <label>Brush:</label>
-    <select id="brushType" onchange="changeBrush(this.value)"> <br>
-      <option value="none">None</option> <br>
-      <option value="pencil">Pencil</option> <br>
-      <option value="spray">Spray</option> <br>
-      <option value="pattern">Pattern</option> <br>
-      <option value="eraser">Eraser</option> <br>
-    </select>
-
-    <label>Fill:</label>
-    <input type="color" id="fillColor" value="#00aaff"><br>
-<br>
-    <label>Brush Size:</label>
-    <input type="number" id="brushSize" value="10" min="1" max="100" style="width:60px;">
-    <br>
-
-  </div>
-
-          </div> 
-        
-        
+            
         </div>
+        <div></div>
     </div>  
    
     <div></div>
