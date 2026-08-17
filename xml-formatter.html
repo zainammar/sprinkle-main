@@ -1,0 +1,689 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+<title>XML Formatter & Beautifier</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #222;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.card {
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 30px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin: 10px 0 25px;
+}
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.editor-box {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+textarea {
+    width: 100%;
+    height: 420px;
+    resize: vertical;
+    border: 1px solid #d5d9df;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+    background: #fafbfc;
+}
+
+textarea:focus {
+    border-color: #4f46e5;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+button {
+    border: none;
+    border-radius: 9px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.format {
+    background: #4f46e5;
+    color: white;
+}
+
+.format:hover {
+    background: #4338ca;
+}
+
+.minify {
+    background: #0f766e;
+    color: white;
+}
+
+.minify:hover {
+    background: #115e59;
+}
+
+.validate {
+    background: #2563eb;
+    color: white;
+}
+
+.validate:hover {
+    background: #1d4ed8;
+}
+
+.copy {
+    background: #16a34a;
+    color: white;
+}
+
+.copy:hover {
+    background: #15803d;
+}
+
+.download {
+    background: #7c3aed;
+    color: white;
+}
+
+.download:hover {
+    background: #6d28d9;
+}
+
+.clear {
+    background: #e5e7eb;
+    color: #222;
+}
+
+.clear:hover {
+    background: #d1d5db;
+}
+
+.status {
+    margin-top: 18px;
+    padding: 12px 15px;
+    border-radius: 9px;
+    background: #f8fafc;
+    min-height: 42px;
+    font-size: 14px;
+}
+
+.success {
+    color: #15803d;
+}
+
+.error {
+    color: #dc2626;
+}
+
+.info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    color: #666;
+    font-size: 13px;
+}
+
+@media (max-width: 800px) {
+
+    .editor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    textarea {
+        height: 350px;
+    }
+
+    .container {
+        margin: 20px auto;
+    }
+
+    .card {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>XML Formatter</h1>
+
+        <div class="subtitle">
+            Format, beautify, minify and validate your XML code.
+        </div>
+
+        <div class="editor-grid">
+
+            <!-- Input -->
+            <div class="editor-box">
+
+                <label for="xmlInput">
+                    XML Input
+                </label>
+
+                <textarea
+                    id="xmlInput"
+                    placeholder="Paste your XML here..."
+                ></textarea>
+
+            </div>
+
+            <!-- Output -->
+            <div class="editor-box">
+
+                <label for="xmlOutput">
+                    Formatted XML
+                </label>
+
+                <textarea
+                    id="xmlOutput"
+                    placeholder="Formatted XML will appear here..."
+                    readonly
+                ></textarea>
+
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <button
+                class="format"
+                onclick="formatXML()"
+            >
+                Format XML
+            </button>
+
+            <button
+                class="minify"
+                onclick="minifyXML()"
+            >
+                Minify XML
+            </button>
+
+            <button
+                class="validate"
+                onclick="validateXML()"
+            >
+                Validate XML
+            </button>
+
+            <button
+                class="copy"
+                onclick="copyXML()"
+            >
+                Copy
+            </button>
+
+            <button
+                class="download"
+                onclick="downloadXML()"
+            >
+                Download
+            </button>
+
+            <button
+                class="clear"
+                onclick="clearAll()"
+            >
+                Clear
+            </button>
+
+        </div>
+
+        <div
+            id="status"
+            class="status"
+        >
+            Ready.
+        </div>
+
+        <div class="info">
+            Your XML is processed directly in your browser.
+            No external server is required.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const xmlInput = document.getElementById("xmlInput");
+const xmlOutput = document.getElementById("xmlOutput");
+const status = document.getElementById("status");
+
+
+/*
+    Parse XML
+*/
+
+function parseXML(xmlText) {
+
+    const parser = new DOMParser();
+
+    const xmlDoc = parser.parseFromString(
+        xmlText,
+        "application/xml"
+    );
+
+    const parserError =
+        xmlDoc.querySelector("parsererror");
+
+    if (parserError) {
+        throw new Error(
+            parserError.textContent
+        );
+    }
+
+    return xmlDoc;
+}
+
+
+/*
+    Format XML
+*/
+
+function formatXML() {
+
+    const xmlText = xmlInput.value.trim();
+
+    if (!xmlText) {
+
+        showStatus(
+            "Please enter XML code first.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        const xmlDoc = parseXML(xmlText);
+
+        const serializer =
+            new XMLSerializer();
+
+        let xml = serializer.serializeToString(
+            xmlDoc
+        );
+
+        xml = formatXMLString(xml);
+
+        xmlOutput.value = xml;
+
+        showStatus(
+            "XML formatted successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        xmlOutput.value = "";
+
+        showStatus(
+            "Invalid XML: " + error.message,
+            "error"
+        );
+    }
+}
+
+
+/*
+    XML Beautifier
+*/
+
+function formatXMLString(xml) {
+
+    const PADDING = "  ";
+
+    let formatted = "";
+
+    let indent = 0;
+
+    xml = xml
+        .replace(/>\s*</g, "><")
+        .replace(/</g, "~<")
+        .split("~");
+
+    xml.forEach(function(node) {
+
+        if (!node.trim()) {
+            return;
+        }
+
+        if (
+            node.match(/^<\//)
+        ) {
+
+            indent--;
+
+        }
+
+        formatted +=
+            PADDING.repeat(Math.max(indent, 0))
+            + node.trim()
+            + "\n";
+
+        if (
+            node.match(
+                /^<[^!?\/][^>]*[^\/]>$/
+            )
+            &&
+            !node.match(
+                /<[^>]+>.*<\/[^>]+>$/
+            )
+        ) {
+
+            indent++;
+        }
+
+    });
+
+    return formatted.trim();
+}
+
+
+/*
+    Minify XML
+*/
+
+function minifyXML() {
+
+    const xmlText = xmlInput.value.trim();
+
+    if (!xmlText) {
+
+        showStatus(
+            "Please enter XML code first.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        const xmlDoc = parseXML(xmlText);
+
+        const serializer =
+            new XMLSerializer();
+
+        let xml = serializer.serializeToString(
+            xmlDoc
+        );
+
+        xml = xml
+            .replace(/>\s+</g, "><")
+            .replace(/\s{2,}/g, " ")
+            .trim();
+
+        xmlOutput.value = xml;
+
+        showStatus(
+            "XML minified successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        xmlOutput.value = "";
+
+        showStatus(
+            "Invalid XML: " + error.message,
+            "error"
+        );
+    }
+}
+
+
+/*
+    Validate XML
+*/
+
+function validateXML() {
+
+    const xmlText = xmlInput.value.trim();
+
+    if (!xmlText) {
+
+        showStatus(
+            "Please enter XML code first.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        parseXML(xmlText);
+
+        showStatus(
+            "✓ Valid XML. No syntax errors found.",
+            "success"
+        );
+
+    } catch (error) {
+
+        showStatus(
+            "✕ Invalid XML: " + error.message,
+            "error"
+        );
+    }
+}
+
+
+/*
+    Copy
+*/
+
+function copyXML() {
+
+    const text =
+        xmlOutput.value || xmlInput.value;
+
+    if (!text.trim()) {
+
+        showStatus(
+            "Nothing to copy.",
+            "error"
+        );
+
+        return;
+    }
+
+    navigator.clipboard.writeText(text)
+        .then(function() {
+
+            showStatus(
+                "XML copied to clipboard.",
+                "success"
+            );
+
+        })
+        .catch(function() {
+
+            xmlOutput.select();
+
+            document.execCommand("copy");
+
+            showStatus(
+                "XML copied to clipboard.",
+                "success"
+            );
+
+        });
+}
+
+
+/*
+    Download XML
+*/
+
+function downloadXML() {
+
+    const text =
+        xmlOutput.value || xmlInput.value;
+
+    if (!text.trim()) {
+
+        showStatus(
+            "Nothing to download.",
+            "error"
+        );
+
+        return;
+    }
+
+    const blob = new Blob(
+        [text],
+        {
+            type: "application/xml"
+        }
+    );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download = "formatted.xml";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    showStatus(
+        "XML file downloaded.",
+        "success"
+    );
+}
+
+
+/*
+    Clear
+*/
+
+function clearAll() {
+
+    xmlInput.value = "";
+
+    xmlOutput.value = "";
+
+    showStatus(
+        "Ready.",
+        ""
+    );
+}
+
+
+/*
+    Status
+*/
+
+function showStatus(message, type) {
+
+    status.textContent = message;
+
+    status.className = "status";
+
+    if (type) {
+        status.classList.add(type);
+    }
+}
+
+</script>
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

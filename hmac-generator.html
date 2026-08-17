@@ -1,0 +1,545 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+<title>HMAC Generator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+
+    color: #222;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.card {
+
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 30px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin: 10px 0 28px;
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+textarea,
+input,
+select {
+    width: 100%;
+    border: 1px solid #d5d9df;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 16px;
+    outline: none;
+    background: #fff;
+}
+
+textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+    border-color: #4f46e5;
+}
+
+.key-box {
+    position: relative;
+}
+
+.key-box input {
+    padding-right: 90px;
+}
+
+.show-key {
+    position: absolute;
+    right: 8px;
+    top: 7px;
+    width: auto;
+    padding: 8px 12px;
+    background: #e5e7eb;
+    color: #222;
+    font-size: 13px;
+}
+
+.show-key:hover {
+    background: #d1d5db;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+button {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.generate {
+    background: #4f46e5;
+    color: white;
+}
+
+.generate:hover {
+    background: #4338ca;
+}
+
+.clear {
+    background: #e5e7eb;
+    color: #222;
+}
+
+.clear:hover {
+    background: #d1d5db;
+}
+
+.result {
+    margin-top: 28px;
+}
+
+.result-box {
+    display: flex;
+    gap: 10px;
+}
+
+.result-box input {
+    background: #f8fafc;
+    font-family: monospace;
+    font-size: 16px;
+}
+
+.copy {
+    flex: 0 0 100px;
+    background: #16a34a;
+    color: white;
+}
+
+.copy:hover {
+    background: #15803d;
+}
+
+.status {
+    text-align: center;
+    margin-top: 12px;
+    min-height: 20px;
+    font-size: 14px;
+}
+
+.info {
+    margin-top: 20px;
+    padding: 12px 15px;
+    background: #f8fafc;
+    border-radius: 10px;
+    color: #666;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+
+    .container {
+        margin: 20px auto;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .buttons,
+    .result-box {
+        flex-direction: column;
+    }
+
+    .copy {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>HMAC Generator</h1>
+
+        <div class="subtitle">
+            Generate HMAC signatures using a secret key.
+        </div>
+
+        <!-- Algorithm -->
+        <div class="field">
+
+            <label for="algorithm">
+                Hash Algorithm
+            </label>
+
+            <select id="algorithm">
+
+                <option value="SHA-256">
+                    HMAC-SHA256
+                </option>
+
+                <option value="SHA-1">
+                    HMAC-SHA1
+                </option>
+
+                <option value="SHA-384">
+                    HMAC-SHA384
+                </option>
+
+                <option value="SHA-512">
+                    HMAC-SHA512
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- Secret Key -->
+        <div class="field">
+
+            <label for="secretKey">
+                Secret Key
+            </label>
+
+            <div class="key-box">
+
+                <input
+                    type="password"
+                    id="secretKey"
+                    placeholder="Enter your secret key..."
+                >
+
+                <button
+                    class="show-key"
+                    onclick="toggleKey()"
+                    type="button"
+                >
+                    Show
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- Message -->
+        <div class="field">
+
+            <label for="message">
+                Message / Text
+            </label>
+
+            <textarea
+                id="message"
+                placeholder="Enter the text you want to generate HMAC for..."
+            ></textarea>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="buttons">
+
+            <button
+                class="generate"
+                onclick="generateHMAC()"
+            >
+                Generate HMAC
+            </button>
+
+            <button
+                class="clear"
+                onclick="clearAll()"
+            >
+                Clear
+            </button>
+
+        </div>
+
+        <!-- Result -->
+        <div class="result">
+
+            <label for="result">
+                HMAC Result
+            </label>
+
+            <div class="result-box">
+
+                <input
+                    type="text"
+                    id="result"
+                    readonly
+                    placeholder="Your HMAC hash will appear here..."
+                >
+
+                <button
+                    class="copy"
+                    onclick="copyResult()"
+                >
+                    Copy
+                </button>
+
+            </div>
+
+            <div
+                class="status"
+                id="status"
+            ></div>
+
+        </div>
+
+        <div class="info">
+            HMAC combines a secret key with a message and a hash
+            algorithm to create a secure message authentication code.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const algorithm = document.getElementById("algorithm");
+const secretKey = document.getElementById("secretKey");
+const message = document.getElementById("message");
+const result = document.getElementById("result");
+const status = document.getElementById("status");
+
+
+async function generateHMAC() {
+
+    const keyText = secretKey.value;
+    const messageText = message.value;
+    const selectedAlgorithm = algorithm.value;
+
+    if (keyText === "") {
+
+        result.value = "";
+
+        status.style.color = "#dc2626";
+        status.textContent = "Please enter a secret key.";
+
+        return;
+    }
+
+    if (messageText === "") {
+
+        result.value = "";
+
+        status.style.color = "#dc2626";
+        status.textContent = "Please enter a message.";
+
+        return;
+    }
+
+    try {
+
+        const encoder = new TextEncoder();
+
+        const keyData = encoder.encode(keyText);
+        const messageData = encoder.encode(messageText);
+
+        /*
+            Import secret key
+        */
+
+        const cryptoKey = await crypto.subtle.importKey(
+
+            "raw",
+
+            keyData,
+
+            {
+                name: "HMAC",
+                hash: {
+                    name: selectedAlgorithm
+                }
+            },
+
+            false,
+
+            ["sign"]
+
+        );
+
+        /*
+            Generate HMAC
+        */
+
+        const signature = await crypto.subtle.sign(
+
+            "HMAC",
+
+            cryptoKey,
+
+            messageData
+
+        );
+
+        /*
+            Convert result to HEX
+        */
+
+        const hashArray = Array.from(
+            new Uint8Array(signature)
+        );
+
+        const hashHex = hashArray
+            .map(
+                byte => byte
+                    .toString(16)
+                    .padStart(2, "0")
+            )
+            .join("");
+
+        result.value = hashHex;
+
+        status.style.color = "#16a34a";
+
+        status.textContent =
+            "HMAC generated successfully.";
+
+    } catch (error) {
+
+        result.value = "";
+
+        status.style.color = "#dc2626";
+
+        status.textContent =
+            "Unable to generate HMAC.";
+
+        console.error(error);
+    }
+}
+
+
+function copyResult() {
+
+    if (result.value === "") {
+
+        status.style.color = "#dc2626";
+        status.textContent = "Nothing to copy.";
+
+        return;
+    }
+
+    navigator.clipboard.writeText(result.value)
+        .then(function () {
+
+            status.style.color = "#16a34a";
+            status.textContent = "HMAC copied!";
+
+        })
+        .catch(function () {
+
+            result.select();
+
+            document.execCommand("copy");
+
+            status.style.color = "#16a34a";
+            status.textContent = "HMAC copied!";
+        });
+}
+
+
+function toggleKey() {
+
+    if (secretKey.type === "password") {
+
+        secretKey.type = "text";
+
+        document.querySelector(".show-key").textContent =
+            "Hide";
+
+    } else {
+
+        secretKey.type = "password";
+
+        document.querySelector(".show-key").textContent =
+            "Show";
+    }
+}
+
+
+function clearAll() {
+
+    secretKey.value = "";
+    message.value = "";
+    result.value = "";
+
+    algorithm.value = "SHA-256";
+
+    status.textContent = "";
+}
+
+</script>
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+

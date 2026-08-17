@@ -4,6 +4,8 @@
       
 
 
+
+
 <title>Professional Logo Generator</title>
 
 <!-- Font Awesome -->
@@ -851,6 +853,22 @@ SVG
 Logo Preview
 </h2>
 
+<div class="top-actions">
+
+<button
+class="btn-light"
+id="centerText">
+Center Text
+</button>
+
+<button
+class="btn-light"
+id="centerIcon">
+Center Icon
+</button>
+
+</div>
+
 </div>
 
 
@@ -1474,8 +1492,7 @@ function updateTextColor(){
 function updateRotation(){
 
     logoText.style.transform =
-        `translate(-50%,-50%)
-         rotate(${rotation.value}deg)`;
+        `translate(-50%,-50%) rotate(${rotation.value}deg)`;
 
     document
     .getElementById("rotationValue")
@@ -1500,9 +1517,7 @@ function updateShadow(){
     if(shadowCheck.checked){
 
         logoText.style.textShadow =
-            `5px 5px
-             ${shadowBlur.value}px
-             rgba(0,0,0,.35)`;
+            `5px 5px ${shadowBlur.value}px rgba(0,0,0,.35)`;
 
     }else{
 
@@ -1677,8 +1692,7 @@ iconRotation.addEventListener(
     () => {
 
         logoIcon.style.transform =
-            `translate(-50%,-50%)
-             rotate(${iconRotation.value}deg)`;
+            `translate(-50%,-50%) rotate(${iconRotation.value}deg)`;
 
         document
         .getElementById("iconRotationValue")
@@ -1817,14 +1831,12 @@ function makeDraggable(element){
             if(element === logoText){
 
                 element.style.transform =
-                    `translate(-50%,-50%)
-                     rotate(${rotation.value}deg)`;
+                    `translate(-50%,-50%) rotate(${rotation.value}deg)`;
 
             }else{
 
                 element.style.transform =
-                    `translate(-50%,-50%)
-                     rotate(${iconRotation.value}deg)`;
+                    `translate(-50%,-50%) rotate(${iconRotation.value}deg)`;
 
             }
 
@@ -1850,11 +1862,14 @@ makeDraggable(logoIcon);
 
 /* =====================================================
    CENTER
+   (guarded with ?. because these buttons may not
+   always be present — this was the bug stopping
+   the download buttons from ever getting wired up)
 ===================================================== */
 
 document
 .getElementById("centerText")
-.addEventListener("click", () => {
+?.addEventListener("click", () => {
 
     logoText.style.left =
         "50%";
@@ -1867,7 +1882,7 @@ document
 
 document
 .getElementById("centerIcon")
-.addEventListener("click", () => {
+?.addEventListener("click", () => {
 
     logoIcon.style.left =
         "50%";
@@ -1970,10 +1985,6 @@ document
 
 </script>
 
-<br>
-<br>
-<div id="content1" class="content-box">Loading first file...</div>
-
 <div id="content2" class="content-box">Loading second file...</div>
 <!-- Header Fotter -->
 <script>
@@ -2000,3 +2011,4 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
+
