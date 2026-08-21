@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cover Studio — Book Page Composer</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+  :root{
+    --paper:#F1E9DA;
+    --paper-light:#FAF6EC;
+    --panel-alt:#E7DDC8;
+    --ink:#211D1A;
+    --ink-soft:#4B443C;
+    --cover-red:#7C2E2E;
+    --cover-red-deep:#4A1C1C;
+    --foil-gold:#B08D57;
+    --foil-gold-light:#D8C08F;
+    --thread:#C9BFA9;
+    --radius:10px;
+    --canvas-w:700px;
+    --canvas-h:900px;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--foil-gold-light); color:var(--ink); }
+
+  a{color:inherit;}
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+
+  input:focus-visible,
+  button:focus-visible,
+  select:focus-visible{
+    outline:2px solid var(--foil-gold);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+
+  /* ---------- Header ---------- */
+  .masthead{
+    padding:clamp(24px,5vw,44px) clamp(20px,5vw,56px) clamp(16px,3vw,28px);
+    border-bottom:1px solid var(--thread);
+  }
+  .masthead .eyebrow{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--cover-red);
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .masthead h1{
+    font-family:'Playfair Display',serif;
+    font-weight:700;
+    font-size:clamp(28px,4vw,40px);
+    margin:0 0 6px;
+    letter-spacing:-.01em;
+  }
+  .masthead p{
+    margin:0;
+    max-width:56ch;
+    color:var(--ink-soft);
+    font-size:14.5px;
+    line-height:1.55;
+  }
+
+  /* ---------- Layout ---------- */
+  .composer{
+    display:grid;
+    grid-template-columns:minmax(320px,400px) 1fr;
+    gap:0;
+    align-items:start;
+  }
+  @media (max-width:960px){
+    .composer{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- Form panel ---------- */
+  .form-panel{
+    padding:clamp(20px,4vw,36px);
+    border-right:1px solid var(--thread);
+  }
+  @media (max-width:960px){
+    .form-panel{ border-right:none; border-top:1px solid var(--thread); order:2; }
+  }
+
+  .step{
+    padding:20px 0;
+    border-bottom:1px dashed var(--thread);
+  }
+  .step:first-child{ padding-top:0; }
+  .step:last-child{ border-bottom:none; }
+
+  .step-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .step-index{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:13px;
+    color:var(--foil-gold);
+    flex-shrink:0;
+  }
+  .step-title{
+    font-size:14px;
+    font-weight:600;
+    margin:0;
+  }
+  .step-hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 0 12px 22px;
+    line-height:1.5;
+  }
+
+  .field-group{
+    margin-left:22px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  input[type="text"]{
+    flex:1 1 160px;
+    min-width:0;
+    padding:9px 11px;
+    border:1px solid var(--thread);
+    border-radius:6px;
+    background:var(--paper-light);
+    color:var(--ink);
+    font-size:13.5px;
+    font-family:inherit;
+  }
+  input[type="text"]::placeholder{ color:#9c9282; }
+
+  input[type="color"]{
+    width:34px;
+    height:34px;
+    padding:0;
+    border:1px solid var(--thread);
+    border-radius:6px;
+    background:none;
+    flex-shrink:0;
+  }
+
+  input[type="file"]{
+    font-size:12.5px;
+    width:100%;
+    color:var(--ink-soft);
+  }
+  input[type="file"]::file-selector-button{
+    font-family:inherit;
+    font-size:12px;
+    font-weight:600;
+    padding:7px 12px;
+    margin-right:10px;
+    border:1px solid var(--ink);
+    border-radius:6px;
+    background:var(--ink);
+    color:var(--paper-light);
+    cursor:pointer;
+  }
+
+  select{
+    padding:8px 10px;
+    border:1px solid var(--thread);
+    border-radius:6px;
+    background:var(--paper-light);
+    color:var(--ink);
+    font-size:13px;
+    font-family:inherit;
+  }
+
+  .btn-set{
+    align-self:flex-start;
+    padding:8px 16px;
+    border:1px solid var(--ink);
+    border-radius:6px;
+    background:transparent;
+    color:var(--ink);
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.03em;
+    transition:background .15s ease, color .15s ease;
+  }
+  .btn-set:hover{ background:var(--ink); color:var(--paper-light); }
+
+  /* ---------- Preview panel ---------- */
+  .preview-panel{
+    padding:clamp(20px,4vw,36px);
+    position:sticky;
+    top:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+  @media (max-width:960px){
+    .preview-panel{ position:static; order:1; border-bottom:1px solid var(--thread); }
+  }
+
+  .canvas-shell{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    overflow:visible;
+  }
+  .canvas-scale{
+    transform-origin:top center;
+    flex-shrink:0;
+  }
+
+  #main-div{
+    width:var(--canvas-w);
+    height:var(--canvas-h);
+    position:relative;
+    border-radius:2px;
+    box-shadow:0 18px 40px -12px rgba(33,29,26,.35), 0 2px 0 rgba(33,29,26,.06);
+    background:
+      radial-gradient(circle at 25% 15%, rgba(255,255,255,.08), transparent 55%),
+      repeating-linear-gradient(135deg, rgba(0,0,0,.03) 0 2px, transparent 2px 6px),
+      linear-gradient(160deg, var(--cover-red) 0%, var(--cover-red-deep) 75%);
+    overflow:hidden;
+    padding:44px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+    font-family:'Playfair Display',serif;
+    color:var(--paper-light);
+  }
+
+  .cover-row{
+    display:flex;
+    align-items:center;
+    gap:18px;
+  }
+
+  .logo-slot{
+    width:76px;
+    height:76px;
+    border-radius:50%;
+    flex-shrink:0;
+    background-color:rgba(250,246,236,.12);
+    background-size:cover;
+    background-position:center;
+    border:1px dashed rgba(250,246,236,.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:9px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgba(250,246,236,.55);
+    text-align:center;
+  }
+
+  #writeTextA{
+    margin:0;
+    font-size:clamp(20px,3vw,28px);
+    font-weight:700;
+    line-height:1.15;
+    word-break:break-word;
+  }
+
+  .heading-block{
+    padding:12px 16px;
+    border-radius:6px;
+    background-color:rgba(33,29,26,.28);
+    border-left:3px solid var(--foil-gold);
+  }
+  #writeTextc{
+    margin:0;
+    font-style:italic;
+    font-size:17px;
+    font-weight:600;
+    min-height:1.2em;
+  }
+
+  .para-block{
+    padding:14px 16px;
+    border-radius:6px;
+    background-color:rgba(250,246,236,.08);
+  }
+  #writeTextd{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    line-height:1.6;
+    color:rgba(250,246,236,.9);
+    min-height:1.4em;
+  }
+
+  .photo-slot{
+    width:100%;
+    flex:1;
+    min-height:120px;
+    border-radius:6px;
+    background-color:rgba(250,246,236,.08);
+    background-size:cover;
+    background-position:center;
+    border:1px dashed rgba(250,246,236,.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Inter',sans-serif;
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:rgba(250,246,236,.5);
+  }
+
+  .page-number-box{
+    position:absolute;
+    left:40px;
+    bottom:28px;
+    padding:6px 14px;
+    border-radius:4px;
+    background-color:rgba(33,29,26,.35);
+    cursor:move;
+    user-select:none;
+  }
+  #page-number-header{
+    height:6px;
+    margin:-2px -4px 4px;
+    display:flex;
+    justify-content:center;
+    gap:3px;
+  }
+  #page-number-header span{
+    width:3px;height:3px;border-radius:50%;
+    background:rgba(250,246,236,.4);
+  }
+  #writeTextborder{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    letter-spacing:.05em;
+    min-height:1.2em;
+  }
+
+  .canvas-footnote{
+    font-size:11px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .btn-foil{
+    padding:11px 20px;
+    border-radius:6px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.02em;
+    border:1px solid var(--foil-gold);
+    background:transparent;
+    color:var(--ink);
+    transition:background .15s ease, color .15s ease, transform .1s ease;
+  }
+  .btn-foil:hover{ background:var(--foil-gold); color:var(--ink); }
+  .btn-foil:active{ transform:translateY(1px); }
+  .btn-foil.primary{
+    background:var(--ink);
+    color:var(--paper-light);
+    border-color:var(--ink);
+  }
+  .btn-foil.primary:hover{ background:var(--cover-red); border-color:var(--cover-red); color:var(--paper-light); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Cover Studio</p>
+  <h1>Book Page Composer</h1>
+  <p>Build a cover page step by step on the left — background, mark, title, and copy — and watch it come together in the preview. Export as an image or a print-ready PDF when it's done.</p>
+</header>
+
+<div class="composer">
+
+  <!-- ============ FORM PANEL ============ -->
+  <section class="form-panel">
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">01</span>
+        <h2 class="step-title">Cover background colour</h2>
+      </div>
+      <p class="step-hint">Sets the base colour beneath the cover texture.</p>
+      <div class="field-group">
+        <div class="row">
+          <input type="color" id="colorPickerA" value="#7C2E2E">
+          <button class="btn-set" onclick="changeBackgroundA()">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">02</span>
+        <h2 class="step-title">Upload your mark or logo</h2>
+      </div>
+      <p class="step-hint">Appears as a circular mark at the top of the cover.</p>
+      <div class="field-group">
+        <input type="file" id="image-inputK" accept="image/jpeg, image/png, image/jpg">
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">03</span>
+        <h2 class="step-title">Book title</h2>
+      </div>
+      <p class="step-hint">The main heading, set in the display face.</p>
+      <div class="field-group">
+        <input type="text" id="myTextA" placeholder="Enter the book's title">
+        <div class="row">
+          <input type="color" id="textColorA" value="#FAF6EC">
+          <button class="btn-set" onclick="post2()">Set title</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">04</span>
+        <h2 class="step-title">Chapter heading</h2>
+      </div>
+      <p class="step-hint">A short label, shown in its own panel.</p>
+      <div class="field-group">
+        <div class="row">
+          <input type="color" id="colorPickerD" value="#2E2823">
+          <button class="btn-set" onclick="changeBackgroundD()">Panel colour</button>
+        </div>
+        <input type="text" id="myTextC" placeholder="e.g. Chapter One">
+        <div class="row">
+          <input type="color" id="textColorC" value="#D8C08F">
+          <button class="btn-set" onclick="post3()">Set heading</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">05</span>
+        <h2 class="step-title">Opening paragraph</h2>
+      </div>
+      <p class="step-hint">Up to roughly 91 words / 574 characters reads well in the panel.</p>
+      <div class="field-group">
+        <input type="text" id="myTextD" placeholder="Enter opening lines">
+        <div class="row">
+          <input type="color" id="textColorD" value="#FAF6EC">
+          <button class="btn-set" onclick="post4()">Set text</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">06</span>
+        <h2 class="step-title">Feature photo</h2>
+      </div>
+      <p class="step-hint">A larger image, filling the remaining space on the cover.</p>
+      <div class="field-group">
+        <input type="file" id="image-inputRA" accept="image/jpeg, image/png, image/jpg">
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">07</span>
+        <h2 class="step-title">Page number</h2>
+      </div>
+      <p class="step-hint">Draggable on the cover — reposition it after placing.</p>
+      <div class="field-group">
+        <div class="row">
+          <input type="color" id="colorPickerAg" value="#211D1A">
+          <button class="btn-set" onclick="changeBackgroundAg()">Panel colour</button>
+        </div>
+        <input type="text" id="borderA" placeholder="e.g. 1">
+        <div class="row">
+          <input type="color" id="textColorborA" value="#FAF6EC">
+          <button class="btn-set" onclick="border1()">Set number</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head">
+        <span class="step-index">08</span>
+        <h2 class="step-title">Custom backdrop</h2>
+      </div>
+      <p class="step-hint">Replace the default texture with your own image.</p>
+      <div class="field-group">
+        <input type="file" id="bg-input" accept="image/*">
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ PREVIEW PANEL ============ -->
+  <section class="preview-panel">
+
+    <div class="canvas-shell" id="canvasShell">
+      <div class="canvas-scale" id="canvasScale">
+        <div id="main-div">
+
+          <div class="cover-row">
+            <div class="logo-slot" id="display-imageK">Mark</div>
+            <h2 id="writeTextA"></h2>
+          </div>
+
+          <div class="heading-block" id="bgdark4">
+            <p id="writeTextc"></p>
+          </div>
+
+          <div class="para-block" id="bgdark5">
+            <p id="writeTextd"></p>
+          </div>
+
+          <div class="photo-slot" id="display-imageRA">Feature photo</div>
+
+          <div class="page-number-box" id="mydiv-2">
+            <div id="page-number-header"><span></span><span></span><span></span></div>
+            <div id="bgdark33">
+              <p id="writeTextborder"></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <p class="canvas-footnote">Preview scales to fit your screen — exports stay full resolution.</p>
+
+    <div class="actions">
+      <button class="btn-foil" onclick="downloadScreenshot()">Download image</button>
+      <button class="btn-foil primary" id="downloadBtn">Download PDF</button>
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+  /* ---------- Field actions ---------- */
+  function changeBackgroundA(){
+    document.getElementById('main-div').style.background =
+      document.getElementById('colorPickerA').value;
+  }
+
+  function post2(){
+    const el = document.getElementById('writeTextA');
+    el.textContent = document.getElementById('myTextA').value;
+    el.style.color = document.getElementById('textColorA').value;
+  }
+
+  function changeBackgroundD(){
+    document.getElementById('bgdark4').style.backgroundColor =
+      document.getElementById('colorPickerD').value;
+  }
+
+  function post3(){
+    const el = document.getElementById('writeTextc');
+    el.textContent = document.getElementById('myTextC').value;
+    el.style.color = document.getElementById('textColorC').value;
+  }
+
+  function post4(){
+    const el = document.getElementById('writeTextd');
+    el.textContent = document.getElementById('myTextD').value;
+    el.style.color = document.getElementById('textColorD').value;
+  }
+
+  function changeBackgroundAg(){
+    document.getElementById('bgdark33').style.backgroundColor =
+      document.getElementById('colorPickerAg').value;
+  }
+
+  function border1(){
+    const el = document.getElementById('writeTextborder');
+    el.textContent = document.getElementById('borderA').value;
+    el.style.color = document.getElementById('textColorborA').value;
+  }
+
+  /* ---------- Image uploads ---------- */
+  function wireImageInput(inputId, targetId){
+    const input = document.getElementById(inputId);
+    if(!input) return;
+    input.addEventListener('change', function(){
+      if(!this.files || !this.files[0]) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        const target = document.getElementById(targetId);
+        target.style.backgroundImage = `url(${reader.result})`;
+        target.textContent = '';
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+  }
+  wireImageInput('image-inputK', 'display-imageK');
+  wireImageInput('image-inputRA', 'display-imageRA');
+
+  document.getElementById('bg-input').addEventListener('change', function(event){
+    const file = event.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById('main-div').style.backgroundImage = `url('${e.target.result}')`;
+      document.getElementById('main-div').style.backgroundSize = 'cover';
+      document.getElementById('main-div').style.backgroundPosition = 'center';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ---------- Draggable page-number box ---------- */
+  (function dragElement(elmnt){
+    let pos1=0, pos2=0, pos3=0, pos4=0;
+    const handle = document.getElementById('page-number-header');
+    (handle || elmnt).onmousedown = dragMouseDown;
+
+    function dragMouseDown(e){
+      e = e || window.event;
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+    function elementDrag(e){
+      e = e || window.event;
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      elmnt.style.top = (elmnt.offsetTop - pos2) + 'px';
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + 'px';
+      elmnt.style.bottom = 'auto';
+    }
+    function closeDragElement(){
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  })(document.getElementById('mydiv-2'));
+
+  /* ---------- Responsive canvas scaling ---------- */
+  function updateCanvasScale(){
+    const shell = document.getElementById('canvasShell');
+    const scaleWrap = document.getElementById('canvasScale');
+    const available = shell.clientWidth;
+    const scale = Math.min(1, available / 700);
+    scaleWrap.style.transform = `scale(${scale})`;
+    scaleWrap.style.height = (900 * scale) + 'px';
+    scaleWrap.style.width = (700 * scale) + 'px';
+  }
+  window.addEventListener('resize', updateCanvasScale);
+  window.addEventListener('DOMContentLoaded', updateCanvasScale);
+
+  /* ---------- Downloads (always captured at full 700x900) ---------- */
+  function withFullScaleCapture(callback){
+    const scaleWrap = document.getElementById('canvasScale');
+    const prevTransform = scaleWrap.style.transform;
+    scaleWrap.style.transform = 'scale(1)';
+    Promise.resolve(callback()).finally(() => {
+      scaleWrap.style.transform = prevTransform;
+    });
+  }
+
+  function downloadScreenshot(){
+    withFullScaleCapture(() => {
+      const div = document.getElementById('main-div');
+      return html2canvas(div, { useCORS: true, scale: 2 }).then(canvas => {
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'cover-page.png';
+        link.click();
+      });
+    });
+  }
+
+  document.getElementById('downloadBtn').addEventListener('click', function(){
+    withFullScaleCapture(() => {
+      const element = document.getElementById('main-div');
+      const options = {
+        margin: 0.5,
+        filename: 'cover-page.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      return html2pdf().set(options).from(element).save();
+    });
+  });
+</script>
+
+</body>
+</html>
