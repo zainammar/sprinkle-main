@@ -1,0 +1,476 @@
+/* ===========================
+   Email Template Builder
+   style.css - Part 1
+===========================*/
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f6f9;
+    overflow:hidden;
+    color:#333;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#bdbdbd;
+    border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#8f8f8f;
+}
+
+/* ===========================
+   HEADER
+===========================*/
+
+.topbar{
+
+    height:65px;
+
+    background:#ffffff;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 25px;
+
+    border-bottom:1px solid #ddd;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+    z-index:99;
+}
+
+.logo{
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    color:#2563eb;
+
+}
+
+.toolbar{
+
+    display:flex;
+
+    gap:12px;
+
+}
+
+.toolbar button{
+
+    border:none;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    padding:10px 18px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    font-size:14px;
+
+}
+
+.toolbar button:hover{
+
+    background:#1d4ed8;
+
+}
+
+.toolbar button .material-icons{
+
+    font-size:18px;
+
+}
+
+/* ===========================
+   MAIN LAYOUT
+===========================*/
+
+.container{
+
+    display:grid;
+
+    grid-template-columns:260px 1fr 320px;
+
+    height:calc(100vh - 65px);
+
+}
+
+/* ===========================
+   SIDEBAR
+===========================*/
+
+.sidebar{
+
+    background:#fff;
+
+    border-right:1px solid #ddd;
+
+    overflow-y:auto;
+
+    padding:20px;
+
+}
+
+.sidebar h2{
+
+    font-size:22px;
+
+    margin-bottom:20px;
+
+}
+
+.component{
+
+    background:#f8f9fb;
+
+    border:2px solid transparent;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    margin-bottom:14px;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    font-size:15px;
+
+    font-weight:600;
+
+}
+
+.component:hover{
+
+    background:#2563eb;
+
+    color:#fff;
+
+    border-color:#2563eb;
+
+    transform:translateY(-2px);
+
+}
+
+.component:active{
+
+    transform:scale(.98);
+
+}
+
+/* ===========================
+   PREVIEW
+===========================*/
+
+.preview-section{
+
+    background:#eceff3;
+
+    display:flex;
+
+    flex-direction:column;
+
+    overflow:hidden;
+
+}
+
+.preview-header{
+
+    background:#fff;
+
+    padding:18px 25px;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.preview-header h2{
+
+    font-size:22px;
+
+}
+
+#emailCanvas{
+
+    flex:1;
+
+    overflow:auto;
+
+    display:flex;
+
+    justify-content:center;
+
+    padding:40px;
+
+}
+
+/* Email Paper */
+
+#emailCanvas::before{
+
+    content:"";
+
+    position:absolute;
+
+    display:none;
+
+}
+
+/* Template */
+
+.placeholder{
+
+    width:700px;
+
+    min-height:900px;
+
+    background:#fff;
+
+    border-radius:12px;
+
+    box-shadow:0 10px 35px rgba(0,0,0,.10);
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:50px;
+
+}
+
+.placeholder h3{
+
+    margin-top:20px;
+
+    font-size:28px;
+
+}
+
+.placeholder p{
+
+    margin-top:15px;
+
+    color:#666;
+
+    font-size:16px;
+
+    line-height:1.7;
+
+    max-width:450px;
+
+}
+
+/* ===========================
+   RIGHT PANEL
+===========================*/
+
+.properties{
+
+    background:#fff;
+
+    border-left:1px solid #ddd;
+
+    overflow-y:auto;
+
+    padding:20px;
+
+}
+
+.properties h2{
+
+    margin-bottom:20px;
+
+    font-size:22px;
+
+}
+
+.property{
+
+    margin-bottom:18px;
+
+}
+
+.property label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+}
+
+.property input[type=text],
+
+.property input[type=number]{
+
+    width:100%;
+
+    padding:12px;
+
+    border:1px solid #ccc;
+
+    border-radius:8px;
+
+    outline:none;
+
+    transition:.25s;
+
+}
+
+.property input[type=text]:focus,
+
+.property input[type=number]:focus{
+
+    border-color:#2563eb;
+
+}
+
+.property input[type=color]{
+
+    width:100%;
+
+    height:45px;
+
+    border:none;
+
+    cursor:pointer;
+
+    background:none;
+
+}
+
+.property input[type=range]{
+
+    width:100%;
+
+}
+
+/* ===========================
+   RESPONSIVE
+===========================*/
+
+@media(max-width:1200px){
+
+.container{
+
+grid-template-columns:220px 1fr 280px;
+
+}
+
+}
+
+@media(max-width:900px){
+
+.container{
+
+grid-template-columns:1fr;
+
+}
+
+.sidebar{
+
+display:none;
+
+}
+
+.properties{
+
+display:none;
+
+}
+
+.preview-header{
+
+text-align:center;
+
+}
+
+.placeholder{
+
+width:100%;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.toolbar{
+
+flex-wrap:wrap;
+
+justify-content:flex-end;
+
+}
+
+.toolbar button{
+
+padding:8px 12px;
+
+font-size:13px;
+
+}
+
+.logo{
+
+font-size:18px;
+
+}
+
+.preview-header h2{
+
+font-size:18px;
+
+}
+
+.placeholder{
+
+padding:25px;
+
+}
+
+}

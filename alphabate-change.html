@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Word Alphabet Shuffler</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            padding: 20px;
+        }
+
+        .tool {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            margin: 10px 0 30px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            outline: none;
+            resize: vertical;
+            font-size: 18px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: #4f46e5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 13px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .shuffle-btn {
+            flex: 1;
+            background: #4f46e5;
+            color: white;
+        }
+
+        .shuffle-btn:hover {
+            background: #3730a3;
+        }
+
+        .copy-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #15803d;
+        }
+
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+
+        .result-area {
+            margin-top: 25px;
+        }
+
+        .result {
+            min-height: 140px;
+            padding: 15px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 20px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .example {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #eef2ff;
+            color: #3730a3;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .tool {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="tool">
+
+        <h1>🔀 Word Alphabet Shuffler</h1>
+
+        <div class="subtitle">
+            Randomly rearrange the alphabets without changing them.
+        </div>
+
+        <label for="inputText">
+            Enter Word / Text
+        </label>
+
+        <textarea
+            id="inputText"
+            placeholder="Example: Apple"
+        ></textarea>
+
+        <div class="buttons">
+
+            <button
+                class="shuffle-btn"
+                onclick="shuffleText()"
+            >
+                🔀 Shuffle Alphabets
+            </button>
+
+            <button
+                class="copy-btn"
+                onclick="copyResult()"
+            >
+                📋 Copy
+            </button>
+
+            <button
+                class="clear-btn"
+                onclick="clearAll()"
+            >
+                🗑 Clear
+            </button>
+
+        </div>
+
+        <div class="result-area">
+
+            <label>
+                Result
+            </label>
+
+            <div
+                id="result"
+                class="result"
+            >
+                Your shuffled text will appear here...
+            </div>
+
+        </div>
+
+        <div class="example">
+            <strong>Example:</strong><br><br>
+
+            Apple → ealpp<br>
+            Apple → plApe<br>
+            Apple → ppleA<br><br>
+
+            The letters remain exactly the same.
+            Only their positions are randomly changed.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function shuffleArray(array) {
+
+    for (let i = array.length - 1; i > 0; i--) {
+
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
+
+        [array[i], array[j]] =
+        [array[j], array[i]];
+    }
+
+    return array;
+}
+
+
+function shuffleWord(word) {
+
+    const characters = [...word];
+
+    shuffleArray(characters);
+
+    return characters.join("");
+}
+
+
+function shuffleText() {
+
+    const input =
+        document.getElementById("inputText").value;
+
+    if (!input.trim()) {
+
+        document.getElementById("result").textContent =
+            "Please enter a word or text first.";
+
+        return;
+    }
+
+    /*
+        Each word is shuffled separately.
+        Spaces and punctuation remain in place.
+    */
+
+    const result = input.replace(
+        /\S+/g,
+        function(word) {
+            return shuffleWord(word);
+        }
+    );
+
+    document.getElementById("result").textContent =
+        result;
+}
+
+
+function copyResult() {
+
+    const result =
+        document.getElementById("result").textContent;
+
+    if (
+        !result ||
+        result === "Your shuffled text will appear here..."
+    ) {
+        return;
+    }
+
+    navigator.clipboard.writeText(result)
+        .then(function() {
+
+            const button =
+                document.querySelector(".copy-btn");
+
+            const oldText =
+                button.textContent;
+
+            button.textContent =
+                "✅ Copied!";
+
+            setTimeout(function() {
+
+                button.textContent =
+                    oldText;
+
+            }, 1500);
+
+        })
+        .catch(function() {
+
+            alert(
+                "Copy failed. Please copy the result manually."
+            );
+
+        });
+}
+
+
+function clearAll() {
+
+    document.getElementById("inputText").value = "";
+
+    document.getElementById("result").textContent =
+        "Your shuffled text will appear here...";
+}
+
+</script>
+
+</body>
+</html>

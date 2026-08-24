@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template Builder</title>
+
+    <link rel="stylesheet" href="css/style-email.css">
+
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="logo">
+        📧 Email Builder
+    </div>
+
+    <div class="toolbar">
+
+        <button id="newBtn">
+            <span class="material-icons">add</span>
+            New
+        </button>
+
+        <button id="saveBtn">
+            <span class="material-icons">save</span>
+            Save
+        </button>
+
+        <button id="importBtn">
+            <span class="material-icons">folder_open</span>
+            Import
+        </button>
+
+        <button id="exportBtn">
+            <span class="material-icons">download</span>
+            Export HTML
+        </button>
+
+        <button id="copyBtn">
+            <span class="material-icons">content_copy</span>
+            Copy HTML
+        </button>
+
+    </div>
+
+</header>
+
+<div class="container">
+
+    <!-- LEFT PANEL -->
+
+    <aside class="sidebar">
+
+        <h2>Components</h2>
+
+        <div class="component" data-type="logo">
+            📷 Logo
+        </div>
+
+        <div class="component" data-type="heading">
+            📝 Heading
+        </div>
+
+        <div class="component" data-type="text">
+            📄 Paragraph
+        </div>
+
+        <div class="component" data-type="button">
+            🔘 Button
+        </div>
+
+        <div class="component" data-type="image">
+            🖼️ Image
+        </div>
+
+        <div class="component" data-type="divider">
+            ➖ Divider
+        </div>
+
+        <div class="component" data-type="spacer">
+            📏 Spacer
+        </div>
+
+        <div class="component" data-type="social">
+            👍 Social Icons
+        </div>
+
+        <div class="component" data-type="footer">
+            👣 Footer
+        </div>
+
+    </aside>
+
+    <!-- CENTER -->
+
+    <main class="preview-section">
+
+        <div class="preview-header">
+
+            <h2>Email Preview</h2>
+
+        </div>
+
+        <div id="emailCanvas">
+
+            <div class="placeholder">
+
+                <span class="material-icons" style="font-size:70px">
+                    mail
+                </span>
+
+                <h3>Start Building</h3>
+
+                <p>
+                    Click any component from the left panel
+                    to create your email template.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- RIGHT -->
+
+    <aside class="properties">
+
+        <h2>Properties</h2>
+
+        <div class="property">
+
+            <label>Text</label>
+
+            <input
+                type="text"
+                id="textInput"
+                placeholder="Edit text">
+
+        </div>
+
+        <div class="property">
+
+            <label>Font Size</label>
+
+            <input
+                type="range"
+                min="10"
+                max="60">
+
+        </div>
+
+        <div class="property">
+
+            <label>Text Color</label>
+
+            <input
+                type="color">
+
+        </div>
+
+        <div class="property">
+
+            <label>Background</label>
+
+            <input
+                type="color">
+
+        </div>
+
+        <div class="property">
+
+            <label>Padding</label>
+
+            <input
+                type="number"
+                value="10">
+
+        </div>
+
+        <div class="property">
+
+            <label>Margin</label>
+
+            <input
+                type="number"
+                value="10">
+
+        </div>
+
+        <div class="property">
+
+            <label>Border Radius</label>
+
+            <input
+                type="number"
+                value="5">
+
+        </div>
+
+    </aside>
+
+</div>
+
+<script src="js/email.js"></script>
+
+</body>
+</html>
