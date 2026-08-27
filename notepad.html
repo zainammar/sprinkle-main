@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <div id="content1" class="content-box">Loading first file...</div>
     <title>Notepad</title>
     <style>
@@ -8,24 +12,7 @@
 
         }
       
-        button {
-            padding: 8px 16px;
-            background-color: rgb(8, 252, 232);
-          color: rgb(0, 0, 0);
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        button:hover{
-            background-color: #ff6200;
-            color: #ffffff;
-        }
-
-        .heading-1{
-            color:#ffffff;
-          
-        }
-
+      
         .grid-container-4 {
     display: grid;
     grid-template-columns:auto auto  auto auto;
@@ -47,7 +34,24 @@
     padding: 10px;
   }
 
-  
+  .find-replace-bar{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .find-replace-bar input[type="text"]{
+    padding: 8px;
+    background-color:#000000;
+    color: rgb(8, 252, 232);
+    border: 1px solid rgb(8, 252, 232);
+    border-radius: 4px;
+  }
+  #matchCount{
+    color: rgb(8, 252, 232);
+    align-self: center;
+  }
         
     </style>
     <style>
@@ -75,6 +79,17 @@
     <br>
     <textarea id="notepad" placeholder="Write your notes here..."></textarea>
     <br>
+
+    <!-- Find & Replace -->
+    <div class="find-replace-bar">
+        <input type="text" id="findInput" placeholder="Find...">
+        <input type="text" id="replaceInput" placeholder="Replace with...">
+        <button onclick="findText()">Find</button>
+        <button onclick="replaceOne()">Replace</button>
+        <button onclick="replaceAllText()">Replace All</button>
+        <span id="matchCount"></span>
+    </div>
+
     <button onclick="saveAsCSV()">Save as CSV</button>
     <button onclick="saveAsJSON()">Save as JSON</button>
     <button onclick="saveAsTXT()">Save as TXT</button>
@@ -101,6 +116,85 @@
             let text = document.getElementById("notepad").value;
             let jsonContent = JSON.stringify({ notes: text }, null, 2);
             saveFile(jsonContent, "notes.json", "application/json");
+        }
+
+        function saveAsTXT() {
+            let text = document.getElementById("notepad").value;
+            saveFile(text, "notes.txt", "text/plain");
+        }
+    </script>
+
+    <!-- Find & Replace logic -->
+    <script>
+        let lastIndex = -1;
+
+        function findText() {
+            const area = document.getElementById("notepad");
+            const findVal = document.getElementById("findInput").value;
+            const matchCount = document.getElementById("matchCount");
+
+            if (!findVal) {
+                matchCount.textContent = "";
+                return;
+            }
+
+            const text = area.value;
+            const startFrom = lastIndex + 1;
+            let idx = text.indexOf(findVal, startFrom);
+
+            if (idx === -1) {
+                idx = text.indexOf(findVal, 0); // wrap around
+            }
+
+            if (idx === -1) {
+                matchCount.textContent = "No matches found";
+                lastIndex = -1;
+                return;
+            }
+
+            area.focus();
+            area.setSelectionRange(idx, idx + findVal.length);
+            lastIndex = idx;
+
+            const totalMatches = text.split(findVal).length - 1;
+            matchCount.textContent = `Found (${totalMatches} match${totalMatches !== 1 ? "es" : ""} total)`;
+        }
+
+        function replaceOne() {
+            const area = document.getElementById("notepad");
+            const findVal = document.getElementById("findInput").value;
+            const replaceVal = document.getElementById("replaceInput").value;
+            const matchCount = document.getElementById("matchCount");
+
+            if (!findVal) return;
+
+            const start = area.selectionStart;
+            const end = area.selectionEnd;
+            const selectedText = area.value.substring(start, end);
+
+            if (selectedText === findVal) {
+                area.value = area.value.substring(0, start) + replaceVal + area.value.substring(end);
+                area.setSelectionRange(start, start + replaceVal.length);
+                lastIndex = start + replaceVal.length - 1;
+                matchCount.textContent = "Replaced";
+                findText(); // jump to next match
+            } else {
+                findText(); // find first, user clicks replace again to swap it
+            }
+        }
+
+        function replaceAllText() {
+            const area = document.getElementById("notepad");
+            const findVal = document.getElementById("findInput").value;
+            const replaceVal = document.getElementById("replaceInput").value;
+            const matchCount = document.getElementById("matchCount");
+
+            if (!findVal) return;
+
+            const occurrences = area.value.split(findVal).length - 1;
+            area.value = area.value.split(findVal).join(replaceVal);
+            lastIndex = -1;
+            matchCount.textContent = `Replaced ${occurrences} occurrence${occurrences !== 1 ? "s" : ""}`;
         }
     </script>
 
@@ -163,65 +257,3 @@
 
 </body>
 </html>
-<script>
-  function saveFile(content, fileName, fileType) {
-      let blob = new Blob([content], { type: fileType });
-      let a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = fileName;
-      a.click();
-  }
-
-  function saveAsCSV() {
-      let text = document.getElementById("notepad").value;
-      let csvContent = `"Notes"
-"${text.replace(/"/g, '""')}"`;
-      saveFile(csvContent, "notes.csv", "text/csv");
-  }
-
-  function saveAsJSON() {
-      let text = document.getElementById("notepad").value;
-      let jsonContent = JSON.stringify({ notes: text }, null, 2);
-      saveFile(jsonContent, "notes.json", "application/json");
-  }
-
-  function saveAsTXT() {
-let text = document.getElementById("notepad").value;
-saveFile(text, "notes.txt", "text/plain");
-}
-
-</script>
-
-
-<script>
-function copyText() {
-const text = document.getElementById("textToCopy").innerText;
-navigator.clipboard.writeText(text).then(() => {
-  alert("Copied to clipboard!");
-}).catch(err => {
-  console.error('Failed to copy: ', err);
-});
-}
-</script>
-<br>
-
-<!-- <script>
-function copyTextA() {
-const text = document.getElementById("textToCopyA");
-text.select();
-text.setSelectionRange(0, 99999); // For mobile devices
-
-navigator.clipboard.writeText(text.value).then(() => {
-  alert("Copied to clipboard!");
-}).catch(err => {
-  console.error('Failed to copy: ', err);
-});
-}
-
-function changeBgColor() {
-let color = document.getElementById("bgColorPicker").value;
-document.body.style.backgroundColor = color;
-}
-
-</script> -->
-

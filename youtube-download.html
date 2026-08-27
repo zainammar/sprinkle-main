@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YouTube Video Tool</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 700px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .10);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .icon {
+            width: 65px;
+            height: 46px;
+            margin: 0 auto 15px;
+            background: #ff0000;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .icon::after {
+            content: "";
+            position: absolute;
+            left: 26px;
+            top: 13px;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 16px solid white;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .description {
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            background: #f9fafb;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: #111827;
+            color: white;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            height: 52px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0 15px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #ff0000;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .main-btn {
+            height: 52px;
+            padding: 0 22px;
+            background: #ff0000;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .main-btn:hover {
+            background: #d90000;
+        }
+
+        .error {
+            display: none;
+            margin-top: 15px;
+            padding: 12px 14px;
+            background: #fff1f2;
+            color: #be123c;
+            border-radius: 9px;
+            border: 1px solid #fecdd3;
+        }
+
+        .result {
+            display: none;
+            margin-top: 25px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .thumbnail {
+            width: 100%;
+            display: block;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .result-content {
+            padding: 20px;
+        }
+
+        .result-content h2 {
+            margin: 0 0 15px;
+            font-size: 19px;
+        }
+
+        .info {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .label {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .secondary {
+            flex: 1;
+            height: 46px;
+            background: #111827;
+            color: white;
+            border-radius: 9px;
+        }
+
+        .copy {
+            flex: 1;
+            height: 46px;
+            background: #e5e7eb;
+            color: #111827;
+            border-radius: 9px;
+        }
+
+        .download-box {
+            display: none;
+        }
+
+        .notice {
+            margin-top: 22px;
+            padding: 14px;
+            background: #fff8e1;
+            border: 1px solid #fde68a;
+            border-radius: 9px;
+            color: #785600;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 22px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 20px;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .main-btn {
+                width: 100%;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="header">
+
+        <div class="icon"></div>
+
+        <h1>YouTube Video Tool</h1>
+
+        <p class="description">
+            Preview a YouTube video or download a direct video file
+            that you own or have permission to download.
+        </p>
+
+    </div>
+
+
+    <div class="tabs">
+
+        <button
+            class="tab active"
+            onclick="selectMode('youtube')"
+            id="youtubeTab">
+            YouTube URL
+        </button>
+
+        <button
+            class="tab"
+            onclick="selectMode('direct')"
+            id="directTab">
+            Direct MP4
+        </button>
+
+    </div>
+
+
+    <div class="input-area">
+
+        <input
+            type="text"
+            id="urlInput"
+            placeholder="Paste YouTube URL..."
+            autocomplete="off">
+
+        <button
+            class="main-btn"
+            onclick="processURL()">
+            Process
+        </button>
+
+    </div>
+
+
+    <div
+        class="error"
+        id="error">
+    </div>
+
+
+    <div
+        class="result"
+        id="result">
+
+        <img
+            class="thumbnail"
+            id="thumbnail"
+            src=""
+            alt="Video Thumbnail">
+
+
+        <div class="result-content">
+
+            <h2 id="resultTitle">
+                Video Information
+            </h2>
+
+
+            <div class="info">
+
+                <span class="label">
+                    Video ID
+                </span>
+
+                <div
+                    class="value"
+                    id="videoId">
+                </div>
+
+            </div>
+
+
+            <div class="info">
+
+                <span class="label">
+                    URL
+                </span>
+
+                <div
+                    class="value"
+                    id="displayUrl">
+                </div>
+
+            </div>
+
+
+            <div class="buttons">
+
+                <button
+                    class="secondary"
+                    onclick="openYouTube()">
+                    ▶ Open YouTube
+                </button>
+
+                <button
+                    class="copy"
+                    onclick="copyURL()">
+                    Copy URL
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="download-box"
+        id="downloadBox">
+
+        <div class="notice">
+
+            Direct MP4 URL detected. You can download the
+            authorized video file below.
+
+        </div>
+
+        <button
+            class="main-btn"
+            style="width:100%; margin-top:12px;"
+            onclick="downloadMP4()">
+            ⬇ Download MP4
+        </button>
+
+    </div>
+
+
+    <div class="notice">
+
+        <strong>Important:</strong>
+        A normal YouTube watch URL cannot be converted into an MP4
+        file using browser-only JavaScript. The MP4 option works with
+        a direct video-file URL that you own or have permission to use.
+
+    </div>
+
+
+    <div class="footer">
+        Vanilla JavaScript • No React • No Backend
+    </div>
+
+</div>
+
+
+<script>
+
+    let currentMode = "youtube";
+    let currentURL = "";
+    let currentVideoID = "";
+
+
+    function selectMode(mode) {
+
+        currentMode = mode;
+
+        const youtubeTab =
+            document.getElementById("youtubeTab");
+
+        const directTab =
+            document.getElementById("directTab");
+
+        const input =
+            document.getElementById("urlInput");
+
+        const result =
+            document.getElementById("result");
+
+        const downloadBox =
+            document.getElementById("downloadBox");
+
+        hideError();
+
+        result.style.display = "none";
+        downloadBox.style.display = "none";
+
+        if (mode === "youtube") {
+
+            youtubeTab.classList.add("active");
+            directTab.classList.remove("active");
+
+            input.placeholder =
+                "Paste YouTube URL...";
+
+        } else {
+
+            directTab.classList.add("active");
+            youtubeTab.classList.remove("active");
+
+            input.placeholder =
+                "Paste direct .mp4 URL...";
+
+        }
+    }
+
+
+    function getYouTubeID(url) {
+
+        const patterns = [
+
+            /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
+
+            /youtu\.be\/([a-zA-Z0-9_-]{11})/,
+
+            /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+
+            /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+
+            /youtube\.com\/live\/([a-zA-Z0-9_-]{11})/
+
+        ];
+
+
+        for (const pattern of patterns) {
+
+            const match = url.match(pattern);
+
+            if (match) {
+                return match[1];
+            }
+
+        }
+
+        return null;
+    }
+
+
+    function processURL() {
+
+        const input =
+            document.getElementById("urlInput");
+
+        const url =
+            input.value.trim();
+
+        hideError();
+
+        if (!url) {
+
+            showError(
+                "Please enter a URL."
+            );
+
+            return;
+        }
+
+
+        if (currentMode === "youtube") {
+
+            processYouTube(url);
+
+        } else {
+
+            processDirectMP4(url);
+
+        }
+    }
+
+
+    function processYouTube(url) {
+
+        const id =
+            getYouTubeID(url);
+
+        if (!id) {
+
+            showError(
+                "Invalid YouTube URL."
+            );
+
+            return;
+        }
+
+
+        currentVideoID = id;
+        currentURL =
+            "https://www.youtube.com/watch?v=" + id;
+
+
+        const thumbnail =
+            document.getElementById("thumbnail");
+
+
+        thumbnail.src =
+            "https://img.youtube.com/vi/" +
+            id +
+            "/maxresdefault.jpg";
+
+
+        thumbnail.onerror = function () {
+
+            this.src =
+                "https://img.youtube.com/vi/" +
+                id +
+                "/hqdefault.jpg";
+
+        };
+
+
+        document.getElementById("videoId")
+            .textContent = id;
+
+
+        document.getElementById("displayUrl")
+            .textContent = currentURL;
+
+
+        document.getElementById("resultTitle")
+            .textContent =
+            "YouTube Video Preview";
+
+
+        document.getElementById("result")
+            .style.display = "block";
+
+    }
+
+
+    function processDirectMP4(url) {
+
+        if (!/^https?:\/\/.+\.mp4(\?.*)?$/i.test(url)) {
+
+            showError(
+                "Please enter a direct .mp4 video URL."
+            );
+
+            return;
+        }
+
+
+        currentURL = url;
+
+
+        document.getElementById("downloadBox")
+            .style.display = "block";
+
+    }
+
+
+    function openYouTube() {
+
+        if (!currentURL) {
+            return;
+        }
+
+        window.open(
+            currentURL,
+            "_blank"
+        );
+    }
+
+
+    function copyURL() {
+
+        if (!currentURL) {
+            return;
+        }
+
+
+        navigator.clipboard.writeText(currentURL)
+            .then(function () {
+
+                const button =
+                    document.querySelector(".copy");
+
+                const oldText =
+                    button.textContent;
+
+                button.textContent =
+                    "✓ Copied!";
+
+
+                setTimeout(function () {
+
+                    button.textContent =
+                        oldText;
+
+                }, 1500);
+
+            });
+
+    }
+
+
+    function downloadMP4() {
+
+        if (!currentURL) {
+            return;
+        }
+
+
+        const link =
+            document.createElement("a");
+
+        link.href = currentURL;
+
+        link.download =
+            "video.mp4";
+
+        link.target = "_blank";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+    }
+
+
+    function showError(message) {
+
+        const error =
+            document.getElementById("error");
+
+        error.textContent = message;
+
+        error.style.display = "block";
+
+    }
+
+
+    function hideError() {
+
+        document.getElementById("error")
+            .style.display = "none";
+
+    }
+
+
+    document
+        .getElementById("urlInput")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    processURL();
+
+                }
+
+            }
+        );
+
+</script>
+
+</body>
+</html>

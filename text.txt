@@ -2,6 +2,26 @@
 https://zainammar.github.io/sprinkle-main/
 
 
+
+add karna he 
+alphabate-change.html
+
+is ko sahee karna he phir dena 
+email-template.html
+youtube-download.html
+youtube.html
+
+
+
+
+
+
+
+
+
+
+
+
 <label style="background-color: aqua;   color:rgb(0, 0, 0);font-weight: bold;padding: 10px;margin: 10px;">Choose Background Color:</label>
 <input type="color" id="bgColorPicker" onchange="changeBgColor()">
 <br>

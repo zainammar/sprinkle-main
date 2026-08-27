@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YouTube Video Downloader</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.10);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .youtube-icon {
+            width: 70px;
+            height: 50px;
+            background: #ff0000;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+        }
+
+        .youtube-icon::after {
+            content: "";
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 16px solid #fff;
+            margin-left: 4px;
+        }
+
+        h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        #youtubeUrl {
+            flex: 1;
+            height: 52px;
+            border: 2px solid #e2e5e9;
+            border-radius: 10px;
+            padding: 0 16px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        #youtubeUrl:focus {
+            border-color: #ff0000;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 0 22px;
+            height: 52px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #d90000;
+            transform: translateY(-1px);
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            border: 1px solid #e5e5e5;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .thumbnail-wrapper {
+            position: relative;
+            background: #111;
+        }
+
+        .thumbnail-wrapper img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .video-info {
+            padding: 22px;
+        }
+
+        .video-info h2 {
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f7f7f7;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .info-label {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .info-value {
+            font-weight: bold;
+            font-size: 13px;
+            word-break: break-all;
+            text-align: right;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .actions .btn {
+            flex: 1;
+            height: 48px;
+        }
+
+        .btn-secondary {
+            background: #222;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #000;
+        }
+
+        .btn-copy {
+            background: #eee;
+            color: #222;
+        }
+
+        .btn-copy:hover {
+            background: #ddd;
+        }
+
+        .error {
+            display: none;
+            margin-top: 18px;
+            background: #fff0f0;
+            color: #c40000;
+            border: 1px solid #ffd0d0;
+            padding: 13px 15px;
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        .notice {
+            margin-top: 25px;
+            padding: 15px;
+            background: #fff8e6;
+            border: 1px solid #ffe0a3;
+            border-radius: 10px;
+            color: #795900;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 22px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .input-group .btn {
+                width: 100%;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <div class="youtube-icon"></div>
+
+        <h1>YouTube Video Downloader</h1>
+
+        <p class="subtitle">
+            Paste a YouTube video URL to preview its thumbnail and video information.
+        </p>
+
+    </div>
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            id="youtubeUrl"
+            placeholder="Paste YouTube URL here..."
+            autocomplete="off"
+        >
+
+        <button class="btn btn-primary" onclick="processVideo()">
+            Get Video
+        </button>
+
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <div id="result" class="result">
+
+        <div class="thumbnail-wrapper">
+
+            <img
+                id="thumbnail"
+                src=""
+                alt="YouTube Video Thumbnail"
+            >
+
+        </div>
+
+        <div class="video-info">
+
+            <h2>YouTube Video Information</h2>
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Video ID
+                </span>
+
+                <span
+                    class="info-value"
+                    id="videoId"
+                >
+                </span>
+
+            </div>
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Video URL
+                </span>
+
+                <span
+                    class="info-value"
+                    id="videoUrl"
+                >
+                </span>
+
+            </div>
+
+            <div class="actions">
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="openYouTube()"
+                >
+                    ▶ Open on YouTube
+                </button>
+
+                <button
+                    class="btn btn-copy"
+                    onclick="copyVideoId()"
+                >
+                    Copy Video ID
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="notice">
+        <strong>Note:</strong>
+        This browser-only tool previews YouTube videos and does not extract
+        or download YouTube video files. Use downloading features only for
+        videos you own or have permission to download.
+    </div>
+
+    <div class="footer">
+        YouTube Video Tool • HTML + CSS + JavaScript
+    </div>
+
+</div>
+
+
+<script>
+
+    let currentVideoId = "";
+
+    function extractYouTubeId(url) {
+
+        if (!url) {
+            return null;
+        }
+
+        url = url.trim();
+
+        const patterns = [
+
+            // youtube.com/watch?v=
+            /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+
+            // youtu.be/
+            /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+
+            // youtube.com/shorts/
+            /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+
+            // youtube.com/embed/
+            /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+
+            // youtube.com/live/
+            /(?:youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/
+
+        ];
+
+        for (let pattern of patterns) {
+
+            const match = url.match(pattern);
+
+            if (match) {
+                return match[1];
+            }
+
+        }
+
+        return null;
+    }
+
+
+    function processVideo() {
+
+        const input = document.getElementById("youtubeUrl");
+
+        const result = document.getElementById("result");
+
+        const error = document.getElementById("error");
+
+        const videoIdElement = document.getElementById("videoId");
+
+        const videoUrlElement = document.getElementById("videoUrl");
+
+        const thumbnail = document.getElementById("thumbnail");
+
+        const url = input.value.trim();
+
+        error.style.display = "none";
+
+        result.style.display = "none";
+
+        if (!url) {
+
+            showError("Please paste a YouTube URL.");
+
+            return;
+        }
+
+        const videoId = extractYouTubeId(url);
+
+        if (!videoId) {
+
+            showError(
+                "Invalid YouTube URL. Please enter a valid YouTube video link."
+            );
+
+            return;
+        }
+
+        currentVideoId = videoId;
+
+        const youtubeUrl =
+            "https://www.youtube.com/watch?v=" + videoId;
+
+        const thumbnailUrl =
+            "https://img.youtube.com/vi/" +
+            videoId +
+            "/maxresdefault.jpg";
+
+        thumbnail.src = thumbnailUrl;
+
+        thumbnail.onerror = function () {
+
+            this.src =
+                "https://img.youtube.com/vi/" +
+                videoId +
+                "/hqdefault.jpg";
+
+        };
+
+        videoIdElement.textContent = videoId;
+
+        videoUrlElement.textContent = youtubeUrl;
+
+        result.style.display = "block";
+
+        result.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    }
+
+
+    function showError(message) {
+
+        const error = document.getElementById("error");
+
+        error.textContent = message;
+
+        error.style.display = "block";
+
+    }
+
+
+    function openYouTube() {
+
+        if (!currentVideoId) {
+            return;
+        }
+
+        const url =
+            "https://www.youtube.com/watch?v=" +
+            currentVideoId;
+
+        window.open(url, "_blank");
+
+    }
+
+
+    function copyVideoId() {
+
+        if (!currentVideoId) {
+            return;
+        }
+
+        navigator.clipboard.writeText(currentVideoId)
+            .then(function () {
+
+                const button =
+                    document.querySelector(".btn-copy");
+
+                const originalText =
+                    button.textContent;
+
+                button.textContent = "✓ Copied!";
+
+                setTimeout(function () {
+
+                    button.textContent = originalText;
+
+                }, 1500);
+
+            })
+            .catch(function () {
+
+                alert("Could not copy Video ID.");
+
+            });
+
+    }
+
+
+    document
+        .getElementById("youtubeUrl")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                processVideo();
+
+            }
+
+        });
+
+</script>
+
+</body>
+</html>
