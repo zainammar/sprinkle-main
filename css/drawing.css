@@ -61,10 +61,12 @@ body{
     background-color: #111111;
     color: rgb(255, 255, 255);
   }
-  h3{
-  padding:0px;
-  margin: 0px;
-  }
+  h1{
+    text-align: center;
+    }
+   h3{
+    text-align: center;
+    }
   #downloadBtn {
     background-color: #2191FB; /* Green */
     border: none;
@@ -307,6 +309,63 @@ body{
     height: 10px;
     border: solid white;
   }
+
+  .preview{
+    display:none;margin-top:28px
+  }
+
+  .progress{
+    display:none;margin-top:20px
+  }
+
+  .bar{
+    height:9px;
+    background:#e5e7eb;
+    border-radius:10px;
+    overflow:hidden
+  }
+
+  .status{
+    text-align:center;
+    margin-top:15px;
+    font-weight:bold
+  }
+  .secondary{
+    background:#e5e7eb;
+    color:#374151
+  
+  }
+  .progressText{
+    text-align:center;
+    color:#6b7280;
+    font-size:14px;
+    margin-top:7px
+  }
+  .table-wrap
+   {overflow:auto;
+    border:1px solid #e5e7eb;
+    border-radius:9px;
+    max-height:420px
+  
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:600px
+  }
+
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+  font-size:14px
+
+}
+th{background:#f9fafb;position:sticky;top:0}
+
+
+
   /* Grid CSS - div */
   
   .grid-container-1 {

@@ -1,0 +1,314 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+<title>PDF to CSV Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box}
+.container{width:min(1000px,94%);margin:35px auto}
+
+h1{text-align:center;margin:0 0 8px;font-size:30px}
+.subtitle{text-align:center;color:#6b7280;margin:0 0 28px}
+.upload {color:rgb(0, 0, 0); text-align: center;}
+.upload input{display:none}
+.icon{font-size:42px}.upload strong{display:block;font-size:18px;margin:8px 0 5px}
+.file{text-align:center;color:#2563eb;font-weight:bold;margin:14px 0}
+.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:25px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-weight:bold;font-size:14px}
+input,select{height:43px;border:1px solid #d1d5db;border-radius:8px;padding:0 11px;font-size:15px;background:#fff}
+.buttons{display:flex;gap:12px;margin-top:25px}
+button{height:46px;border:0;border-radius:8px;padding:0 20px;font-weight:bold;font-size:15px;cursor:pointer}
+.primary{background:#2563eb;color:white;flex:1}.primary:hover{background:#1d4ed8}
+.secondary{background:#e5e7eb;color:#374151}
+button:disabled{opacity:.5;cursor:not-allowed}
+.progress{display:none;margin-top:20px}
+.bar{height:9px;background:#e5e7eb;border-radius:10px;overflow:hidden}
+.note{font-size:13px;color:#6b7280;margin-top:12px}
+@media(max-width:700px){.settings{grid-template-columns:1fr}.buttons{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>📄 PDF to CSV Converter</h1>
+<p class="subtitle">Extract text from a PDF and convert it into a CSV file.</p>
+
+<label class="upload" for="pdfInput">
+<div class="icon">📤</div>
+<strong>Click to Upload PDF</strong>
+
+<input type="file" id="pdfInput" accept="application/pdf">
+</label>
+
+<div class="file" id="fileName">No PDF selected</div>
+
+<div class="settings">
+<div class="field">
+<label>Page From</label>
+<input type="number" id="pageFrom" value="1" min="1">
+</div>
+<div class="field">
+<label>Page To</label>
+<input type="number" id="pageTo" value="1" min="1">
+</div>
+<div class="field">
+<label>CSV Separator</label>
+<select id="separator">
+<option value=",">Comma (,)</option>
+<option value=";">Semicolon (;)</option>
+<option value="&#9;">Tab</option>
+</select>
+</div>
+</div>
+
+<div class="buttons">
+<button class="primary" id="convertBtn" disabled>🔄 Convert to CSV</button>
+<button class="secondary" id="downloadBtn" disabled>⬇️ Download CSV</button>
+<button class="secondary" id="resetBtn">Reset</button>
+</div>
+
+<div class="progress" id="progress">
+<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="progressText" id="progressText">Processing...</div>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="preview" id="preview">
+<h2>📊 CSV Preview</h2>
+<div class="table-wrap">
+<table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+</div>
+<div class="note">PDF text extraction works best with PDFs containing selectable text. Scanned/image-only PDFs require OCR.</div>
+</div>
+</div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const pdfInput=document.getElementById("pdfInput");
+const fileName=document.getElementById("fileName");
+const convertBtn=document.getElementById("convertBtn");
+const downloadBtn=document.getElementById("downloadBtn");
+const resetBtn=document.getElementById("resetBtn");
+const pageFrom=document.getElementById("pageFrom");
+const pageTo=document.getElementById("pageTo");
+const separator=document.getElementById("separator");
+const progress=document.getElementById("progress");
+const fill=document.getElementById("fill");
+const progressText=document.getElementById("progressText");
+const status=document.getElementById("status");
+const preview=document.getElementById("preview");
+const thead=document.getElementById("thead");
+const tbody=document.getElementById("tbody");
+
+let selectedFile=null;
+let csvContent="";
+
+pdfInput.addEventListener("change",()=>{
+ selectedFile=pdfInput.files[0];
+ if(!selectedFile){
+   fileName.textContent="No PDF selected";
+   convertBtn.disabled=true;
+   return;
+ }
+ fileName.textContent=selectedFile.name;
+ convertBtn.disabled=false;
+ status.textContent="";
+});
+
+function escapeCSV(value, sep){
+ value=String(value??"").replace(/\s+/g," ").trim();
+ if(value.includes('"')) value=value.replace(/"/g,'""');
+ if(value.includes(sep)||value.includes('"')||value.includes("\n"))
+   return `"${value}"`;
+ return value;
+}
+
+function groupLines(items){
+ const lines=[];
+ items.sort((a,b)=>{
+   const dy=b.transform[5]-a.transform[5];
+   if(Math.abs(dy)>3) return dy;
+   return a.transform[4]-b.transform[4];
+ });
+
+ for(const item of items){
+   const y=item.transform[5];
+   let line=lines.find(l=>Math.abs(l.y-y)<=3);
+   if(!line){line={y,items:[]};lines.push(line)}
+   line.items.push(item);
+ }
+ lines.sort((a,b)=>b.y-a.y);
+ return lines.map(line=>{
+   line.items.sort((a,b)=>a.transform[4]-b.transform[4]);
+   return line.items.map(x=>x.str).join(" ").replace(/\s+/g," ").trim();
+ }).filter(Boolean);
+}
+
+function detectColumns(lines){
+ return lines.map(line=>{
+   // Detect common PDF table separators.
+   if(line.includes("\t")) return line.split("\t").map(x=>x.trim());
+   if(/\s{2,}/.test(line)) return line.split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
+   return [line];
+ });
+}
+
+function buildCSV(rows, sep){
+ const maxCols=Math.max(1,...rows.map(r=>r.length));
+ return rows.map(row=>{
+   const cells=[...row];
+   while(cells.length<maxCols) cells.push("");
+   return cells.map(v=>escapeCSV(v,sep)).join(sep);
+ }).join("\r\n");
+}
+
+function renderPreview(rows){
+ thead.innerHTML="";
+ tbody.innerHTML="";
+ const maxCols=Math.max(1,...rows.map(r=>r.length));
+ const head=document.createElement("tr");
+ for(let i=0;i<maxCols;i++){
+   const th=document.createElement("th");
+   th.textContent="Column "+(i+1);
+   head.appendChild(th);
+ }
+ thead.appendChild(head);
+
+ rows.slice(0,200).forEach(row=>{
+   const tr=document.createElement("tr");
+   for(let i=0;i<maxCols;i++){
+     const td=document.createElement("td");
+     td.textContent=row[i]??"";
+     tr.appendChild(td);
+   }
+   tbody.appendChild(tr);
+ });
+ preview.style.display="block";
+}
+
+convertBtn.addEventListener("click",async()=>{
+ if(!selectedFile)return;
+
+ try{
+   convertBtn.disabled=true;
+   downloadBtn.disabled=true;
+   progress.style.display="block";
+   fill.style.width="0%";
+   status.textContent="";
+   preview.style.display="none";
+
+   const data=await selectedFile.arrayBuffer();
+   const pdf=await pdfjsLib.getDocument({data}).promise;
+
+   let from=parseInt(pageFrom.value)||1;
+   let to=parseInt(pageTo.value)||pdf.numPages;
+
+   from=Math.max(1,Math.min(from,pdf.numPages));
+   to=Math.max(from,Math.min(to,pdf.numPages));
+   pageFrom.value=from;
+   pageTo.value=to;
+
+   const allRows=[];
+
+   for(let pageNum=from;pageNum<=to;pageNum++){
+     const page=await pdf.getPage(pageNum);
+     const content=await page.getTextContent();
+     const lines=groupLines(content.items);
+     const rows=detectColumns(lines);
+
+     // Add page marker only when more than one page is processed.
+     if(to>from) allRows.push([`Page ${pageNum}`]);
+     allRows.push(...rows);
+
+     const percent=Math.round(((pageNum-from+1)/(to-from+1))*100);
+     fill.style.width=percent+"%";
+     progressText.textContent=`Processing page ${pageNum} of ${to} (${percent}%)`;
+     await new Promise(r=>setTimeout(r,10));
+   }
+
+   const sep=separator.value;
+   csvContent=buildCSV(allRows,sep);
+   renderPreview(allRows);
+
+   downloadBtn.disabled=false;
+   fill.style.width="100%";
+   progressText.textContent="Completed!";
+   status.textContent=`✅ ${allRows.length} rows extracted successfully.`;
+
+ }catch(error){
+   console.error(error);
+   status.textContent="❌ Error: "+error.message;
+ }finally{
+   convertBtn.disabled=false;
+ }
+});
+
+downloadBtn.addEventListener("click",()=>{
+ if(!csvContent)return;
+ const blob=new Blob(["\uFEFF"+csvContent],{type:"text/csv;charset=utf-8;"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download=selectedFile.name.replace(/\.pdf$/i,"")+".csv";
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+});
+
+resetBtn.addEventListener("click",()=>{
+ pdfInput.value="";
+ selectedFile=null;
+ csvContent="";
+ fileName.textContent="No PDF selected";
+ pageFrom.value=1;
+ pageTo.value=1;
+ separator.value=",";
+ convertBtn.disabled=true;
+ downloadBtn.disabled=true;
+ progress.style.display="none";
+ fill.style.width="0%";
+ progressText.textContent="Processing...";
+ status.textContent="";
+ preview.style.display="none";
+});
+</script>
+
+
+
+
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
