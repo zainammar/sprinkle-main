@@ -699,6 +699,14 @@ th{background:#f9fafb;position:sticky;top:0}
           margin: 10px;
          }
         
+         .text-3-a{
+          font-family: 'Times New Roman', Times, serif;
+          font-size: 20px;
+          color: #000;
+          text-align:left;
+          padding: 10px;
+          margin: 10px;
+         }
   
          .text-4{
           font-family: 'Times New Roman', Times, serif;
@@ -1396,7 +1404,9 @@ line-height: 1.5;
 
 
 
-
+.card-a{
+  box-shadow: inset 0px 8px 27px -11px rgba(0,64,255,0.46);
+}
 
 .tool-card{
   font-family: 'Great Vibes', cursive;

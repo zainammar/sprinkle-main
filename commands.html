@@ -1,0 +1,91 @@
+<link rel="stylesheet" href="css/drawing.css">
+
+<div id="content1" class="content-box">Loading first file...</div>
+      
+
+
+
+
+
+<div class="row-2 content-grid">
+  <div class="grid-item-1 card-a">
+<h2 class="text-9">
+  Linex Ubuntu Update Google
+</h2>
+<p class="text-3-a"> sudo apt update</p>
+<p class="text-3-a"> sudo apt install --only-upgrade google-chrome-stable</p>
+<p class="text-3-a"> sudo apt update</p>
+<p class="text-3-a"> sudo apt upgrade</p>
+
+  </div>
+  <div class="grid-item-1 card-a">
+    <h2 class="text-9">
+        Local Environment commands Linex Ubuntu
+    </h2>
+    
+
+    <p class="text-3-a"> python3 -m venv env</p>
+    <p class="text-3-a"> source env/bin/activate</p>
+
+      </div>
+
+</div>
+
+<div class="row-4 content-grid">
+  <div class="grid-item-1">
+
+
+ 
+    </div>
+  
+      <div class="grid-item-1">
+
+
+      </div>
+      <div class="grid-item-1">
+
+
+      </div>
+      <div class="grid-item-1">
+
+
+      </div>
+  </div>
+<br>
+
+<br>
+
+<div id="content2" class="content-box">Loading second file...</div>
+<!-- Header Fotter -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  // You can change the file names here
+  const filesToLoad = {
+    content1: 'page1.html',
+    content2: 'page2.html'
+  };
+
+  // Loop through and load each file into its matching div
+  for (const [divId, filename] of Object.entries(filesToLoad)) {
+    fetch(filename)
+      .then(response => {
+        if (!response.ok) throw new Error(`File not found: ${filename}`);
+        return response.text();
+      })
+      .then(data => {
+        document.getElementById(divId).innerHTML = data;
+      })
+      .catch(error => {
+        document.getElementById(divId).innerHTML = `<p style="color:red">${error.message}</p>`;
+      });
+  }
+});
+</script>
+
+
+
+
+
+
+
+
